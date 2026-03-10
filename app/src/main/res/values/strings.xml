@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">Vangi</string>
+
+<!-- Field Names   -->
+    <string name="username_field_name">Username</string>
+    <string name="email_field_name">Email</string>
+    <string name="password_field_name">Password</string>
+    <string name="phone_number_field_name">Phone number</string>
+    <string name="confirm_password_field_name">Confirm password</string>
+    <string name="amount_field_name">Amount</string>
+    <string name="otp_field_name">Otp</string>
+    <string name="initial_balance">Initial Balance</string>
+    <string name="account_number">Account Number</string>
+    <string name="transactions">Transactions</string>
+    <string name="home_tab_label">Home</string>
+
+
+<!-- Form Errors -->
+    <string name="enter_valid_data_error">Enter valid data in all fields.</string>
+    <string name="empty_field_error">%1$s cannot be empty.</string>
+    <string name="data_too_long_error">%1$s cannot contain more than %2$d characters.</string>
+    <string name="invalid_email_format_error">Invalid email format.</string>
+    <string name="invalid_numerical_field_error"> %1$s must contain only numerical data.</string>
+    <string name="invalid_username_error">Username must contain only alphabets or whitespaces.</string>
+    <string name="user_already_exists_error">User with this %1$s already exists.</string>
+    <string name="invalid_credentials">Invalid credentials.</string>
+    <string name="password_doesnt_match">Password doesn\'t match</string>
+    <string name="amount_data_only">Amount must be decimal value</string>
+    <string name="amount_negative_error">Amount must be greater than 0</string>
+    <string name="all_fields_required_error">All fields are required*</string>
+    <string name="something_wrong_happened">Something wrong happened</string>
+    <string name="otp_doesnt_match">Incorrect OTP. Please try again.</string>
+    <string name="otp_expired">Otp Expired</string>
+
+<!-- Transaction Errors  -->
+    <string name="transaction_success">Transaction success</string>
+    <string name="account_not_found_error">Account not found</string>
+    <string name="insufficient_balance_error">Insufficient balance</string>
+    <string name="same_account_transfer_error">Same account transfer not allowed</string>
+    <string name="generic_transaction_error">Transaction failed</string>
+    <string name="invalid_amount_error">Amount must be valid and greater than 0</string>
+    <string name="repeated_transaction">Transaction Repeated Accidentally</string>
+
+<!-- Password Errors   -->
+    <string name="password_too_short">Password must be at least 8 characters long</string>
+    <string name="password_missing_uppercase">Password must contain at least one uppercase character</string>
+    <string name="password_missing_lowercase">Password must contain at least one lowercase character</string>
+    <string name="password_missing_digit">Password must contain at least one numerical character</string>
+    <string name="password_missing_special_character">Password must contain at least one special character</string>
+    <string name="password_contains_whitespace">Password must not contain any whitespaces</string>
+
+<!-- Component descriptions   -->
+    <string name="submit_button">Submit</string>
+    <string name="login_button">Login</string>
+    <string name="register_button">Register</string>
+
+<!-- Descriptions   -->
+    <string name="register_new_user_headline">Register New User</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="login_type_description">Login using %1$s</string>\
+    <string name="forgot_password">Forgot password?</string>
+    <string name="dont_have_an_Account">Don\'t have an account?</string>
+    <string name="enter_your_details_headline">Enter your details</string>
+    <string name="create_account">Create Account</string>
+    <string name="create_account_description">Looks like you don\'t have an account, let\'s create one quickly.</string>
+
+<!--  Otp identifiers-->
+    <string name="your_otp">Your Otp</string>
+    <string name="resend_otp">Resend</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="not_now">Not now</string>
+    <string name="enable_notifications_title">Enable notifications</string>
+    <string name="enable_notifications_text">We require you to enable notifications in settings so we can send you OTP"</string>
+
+<!--  Splash identifiers -->
+    <string name="app_logo_content_description">App logo</string>
+    <string name="splash_quote">Simple. Secure. Smart.</string>
+
+<!--  Home screen  -->
+    <string name="welcome_back">Welcome back</string>
+    <string name="open_menu_content_description">Open menu</string>
+    <string name="quick_actions_label">Quick Actions</string>
+    <string name="deposit_button">Deposit</string>
+    <string name="cash_transfer_button">Cash Transfer</string>
+    <string name="see_transactions_button">See Transactions</string>
+    <string name="total_account_balance_label">Total Account Balance</string>
+    <string name="logout_button">Logout</string>
+    <string name="balance_visibility_on">Balance visibility on</string>
+    <string name="balance_visibility_off">Balance visibility off</string>
+    <string name="more">More</string>
+    <string name="transaction_history_label">Transaction History</string>
+    <string name="see_all_label">See all →</string>
+</resources>

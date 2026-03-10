@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <dimen name="splash_logo_top_padding">48dp</dimen>
+    <dimen name="splash_logo_size">96dp</dimen>
+    <dimen name="splash_horizontal_padding">32dp</dimen>
+    <dimen name="splash_name_quote_spacing">8dp</dimen>
+    <dimen name="splash_content_slide_distance">40dp</dimen>
+    <dimen name="splash_lottie_height">180dp</dimen>
+    <dimen name="splash_lottie_bottom_padding">32dp</dimen>
+    <dimen name="drawer_user_avatar_size">90dp</dimen>
+
+    <dimen name="home_screen_card_elevation">6dp</dimen>
+    <dimen name="user_avatar_transaction">50dp</dimen>
+</resources>

@@ -1,0 +1,52 @@
+package com.example.bankapp.ui.components.buttons
+
+import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.example.bankapp.R
+
+@SuppressLint("UnusedContentLambdaTargetStateParameter")
+@Composable
+fun SubmitButton(
+    onClick: ()->Unit,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    text: String = stringResource(R.string.submit_button),
+    enabled: Boolean = true,
+    isLoading: Boolean = false
+){
+    Button(
+            onClick = { onClick() },
+            modifier = modifier,
+            enabled = enabled && !isLoading)
+    {
+        AnimatedContent(
+            targetState = isLoading,
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
+            },
+            label = "submit_button_animation"
+        ) {
+            if (!isLoading)
+                Text(text)
+            else {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
+    }
