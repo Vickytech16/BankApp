@@ -28,6 +28,13 @@ sealed class FormError(override val message: Int): UiError {
     class UserAlreadyExists(val fieldNameRes: Int):
             FormError(R.string.user_already_exists_error)
 
+    class YouAreTheUser(val fieldNameRes: Int):
+            FormError(R.string.your_own_details_error)
+
+    object AlreadyYourFriendError:
+            FormError(R.string.already_your_friend)
+
+
     object InvalidCredentials:
             FormError(R.string.invalid_credentials)
 
@@ -48,4 +55,7 @@ sealed class FormError(override val message: Int): UiError {
 
     object OtpExpired:
             FormError(R.string.otp_expired)
+
+    object InvalidAmountFormat:
+            FormError(R.string.invalid_amount_format_error)
 }

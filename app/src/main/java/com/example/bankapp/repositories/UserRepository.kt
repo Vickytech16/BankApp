@@ -1,8 +1,10 @@
 package com.example.bankapp.repositories
 
 import com.example.bankapp.daos.UserDao
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.utilities.toDbUserId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 interface UserRepository{
     suspend fun getUserByEmail(email: String): User?
@@ -26,19 +28,27 @@ class UserRepositoryImpl(
     private val userDao: UserDao
 ): UserRepository{
     override suspend fun getUserByEmail(email: String): User? {
-      return  userDao.getUserByEmail(email)
+      return withContext(Dispatchers.IO) {
+          userDao.getUserByEmail(email)
+      }
     }
 
     override suspend fun getUserByPhoneNumber(phoneNumber: String): User? {
-      return  userDao.getUserByPhoneNumber(phoneNumber)
+      return withContext(Dispatchers.IO){
+          userDao.getUserByPhoneNumber(phoneNumber)
+          }
     }
 
     override suspend fun createNewUser(user: User): Long {
-      return userDao.createUser(user)
+      return withContext(Dispatchers.IO){
+          userDao.createUser(user)
+      }
     }
 
     override suspend fun getAllUsers(): List<User> {
-        return userDao.getAllUsers()
+        return withContext(Dispatchers.IO){
+            userDao.getAllUsers()
+        }
     }
 
     override suspend fun ping() {
@@ -46,7 +56,9 @@ class UserRepositoryImpl(
     }
 
     override suspend fun getUserByEmailAndPhoneNumber(email: String, phoneNumber: String): User? {
-       return userDao.getUserByEmailAndPhoneNumber(email, phoneNumber)
+       return withContext(Dispatchers.IO) {
+           userDao.getUserByEmailAndPhoneNumber(email, phoneNumber)
+       }
     }
 
     override suspend fun updateUser(user: User) {
@@ -55,7 +67,9 @@ class UserRepositoryImpl(
 
     override suspend fun getUserByUserId(userId: String): User? {
         val formattedUserId = userId.toDbUserId()
-        return userDao.getUserById(formattedUserId)
+        return withContext(Dispatchers.IO) {
+            userDao.getUserById(formattedUserId)
+        }
     }
 
 

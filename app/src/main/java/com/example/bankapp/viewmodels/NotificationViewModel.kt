@@ -7,18 +7,25 @@ import androidx.lifecycle.ViewModel
 
 class NotificationViewmodel: ViewModel() {
 
-    var isPermissionDenied by mutableStateOf(false)
+    var isPermissionGranted by mutableStateOf(false)
         private set
 
-    fun onPermissionDeniedChange(newValue: Boolean){
-        isPermissionDenied = newValue
+    var hasPermissionBeenRequested by mutableStateOf(false)
+        private set
+
+    fun onPermissionGranted() {
+        isPermissionGranted = true
+        hasPermissionBeenRequested = true
     }
 
-   var isPermissionDeniedByDialogBox by mutableStateOf(false)
-       private set
+    fun onPermissionDenied() {
+        isPermissionGranted = false
+        hasPermissionBeenRequested = true
+    }
 
-    fun onIsPermissionDeniedByDialogBoxChange(newValue: Boolean){
-        isPermissionDeniedByDialogBox = newValue
+    fun resetPermissionState() {
+        isPermissionGranted = false
+        hasPermissionBeenRequested = false
     }
 
 }

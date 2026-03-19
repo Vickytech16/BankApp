@@ -1,7 +1,5 @@
 package com.example.bankapp.ui.components.navigators
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,16 +9,21 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bankapp.di.ViewModelContainer
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
+import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
+import com.example.bankapp.repositories.UserRepository
+import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(
     windowSizeClass: WindowSizeClass,
     viewModelContainer: ViewModelContainer,
     transactionRepository: TransactionRepository,
-    accountRepository: AccountRepository
+    accountRepository: AccountRepository,
+    transactionSessionHolder: TransactionSessionHolder,
+    beneficiaryRepository: BeneficiaryRepository,
+    userRepository: UserRepository
 ) {
     val navController = rememberNavController()
 
@@ -61,7 +64,8 @@ fun AppNavHost(
                 changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
                 loggedInSessionViewModel = sessionViewModel,
                 otpViewModelFactory = viewModelContainer.otpViewModelFactory,
-                notificationViewModelFactory = viewModelContainer.notificationViewModelFactory
+                notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
+                otpVerificationViewModelFactory = viewModelContainer.otpVerificationViewModelFactory
             )
 
             homeNavGraph(
@@ -70,14 +74,23 @@ fun AppNavHost(
                 sessionState = sessionState,
                 transactionRepository = transactionRepository,
                 accountRepository = accountRepository,
-                logoutAction = { sessionViewModel.logout() }
+                otpViewModelFactory = viewModelContainer.otpViewModelFactory,
+                notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
+                logoutAction = {
+                    sessionViewModel.logout()
+                },
+                transactionSessionHolder = transactionSessionHolder,
+                beneficiaryRepository = beneficiaryRepository,
+                userRepository = userRepository
+
             )
             splashNavGraph()
 
-            accountNavGraph(accountCreationViewModelFactory = viewModelContainer.accountCreationViewModelFactory,
+            accountNavGraph(
+                accountCreationViewModelFactory = viewModelContainer.accountCreationViewModelFactory,
                 navController = navController,
-                windowSizeClass = windowSizeClass, loggedInSessionViewModel = sessionViewModel)
-
+                windowSizeClass = windowSizeClass, loggedInSessionViewModel = sessionViewModel
+            )
     }
 
 }

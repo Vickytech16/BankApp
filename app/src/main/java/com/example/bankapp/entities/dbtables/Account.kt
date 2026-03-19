@@ -1,4 +1,4 @@
-package com.example.bankapp.entities
+package com.example.bankapp.entities.dbtables
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -7,6 +7,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.entities.types.AccountType
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -18,8 +19,8 @@ import java.time.LocalDateTime
             entity = User::class,
             parentColumns = arrayOf("userId"),
             childColumns = arrayOf("userId"),
-            onDelete = ForeignKey.CASCADE,
-            onUpdate = ForeignKey.CASCADE
+            onDelete = ForeignKey.Companion.CASCADE,
+            onUpdate = ForeignKey.Companion.CASCADE
         )
     ],
     indices = [Index(value = ["userId"])])

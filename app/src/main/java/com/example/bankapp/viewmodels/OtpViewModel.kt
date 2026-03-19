@@ -24,7 +24,6 @@ class OtpViewModel: ViewModel(){
         expireOtp()
     }
 
-    val otpLength = 6
 
     var otpExpiresAt by mutableIntStateOf(60)
         private set
@@ -47,10 +46,6 @@ class OtpViewModel: ViewModel(){
         }
     }
 
-//    fun verifyOtp(enteredOTP: Int): Boolean{
-//        return (generatedOtp == enteredOTP)
-//    }
-
     private fun expireOtp(){
         generatedOtp = null
         isOtpSent = false
@@ -66,26 +61,28 @@ class OtpViewModel: ViewModel(){
     var submitError by mutableStateOf<FormError?>(null)
         private set
 
-    fun onUserEnteredOtpChange(newOtp: String){
-        submitError = null
-        isOtpValid = null
-        if(newOtp.length <= otpLength && newOtp.all{it.isDigit()} ){
-            userEnteredOtp = newOtp
-//            if(newOtp.length == otpLength) {
-//                userEnteredOtp.toIntOrNull()?.let {
-//                    onOtpSubmit(it)
-//                }
-//            }
+    fun submitOtp() {
+        val fullOtp = otpInputs.joinToString("").toIntOrNull() ?: return
+        onOtpSubmit(fullOtp)
+    }
+
+    var otpInputs by mutableStateOf(List(6) { "" })
+        private set
+
+
+    fun onOtpInputChange(index: Int, value: String) {
+        if (value.length <= 1 && (value.isEmpty() || value.all { it.isDigit() })) {
+            val newInputs = otpInputs.toMutableList()
+            newInputs[index] = value
+            otpInputs = newInputs
+
+            submitError = null
+            isOtpValid = null
         }
     }
 
-    fun submitOtp() {
-        if (userEnteredOtp.length != otpLength)
-            return
-
-        userEnteredOtp.toIntOrNull()?.let {
-            onOtpSubmit(it)
-        }
+    fun resetOtpInputs() {
+        otpInputs = List(6) { "" }
     }
 
     fun resetOtpState() {
@@ -106,6 +103,7 @@ class OtpViewModel: ViewModel(){
         else{
             isOtpValid = false
             userEnteredOtp = ""
+            resetOtpInputs()
             submitError = FormError.OtpDoesntMatch
         }
     }

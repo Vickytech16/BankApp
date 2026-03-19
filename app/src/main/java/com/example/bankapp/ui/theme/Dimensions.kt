@@ -19,3 +19,5 @@ object AppSpacing {
 val AppPadding = Modifier
     .fillMaxSize()
     .safeContentPadding()
+
+val screenPadding = PaddingValues(24.dp)

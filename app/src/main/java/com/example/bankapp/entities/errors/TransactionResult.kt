@@ -10,6 +10,6 @@ sealed class TransactionResult(val message: Int) {
         object SameAccountTransfer : Error(R.string.same_account_transfer_error)
         object InvalidAmount : Error(R.string.invalid_amount_error)
         object RepeatedTransaction : Error(R.string.repeated_transaction)
-        object unKnown : Error(R.string.generic_transaction_error)
+        object UnKnown : Error(R.string.generic_transaction_error)
     }
 }

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.usecases.SessionUseCase
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
@@ -15,7 +15,10 @@ import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.utilities.uiUserId
 import kotlinx.coroutines.launch
 import com.example.bankapp.entities.types.LoginType
-
+import com.example.bankapp.utilities.EMAIL_MAX_SIZE
+import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
+import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
+import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 
 
 class LoginViewModel (
@@ -51,8 +54,11 @@ class LoginViewModel (
         private set
 
     fun onEmailChange(newEmail: String){
-        email = newEmail
-        emailError = email.emptyTextFieldErrorMessageBuilder(R.string.email_field_name)
+        if(newEmail.length<= EMAIL_MAX_SIZE)
+            email = newEmail
+        emailError =
+            newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
+            newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE)
         resetSubmitError()
     }
 
@@ -63,8 +69,11 @@ class LoginViewModel (
         private set
 
     fun onPhoneNumberChange(newPhoneNumber: String){
-        phoneNumber = newPhoneNumber
-        phoneNumberError = phoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name)
+        if(newPhoneNumber.length <= PHONE_NUMBER_MAX_SIZE)
+            phoneNumber = newPhoneNumber
+        phoneNumberError =
+            newPhoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name) ?:
+            newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE)
         resetSubmitError()
     }
 
@@ -78,8 +87,11 @@ class LoginViewModel (
         private set
 
     fun onPasswordChange(newPassword: String){
-        password = newPassword
-        passwordError = password.emptyTextFieldErrorMessageBuilder(R.string.password_field_name)
+        if(newPassword.length <= PASSWORD_MAX_SIZE)
+            password = newPassword
+        passwordError =
+            newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name) ?:
+            newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
         resetSubmitError()
     }
 

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.entities.SessionState
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.usecases.SessionUseCase
 import kotlinx.coroutines.launch

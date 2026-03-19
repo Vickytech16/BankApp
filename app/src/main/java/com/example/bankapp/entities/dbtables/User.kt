@@ -1,9 +1,8 @@
-package com.example.bankapp.entities
+package com.example.bankapp.entities.dbtables
 
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-
 
 @Entity(tableName = "users",
     indices = [

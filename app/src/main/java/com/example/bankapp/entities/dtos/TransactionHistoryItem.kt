@@ -1,10 +1,59 @@
 package com.example.bankapp.entities.dtos
 
+import androidx.room.ColumnInfo
+import com.example.bankapp.entities.types.TransactionFailureType
+import com.example.bankapp.entities.types.TransactionStatus
+import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.entities.types.LedgerDirection
+
 data class TransactionHistoryItemDto(
-    val transaction_type: String,
-    val transaction_date: String,
+    @ColumnInfo(name = "transaction_type")
+    val transactionType: TransactionType,
+
+    @ColumnInfo(name = "transaction_date")
+    val transactionDate: String,
+
     val direction: String,
-    val amount: Double,
-    val counterparty_name: String?,
-    val counterparty_pfp: String?
+    val amount: String,
+    val counterpartyName: String?,
+    val counterpartyPfp: String?,
+
+    @ColumnInfo(name = "transaction_id")
+    val transactionId: String = "",
+
+    @ColumnInfo(name = "reference_number")
+    val referenceNumber: String = "",
+
+    @ColumnInfo(name = "transaction_status")
+    val transactionStatus: TransactionStatus? = null,
+
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: String = "",
+
+    @ColumnInfo(name = "failure_type")
+    val failureType: TransactionFailureType? = null,
+
+    @ColumnInfo(name = "ledger_direction")
+    val ledgerDirection: LedgerDirection? = null,
+
+    @ColumnInfo(name = "balance_after")
+    val balanceAfter: String = "",
+
+    @ColumnInfo(name = "my_account_no")
+    val myAccountNo: Long = 0,
+
+    @ColumnInfo(name = "my_ifsc_code")
+    val myIfscCode: String = "",
+
+    @ColumnInfo(name = "my_user_name")
+    val myUserName: String = "",
+
+    @ColumnInfo(name = "my_pfp_url")
+    val myPfpUrl: String? = null,
+
+    @ColumnInfo(name = "counterparty_account_no")
+    val counterpartyAccountNo: Long? = null,
+
+    @ColumnInfo(name = "counterparty_ifsc_code")
+    val counterpartyIfscCode: String? = null,
 )

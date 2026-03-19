@@ -9,33 +9,82 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF0A1F44),
-    secondary = Color(0xFFC9A227),
-    tertiary = Color(0xFFE6D27A),
-    background = Color(0xFFFAF9F6),
-    surface = Color(0xFFFFFFFF),
+    primary = Color(0xFF1B3A6B),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFC8D9F5),
+    onPrimaryContainer = Color(0xFF0A1E3F),
+
+    secondary = Color(0xFFB8860B),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFFFE5A0),
+    onSecondaryContainer = Color(0xFF2A1F00),
+
+    tertiary = Color(0xFF2E7D6B),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFF9FE5D3),
+    onTertiaryContainer = Color(0xFF001511),
+
+    background = Color(0xFFFAFBFE),
+    onBackground = Color(0xFF0A1118),
+
+    surface = Color(0xFFFDFDFE),
+    onSurface = Color(0xFF0A1118),
+    surfaceVariant = Color(0xFFF0F4FC),
+    onSurfaceVariant = Color(0xFF515A6D),
+
     error = Color(0xFFB3261E),
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color(0xFF0F172A),
-    onSurface = Color(0xFF0F172A),
-    onSurfaceVariant = Color(0xFF475569),
-    outline = Color(0xFFCBD5E1),
-    outlineVariant = Color(0xFFE2E8F0)
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFF9DEDC),
+    onErrorContainer = Color(0xFF370B0E),
+
+    outline = Color(0xFF8A93A5),
+    outlineVariant = Color(0xFFD6DFEE),
+    scrim = Color(0xFF000000),
+    inverseSurface = Color(0xFF0F1419),
+    inverseOnSurface = Color(0xFFF5F5F5),
+    inversePrimary = Color(0xFFADC8FF),
 )
 
 val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFE6D27A),
-    secondary = Color(0xFFC9A227),
-    background = Color(0xFF0B1220),
-    surface = Color(0xFF121A2F),
     onPrimary = Color(0xFF0B1220),
-    onBackground = Color.White,
-    onSurface = Color.White
+    primaryContainer = Color(0xFF1E3A5F),
+    onPrimaryContainer = Color(0xFFD6E4FF),
+
+    secondary = Color(0xFFC9A227),
+    onSecondary = Color(0xFF0B1220),
+    secondaryContainer = Color(0xFF2A2000),
+    onSecondaryContainer = Color(0xFFFFDF8E),
+
+    tertiary = Color(0xFF4DB89A),
+    onTertiary = Color(0xFF00201A),
+    tertiaryContainer = Color(0xFF1A3D34),
+    onTertiaryContainer = Color(0xFFB2F0E0),
+
+    background = Color(0xFF0B1220),
+    onBackground = Color(0xFFE8EDF5),
+
+    surface = Color(0xFF121A2F),
+    onSurface = Color(0xFFE8EDF5),
+    surfaceVariant = Color(0xFF1C2640),
+    onSurfaceVariant = Color(0xFF94A3B8),
+
+    error = Color(0xFFFF6B6B),
+    onError = Color(0xFF410002),
+    errorContainer = Color(0xFF5C1A1A),
+    onErrorContainer = Color(0xFFFFDAD6),
+
+    outline = Color(0xFF2E3F5C),
+    outlineVariant = Color(0xFF1E2D45),
+    inverseSurface = Color(0xFFE8EDF5),
+    inverseOnSurface = Color(0xFF0D1B2A),
+    inversePrimary = Color(0xFF1B3A6B),
 )
 
 @Composable
@@ -53,6 +102,19 @@ fun BankAppTheme(
 
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
+    }
+
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = colorScheme.surface,
+            darkIcons = !darkTheme
+        )
+
+        systemUiController.setNavigationBarColor(
+            color = colorScheme.surface,
+            darkIcons = !darkTheme
+        )
     }
 
     MaterialTheme(

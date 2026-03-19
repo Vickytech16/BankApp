@@ -8,22 +8,13 @@ const val PASSWORD_MAX_SIZE = 64
 
 const val PHONE_NUMBER_MAX_SIZE = 15
 
-const val PASSWORDFIELDNAME= "Password"
+const val AMOUNT_SIZE = 6
 
-const val ENTERVALIDDATAERROR = "Enter valid data in all fields."
+const val AMOUNT_DECIMAL_SIZE = 2
 
-const val AMOUNTFIELDNAME = "Amount"
+const val ACCOUNT_NUMBER_SIZE = 12
 
-const val PASSWORDDOESNTMATCHERROR = "Password doesn't match"
+const val HIDDEN_BALANCE = "******"
 
-const val SELECTYOURACCOUNTTYPELABEL = "Select your Account type"
+const val RUPEE_SYMBOL = "₹"
 
-const val TOTALACCOUNTBALANCE = "Total Account Balance"
-
-const val HIDDENBALANCE = "******"
-
-const val RUPEESYMBOL = "₹"
-
-const val ACCOUNTNUMBERFIELDNAME = "Account Number"
-
-const val ENTERRECIPIENTACCOUNTDETAILSTITLENAME = "Enter Recipient Account Details"

@@ -1,4 +1,4 @@
-package com.example.bankapp.entities
+package com.example.bankapp.entities.dbtables
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -10,10 +10,7 @@ import com.example.bankapp.entities.types.TransactionStatus
 import com.example.bankapp.entities.types.TransactionType
 import java.time.LocalDateTime
 
-
-
-@Entity(
-    tableName = "transactions",
+@Entity(tableName = "transactions",
     indices = [
         Index(value = ["referenceNumber"], unique = true),
         Index(value = ["idempotencyKey"], unique = true)
@@ -30,4 +27,3 @@ data class Transaction @RequiresApi(Build.VERSION_CODES.O) constructor(
     val updatedAt: LocalDateTime,
     val failureType: TransactionFailureType? = null
     )
-

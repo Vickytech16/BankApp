@@ -1,6 +1,6 @@
 package com.example.bankapp.usecases
 
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.SessionManagementService
 

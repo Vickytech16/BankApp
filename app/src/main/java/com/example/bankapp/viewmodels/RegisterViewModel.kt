@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
 import com.example.bankapp.utilities.*
@@ -33,14 +33,12 @@ class RegisterViewModel(
         private set
 
     fun onUserNameChange(newUserName: String) {
-        userName = newUserName
+        if (newUserName.length <= USERNAME_MAX_SIZE)
+            userName = newUserName
         userNameError =
-            userName.emptyTextFieldErrorMessageBuilder(R.string.username_field_name) ?:
-            userName.maxAllowedCharacterErrorMessageBuilder(
-                R.string.username_field_name, USERNAME_MAX_SIZE
-            ) ?:
-            userName.invalidUserNameErrorMessageBuilder()
-
+            newUserName.emptyTextFieldErrorMessageBuilder(R.string.username_field_name) ?:
+                    newUserName.maxAllowedCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MAX_SIZE) ?:
+                    newUserName.invalidUserNameErrorMessageBuilder()
         submitErrorReset()
     }
 
@@ -55,13 +53,12 @@ class RegisterViewModel(
 
 
     fun onEmailChange(newEmail: String) {
-        email = newEmail
-
+        if (newEmail.length <= EMAIL_MAX_SIZE)
+            email = newEmail
         emailError =
-            email.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
-            email.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE) ?:
-            email.invalidEmailErrorMessageBuilder()
-
+            newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
+                    newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE) ?:
+                    newEmail.invalidEmailErrorMessageBuilder()
         submitErrorReset()
     }
 
@@ -76,14 +73,12 @@ class RegisterViewModel(
         private set
 
     fun onPhoneNumberChange(newPhoneNumber: String) {
-        phoneNumber = newPhoneNumber
+        if (newPhoneNumber.length <= PHONE_NUMBER_MAX_SIZE)
+            phoneNumber = newPhoneNumber
         phoneNumberError =
-            phoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name) ?:
-            phoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name,
-                PHONE_NUMBER_MAX_SIZE
-            ) ?:
-            phoneNumber.invalidNumericalFieldErrorMessageBuilder(R.string.phone_number_field_name)
-
+            newPhoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name) ?:
+                    newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE) ?:
+                    newPhoneNumber.invalidNumericalFieldErrorMessageBuilder(R.string.phone_number_field_name)
         submitErrorReset()
     }
 
@@ -107,16 +102,16 @@ class RegisterViewModel(
     }
 
     fun onPasswordChange(newPassword: String) {
-        password = newPassword
+        if (newPassword.length <= PASSWORD_MAX_SIZE)
+            password = newPassword
         passwordError = listOfNotNull(
-            password.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
-                        password.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name,
-                            PASSWORD_MAX_SIZE
-                        )
-        ) + password.invalidPasswordErrorMessageBuilder()
+            newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
+                        newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE
+            )
+        ) + newPassword.invalidPasswordErrorMessageBuilder()
 
         if(confirmPassword.isNotBlank())
-            confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
+            confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(newPassword)
 
         submitErrorReset()
     }
@@ -135,12 +130,12 @@ class RegisterViewModel(
         private set
 
     fun onConfirmPasswordChange(newConfirmPassword: String) {
-        confirmPassword = newConfirmPassword
+        if (newConfirmPassword.length <= PASSWORD_MAX_SIZE)
+            confirmPassword = newConfirmPassword
         confirmPasswordError =
-            confirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
-            confirmPassword.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE) ?:
-            confirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
-
+                    newConfirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
+                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE) ?:
+                    newConfirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
         submitErrorReset()
     }
 
@@ -173,58 +168,58 @@ class RegisterViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
-     fun onSubmit() {
+    fun onSubmit() {
 
-            if(isLoading)
-                return
+        if(isLoading)
+            return
 
-            isLoading = true
+        isLoading = true
 
-            isSubmitSuccessful = false
-            submitError = null
+        isSubmitSuccessful = false
+        submitError = null
 
-            hasPasswordFieldEverFocused = true
-            hasPasswordFieldEverUnFocused = true
+        hasPasswordFieldEverFocused = true
+        hasPasswordFieldEverUnFocused = true
 
-         onUserNameChange(userName)
-         onEmailChange(email)
-         onPhoneNumberChange(phoneNumber)
-         onPasswordChange(password)
-         onConfirmPasswordChange(confirmPassword)
+        onUserNameChange(userName)
+        onEmailChange(email)
+        onPhoneNumberChange(phoneNumber)
+        onPasswordChange(password)
+        onConfirmPasswordChange(confirmPassword)
 
-         viewModelScope.launch {
-             try {
-                 if (userNameError != null || passwordError.isNotEmpty() || emailError != null || phoneNumberError != null || confirmPasswordError != null) {
-                     submitError = FormError.InvalidData
-                 } else {
-                     if (userRepository.getUserByEmail(email) != null)
-                         submitError = FormError.UserAlreadyExists(R.string.email_field_name)
-                     else if (userRepository.getUserByPhoneNumber(phoneNumber) != null)
-                         submitError =
-                             FormError.UserAlreadyExists(R.string.phone_number_field_name)
-                     else {
-                         submitError = null
-                         isSubmitSuccessful = true
-                         userRepository.createNewUser(
-                             User(
-                                 email = email,
-                                 passwordHashed = PasswordHashingService.hash(password),
-                                 userName = userName
-                                     .trim()
-                                     .replace(Regex("\\s+"), " "),
-                                 phoneNumber = phoneNumber
-                             )
-                         )
-                     }
-                 }
+        viewModelScope.launch {
+            try {
+                if (userNameError != null || passwordError.isNotEmpty() || emailError != null || phoneNumberError != null || confirmPasswordError != null) {
+                    submitError = FormError.InvalidData
+                } else {
+                    if (userRepository.getUserByEmail(email) != null)
+                        submitError = FormError.UserAlreadyExists(R.string.email_field_name)
+                    else if (userRepository.getUserByPhoneNumber(phoneNumber) != null)
+                        submitError =
+                            FormError.UserAlreadyExists(R.string.phone_number_field_name)
+                    else {
+                        submitError = null
+                        isSubmitSuccessful = true
+                        userRepository.createNewUser(
+                            User(
+                                email = email,
+                                passwordHashed = PasswordHashingService.hash(password),
+                                userName = userName
+                                    .trim()
+                                    .replace(Regex("\\s+"), " "),
+                                phoneNumber = phoneNumber
+                            )
+                        )
+                    }
+                }
 
-             }
-             catch (_: Exception){
-                 submitError = FormError.InvalidData
-             }
-             finally {
-                 isLoading = false
-             }
-         }
-     }
+            }
+            catch (_: Exception){
+                submitError = FormError.InvalidData
+            }
+            finally {
+                isLoading = false
+            }
+        }
+    }
 }

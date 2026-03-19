@@ -10,7 +10,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.bankapp.daos.UserDao
 import com.example.bankapp.core.BankDatabase
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.viewmodels.RegisterViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull

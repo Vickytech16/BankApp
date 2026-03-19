@@ -6,6 +6,7 @@ import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoggedInSessionViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoginViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.OtpVerificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
 import com.example.bankapp.repositories.AccountRepository
@@ -56,4 +57,8 @@ class ViewModelContainer(
             sessionUseCase = useCaseContainer.sessionUseCase,
             transactionRepository = transactionRepository
         )
+
+    val otpVerificationViewModelFactory: OtpVerificationViewModelFactory =
+        OtpVerificationViewModelFactory()
+
 }

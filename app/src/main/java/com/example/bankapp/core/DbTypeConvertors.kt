@@ -22,7 +22,6 @@ class DbTypeConvertors {
         @TypeConverter
         fun fromLocalDateTime(date: LocalDateTime): String = date.toString()
 
-        @RequiresApi(Build.VERSION_CODES.O)
         @TypeConverter
         fun toLocalDateTime(value: String): LocalDateTime = LocalDateTime.parse(value)
 

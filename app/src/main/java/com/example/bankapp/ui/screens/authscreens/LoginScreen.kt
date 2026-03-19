@@ -51,7 +51,6 @@ import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
 import com.example.bankapp.ui.theme.screenPadding
-import com.example.bankapp.ui.theme.titleFontSize
 
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 
@@ -103,7 +102,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                     LoginType.PHONE_NUMBER -> stringResource(R.string.login_type_description, currentLoginTypeName)
                     LoginType.EMAIL ->stringResource(R.string.login_type_description, currentLoginTypeName)
                 },
-                fontSize = titleFontSize,
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.ExtraBold
@@ -129,7 +128,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Email,
                             ),
-                            leadingIcon = Icons.Outlined.Email,
+                            leadingIcon = Icons.Outlined.Email
                         )
 
                     LoginType.PHONE_NUMBER ->
@@ -144,7 +143,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
                             ),
-                            leadingIcon = Icons.Outlined.Phone,
+                            leadingIcon = Icons.Outlined.Phone
                         )
                 }
 

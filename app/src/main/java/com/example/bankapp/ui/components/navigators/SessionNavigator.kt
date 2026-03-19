@@ -39,10 +39,10 @@ fun SessionNavigator(navController: NavController, sessionState: SessionState){
 
             is SessionState.Authenticated.AccountRegistered -> {
                 if(currentRoute!=MAIN_ROUTE){
-                navController.navigate(MAIN_ROUTE) {
-                    popUpTo(ROOT_ROUTE)
-                }
+                    navController.navigate(MAIN_ROUTE) {
+                        popUpTo(ROOT_ROUTE)
                     }
+                }
             }
 
 

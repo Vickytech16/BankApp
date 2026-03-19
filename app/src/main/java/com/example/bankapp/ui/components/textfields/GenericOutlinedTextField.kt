@@ -7,6 +7,7 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +16,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import com.example.bankapp.ui.theme.textFieldLabelFontSize
 
 @Composable
 fun GenericOutlinedTextField(
@@ -37,7 +37,7 @@ fun GenericOutlinedTextField(
             Text(
                 labelText,
                 fontWeight = FontWeight.Normal,
-                fontSize = textFieldLabelFontSize
+                style = MaterialTheme.typography.bodyLarge
             )
         },
         singleLine = true,

@@ -1,5 +1,6 @@
 package com.example.bankapp.ui.screens
 
+import AmountOutlinedTextField
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -24,17 +26,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
-import com.example.bankapp.ui.components.AccountTypeRadioButton
+import com.example.bankapp.ui.components.textfields.AccountTypeRadioButton
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
-import com.example.bankapp.ui.components.textfields.AmountOutlinedTextField
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.screenPadding
-import com.example.bankapp.ui.theme.titleFontSize
-import com.example.bankapp.utilities.SELECTYOURACCOUNTTYPELABEL
 import com.example.bankapp.viewmodels.AccountCreationViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -63,7 +62,7 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
         ) {
             Text(
                 text = stringResource(R.string.create_account),
-                fontSize = titleFontSize,
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.ExtraBold
@@ -80,7 +79,7 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
             ){
 
                 AccountTypeRadioButton(
-                    SELECTYOURACCOUNTTYPELABEL,
+                    stringResource(R.string.select_your_account_type_label),
                     accountCreationViewModel.accountType,
                     accountCreationViewModel::onAccountTypeChange
                     )
@@ -88,10 +87,10 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
                 MediumSpacer()
 
                 AmountOutlinedTextField(
-                    amount = accountCreationViewModel.balance.toString(),
-                    onAmountChange = accountCreationViewModel::onBalanceChange,
+                    amount = accountCreationViewModel.amount.toString(),
+                    onAmountChange = accountCreationViewModel::onAmountChange,
                     fieldName = stringResource(R.string.initial_balance),
-                    amountError = accountCreationViewModel.balanceError
+                    amountError = accountCreationViewModel.amountError
                 )
 
                 MediumSpacer()

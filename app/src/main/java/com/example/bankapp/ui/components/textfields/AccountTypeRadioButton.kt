@@ -1,4 +1,4 @@
-package com.example.bankapp.ui.components
+package com.example.bankapp.ui.components.textfields
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

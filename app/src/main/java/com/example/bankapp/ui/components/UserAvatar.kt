@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.example.bankapp.R
-import com.example.bankapp.ui.theme.userAvatarFontSize
 
 import kotlin.math.absoluteValue
 

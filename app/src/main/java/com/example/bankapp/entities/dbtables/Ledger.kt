@@ -1,26 +1,26 @@
-package com.example.bankapp.entities
+package com.example.bankapp.entities.dbtables
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.bankapp.entities.dbtables.Transaction
 import com.example.bankapp.entities.types.LedgerDirection
 import java.math.BigDecimal
 
-@Entity(
-    tableName = "ledger_entries",
+@Entity(tableName = "ledger_entries",
     foreignKeys = [
         ForeignKey(
             entity = Transaction::class,
             parentColumns = ["transactionId"],
             childColumns = ["transactionId"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.Companion.RESTRICT
         ),
         ForeignKey(
             entity = Account::class,
             parentColumns = ["accNo"],
             childColumns = ["accNo"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.Companion.RESTRICT
         )
     ],
     indices = [

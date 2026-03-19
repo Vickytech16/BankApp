@@ -1,33 +1,43 @@
 package com.example.bankapp.ui.screens.authscreens
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.RequiresApi
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Numbers
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
-import com.example.bankapp.core.ShowDialogOnPermissionDenial
 import com.example.bankapp.core.notificationPermissionHandler
 import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
@@ -35,21 +45,25 @@ import com.example.bankapp.entities.Notification
 import com.example.bankapp.services.SendNotificationService
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
+import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.XLSpacer
+import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.buttons.SubmitButton
-import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
-import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
+import com.example.bankapp.ui.components.textfields.OtpInputField
+import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.viewmodels.NotificationViewmodel
 import com.example.bankapp.viewmodels.OtpViewModel
 
-
-@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun OtpScreen(
     navController: NavController,
     notificationViewModelFactory: NotificationViewModelFactory,
     otpViewModelFactory: OtpViewModelFactory,
-    onSuccessfulOtpVerification: () -> Unit
+    backRoute: String,
+    onOtpSuccess: () -> Unit,
+    onDismiss: () -> Unit = {}
 ) {
     val notificationViewModel: NotificationViewmodel =
         viewModel(factory = notificationViewModelFactory)
@@ -59,47 +73,76 @@ fun OtpScreen(
 
     val context = LocalContext.current
 
-    BackButtonHandler(navController, LOGIN_ROUTE)
-
     val title = stringResource(R.string.your_otp)
     val message = stringResource(R.string.otp_field_name)
 
+    BackButtonHandler(navController, backRoute, onDismiss)
+
     val sendOtp = notificationPermissionHandler(
         {
-            otpViewModel.generateOtp()
-            val otp = otpViewModel.generatedOtp
-
-            SendNotificationService.showNotification(
-                context,
-                Notification(
-                    title = title,
-                    message = "$message $otp"
-                )
+            sendOtp(
+                notificationViewModel = notificationViewModel,
+                otpViewModel = otpViewModel,
+                context = context,
+                title = title,
+                message = message
             )
         },
-        { notificationViewModel.onPermissionDeniedChange(true) }
+        {
+            notificationViewModel.onPermissionDenied()
+        }
     )
 
-    if(notificationViewModel.isPermissionDenied && !notificationViewModel.isPermissionDeniedByDialogBox){
-        notificationViewModel.onIsPermissionDeniedByDialogBoxChange(true)
-        ShowDialogOnPermissionDenial(context, notificationViewModel::onPermissionDeniedChange) {
-            navController.navigate(LOGIN_ROUTE) {
-                popUpTo(0) {
-                    inclusive = true
-                }
-            }
-        }
+    LaunchedEffect(Unit) {
+        sendOtp()
     }
 
-    LaunchedEffect(notificationViewModel.isPermissionDenied) {
-        if (!notificationViewModel.isPermissionDenied && !otpViewModel.isOtpSent) {
-            sendOtp()
+    LaunchedEffect(notificationViewModel.hasPermissionBeenRequested) {
+        if (notificationViewModel.hasPermissionBeenRequested && !notificationViewModel.isPermissionGranted) {
+            val isNowGranted = checkPermission(context)
+            if (isNowGranted) {
+                sendOtp(
+                    notificationViewModel = notificationViewModel,
+                    otpViewModel = otpViewModel,
+                    context = context,
+                    title = title,
+                    message = message
+                )
+            }
         }
     }
 
     LaunchedEffect(otpViewModel.isOtpValid) {
         if (otpViewModel.isOtpValid == true) {
-            onSuccessfulOtpVerification()
+            onOtpSuccess()
+        }
+    }
+
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    DisposableEffect(Unit) {
+        val lifecycleObserver = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (notificationViewModel.hasPermissionBeenRequested && !notificationViewModel.isPermissionGranted) {
+                    val isNowGranted = checkPermission(context)
+                    if (isNowGranted) {
+                        sendOtp(
+                            notificationViewModel = notificationViewModel,
+                            otpViewModel = otpViewModel,
+                            context = context,
+                            title = title,
+                            message = message
+                        )
+                    }
+                }
+            }
+        }
+
+        lifecycle.addObserver(lifecycleObserver)
+
+        onDispose {
+            lifecycle.removeObserver(lifecycleObserver)
         }
     }
 
@@ -110,350 +153,192 @@ fun OtpScreen(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            Appbar(
+                title = "",
+                navBehaviour = {
+                    navController.navigate(backRoute) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+                },
+                scrollBehavior = null
+            )
+        }
     ) { paddingValues ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-
-            Button(
-                onClick = { sendOtp() },
-                enabled = otpViewModel.otpExpiresAt == 0
-            ) {
-                if (otpViewModel.otpExpiresAt == 0)
-                    Text(stringResource(R.string.resend_otp))
-                else
-                    Text("${otpViewModel.otpExpiresAt}")
-            }
-
-            GenericOutlinedTextField(
-                value = otpViewModel.userEnteredOtp,
-                onValueChange = otpViewModel::onUserEnteredOtpChange,
-                labelText = stringResource(R.string.otp_field_name),
-                isError = otpViewModel.isOtpValid == false,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.NumberPassword
-                ),
-              leadingIcon = Icons.Outlined.Numbers
+        if (!notificationViewModel.isPermissionGranted && notificationViewModel.hasPermissionBeenRequested) {
+            NotificationPermissionScreen(
+                modifier = Modifier.padding(paddingValues),
             )
-
-            SubmitButton(
-                onClick = {otpViewModel.submitOtp()},
-                text = stringResource(R.string.submit_button),
-                enabled = otpViewModel.userEnteredOtp.length == otpViewModel.otpLength
+        } else if (notificationViewModel.isPermissionGranted) {
+            OtpInputScreen(
+                otpViewModel,
+                paddingValues, {
+                    sendOtp(
+                        notificationViewModel = notificationViewModel,
+                        otpViewModel = otpViewModel,
+                        context = context,
+                        title = title,
+                        message = message
+                    )
+                }
             )
-
-            ErrorTextBuilder(otpViewModel.submitError)
         }
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PermissionDialog(
-    title: String,
-    text: String,
-    onConfirm:() -> Unit,
-    onDismiss: () -> Unit
-){
-        AlertDialog(
-            onDismissRequest = {
-                onDismiss()
+fun OtpInputScreen(
+    otpViewModel: OtpViewModel,
+    paddingValues: PaddingValues,
+    resend: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .verticalScroll(androidx.compose.foundation.rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.lg),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.weight(0.3f))
+
+        Text(
+            text = stringResource(R.string.otp_sent_message),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+
+        Text(
+            text = stringResource(R.string.otp_instruction_text),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+
+        XLSpacer()
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
+            contentAlignment = Alignment.Center
+        ) {
+            OtpInputField(
+                otpInputs = otpViewModel.otpInputs,
+                isError = otpViewModel.isOtpValid == false,
+                onOtpChange = otpViewModel::onOtpInputChange
+            )
+        }
+
+        if (otpViewModel.isOtpValid == false) {
+            ErrorTextBuilder(otpViewModel.submitError)
+        }
+
+        SubmitButton(
+            onClick = {
+                otpViewModel.submitOtp()
             },
-            title = { Text(title) },
-            text = {
-                Text(text)
+            text = stringResource(R.string.verify_button),
+            enabled = otpViewModel.otpInputs.all {
+                it.isNotEmpty()
             },
-            confirmButton = {
-                TextButton(onClick = {
-                   onConfirm()
-                }) {
-                    Text(stringResource(R.string.go_to_settings))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    onDismiss()}) {
-                    Text(stringResource(R.string.not_now))
+            modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.screen_padding))
+        )
+
+        LargeSpacer()
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.didnt_receive_code),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (otpViewModel.otpExpiresAt > 0) {
+                Text(
+                    text = stringResource(R.string.resend_in_formatted, otpViewModel.otpExpiresAt),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = AppSpacing.sm)
+                )
+            } else {
+                TextButton(
+                    onClick = {
+                        resend()
+                    },
+                    modifier = Modifier.padding(start = AppSpacing.sm)
+                ) {
+                    Text(stringResource(R.string.resend_otp))
                 }
             }
-        )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
 }
 
+@Composable
+fun NotificationPermissionScreen(
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
 
-//@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-//@Composable
-//fun OtpScreen(
-//   otpViewModel: OtpViewModel
-//) {
-//        Column(
-//            modifier = Modifier.padding(16.dp),
-//            verticalArrangement = Arrangement.spacedBy(12.dp)
-//        ) {
-//
-//            OutlinedTextField(
-//                value = otpViewModel.userEnteredOtp,
-//                onValueChange = otpViewModel::onUserEnteredOtpChange,
-//                label = { Text("Enter OTP") },
-//                isError = otpViewModel.isOtpValid == false,
-//                keyboardOptions = KeyboardOptions(
-//                    keyboardType = KeyboardType.NumberPassword
-//                ),
-//                singleLine = true
-//            )
-//
-//            if (otpViewModel.isOtpValid == false) {
-//                Text(
-//                    text = "Incorrect OTP. Please try again.",
-//                    color = MaterialTheme.colorScheme.error,
-//                    style = MaterialTheme.typography.bodySmall
-//                )
-//            }
-//
-//            Button(
-//                onClick = {
-//                    otpViewModel.userEnteredOtp
-//                        .toIntOrNull()
-//                        ?.let { otpViewModel.submitOtp() }
-//                },
-//                enabled = otpViewModel.userEnteredOtp.length == otpViewModel.otpLength
-//            ) {
-//                Text("Submit")
-//            }
-//        }
-//}
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(dimensionResource(R.dimen.screen_padding)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = {
+                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                }
+                context.startActivity(intent)
+            }
+        ) {
+            Text(stringResource(R.string.enable_notifications_title))
+        }
+    }
+}
 
-//
-//@Composable
-//fun OtpTextField(
-//    otpViewModel: OtpViewModel = hiltViewModel()
-//) {
-//    val focusRequester = remember { FocusRequester() }
-//
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable { focusRequester.requestFocus() }
-//    ) {
-//        BasicTextField(
-//            value = otpViewModel.userEnteredOtp,
-//            onValueChange = { value ->
-//                if (value.length <= otpViewModel.otpLength && value.all { it.isDigit() }) {
-//                    otpViewModel.onUserEnteredOtpChange(value)
-//                }
-//            },
-//            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//            modifier = Modifier
-//                .matchParentSize()
-//                .focusRequester(focusRequester),
-//            textStyle = LocalTextStyle.current.copy(color = Color.Transparent),
-//            cursorBrush = SolidColor(Color.Transparent),
-//            decorationBox = {
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-//                ) {
-//                    repeat(otpViewModel.otpLength) { index ->
-//                        OtpCharBox(
-//                            index = index,
-//                            text = otpViewModel.userEnteredOtp
-//                        )
-//                    }
-//                }
-//            }
-//        )
-//    }
-//}
-//
-//@Composable
-//private fun OtpCharBox(
-//    index: Int,
-//    text: String
-//) {
-//    val isFocused = index == text.length
-//
-//    Box(
-//        modifier = Modifier
-//            .aspectRatio(1f)
-//            .border(
-//                1.dp,
-//                if (isFocused) MaterialTheme.colorScheme.primary
-//                else MaterialTheme.colorScheme.outline,
-//                RoundedCornerShape(8.dp)
-//            ),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Text(
-//            text = text.getOrNull(index)?.toString() ?: "",
-//            fontSize = 20.sp
-//        )
-//    }
-//}
+private fun checkPermission(context: Context): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        true
+    }
+}
 
+private fun sendOtp(
+    notificationViewModel: NotificationViewmodel,
+    otpViewModel: OtpViewModel,
+    context: Context,
+    title: String,
+    message: String
+) {
+    notificationViewModel.onPermissionGranted()
+    otpViewModel.generateOtp()
+    val otp = otpViewModel.generatedOtp
 
-
-//@Composable
-//fun OtpSubmitField(
-//    otpViewModel: OtpViewModel = hiltViewModel()
-//) {
-//    val focusRequester = remember { FocusRequester() }
-//
-//    Box(
-//        modifier = Modifier
-//            .wrapContentWidth()
-//            .clickable { focusRequester.requestFocus() } // 👈 important
-//    ) {
-//
-//        BasicTextField(
-//            value = otpViewModel.userEnteredOtp,
-//            onValueChange = otpViewModel::onUserEnteredOtpChange,
-//            keyboardOptions = KeyboardOptions(
-//                keyboardType = KeyboardType.Number
-//            ),
-//            modifier = Modifier
-//                .matchParentSize() // 👈 IMPORTANT
-//                .focusRequester(focusRequester),
-//            textStyle = LocalTextStyle.current.copy(color = Color.Transparent), // hide text
-//            cursorBrush = SolidColor(Color.Transparent) // hide cursor
-//        )
-//
-//        @Composable
-//        fun OtpBoxes(
-//            otp: String,
-//            otpLength: Int,
-//            isError: Boolean
-//        ) {
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.spacedBy(8.dp)
-//            ) {
-//                repeat(otpLength) { index ->
-//                    Box(
-//                        modifier = Modifier
-//                            .weight(1f)                 // 👈 responsive width
-//                            .aspectRatio(1f)            // 👈 keeps square shape
-//                            .border(
-//                                width = 1.dp,
-//                                color = when {
-//                                    isError -> MaterialTheme.colorScheme.error
-//                                    index == otp.length -> MaterialTheme.colorScheme.primary
-//                                    else -> MaterialTheme.colorScheme.outline
-//                                },
-//                                shape = RoundedCornerShape(8.dp)
-//                            ),
-//                        contentAlignment = Alignment.Center
-//                    ) {
-//                        Text(
-//                            text = otp.getOrNull(index)?.toString() ?: "",
-//                            fontSize = 20.sp
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-//@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-//@Composable
-//fun OtpTestScreen(
-//    notificationViewModelFactory: NotificationViewModelFactory,
-//    otpViewModelFactory: OtpViewModelFactory,
-//    onSuccessfulOtpVerification: () -> Unit
-//) {
-//    val notificationViewmodel: NotificationViewmodel = viewModel(factory = notificationViewModelFactory)
-//    val otpViewModel: OtpViewModel = viewModel(factory = otpViewModelFactory)
-//    val context = LocalContext.current
-//
-//
-//    val sendOtp =  notificationPermissionHandler(
-//        {
-//            otpViewModel.generateOtp()
-//            val otp = otpViewModel.generatedOtp
-//            SendNotificationService.showNotification(
-//                context,
-//                Notification(
-//                    title = "Your OTP",
-//                    message = "OTP: $otp"
-//                )
-//            )
-//        },
-//        {
-//            notificationViewmodel.onPermissionDeniedChange(true)
-//        }
-//    )
-//
-//
-//
-//    LaunchedEffect(Unit) {
-//        if(!otpViewModel.isOtpSent)
-//            sendOtp()
-//    }
-//
-//    if(notificationViewmodel.isPermissionDenied){
-//        showDialogOnPermissionDenial(
-//            "Enable Notifications.",
-//            "We require you to enable notifications in settings so we can send you OTP",
-//            {
-//                val intent =
-//                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-//                        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-//                    }
-//                context.startActivity(intent)
-//                notificationViewmodel.onPermissionDeniedChange(false)
-//            },
-//            {
-//                notificationViewmodel.onPermissionDeniedChange(false)
-//            }
-//        )
-//    }
-//
-//
-//    Scaffold(
-//        modifier = Modifier.fillMaxSize()
-//    ) {
-//            paddingValues ->
-//
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(paddingValues)
-//                .padding(16.dp),
-//            verticalArrangement = Arrangement.spacedBy(16.dp)
-//        ) {
-//
-//            Button(
-//                onClick = sendOtp,
-//                enabled = !otpViewModel.isOtpSent
-//            ) {
-//                if (otpViewModel.generatedOtp == null)
-//                    Text("Send OTP")
-//                else
-//                    Text("Resend in ${otpViewModel.otpExpiresAt}s")
-//            }
-//
-//            if (otpViewModel.isOtpSent) {
-//                OtpScreen(otpViewModel)
-//            }
-//
-//            if (otpViewModel.isOtpValid == false) {
-//                Text(
-//                    "Enter valid otp.",
-//                    color = MaterialTheme.colorScheme.error
-//                )
-//            }
-//        }
-//    }
-//
-//    DisposableEffect(Unit) {
-//        onDispose {
-//            otpViewModel.resetOtpState()
-//        }
-//    }
-//}
+    SendNotificationService.showNotification(
+        context,
+        Notification(
+            title = title,
+            message = "$message $otp"
+        )
+    )
+}

@@ -1,166 +1,183 @@
 package com.example.bankapp.viewmodels
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.FormError
-import com.example.bankapp.entities.errors.TransactionResult
-import com.example.bankapp.entities.errors.UiError
+import com.example.bankapp.usecases.TransactionSessionHolder
+import com.example.bankapp.entities.types.AccountStatus
+import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.repositories.AccountRepository
+import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.services.PasswordHashingService
+import com.example.bankapp.ui.components.navigators.TransactionSessionManager
+import com.example.bankapp.usecases.CurrentSessionIntent
+import com.example.bankapp.usecases.CurrentTransactionStatus
+import com.example.bankapp.usecases.HomeSessionHandler
+import com.example.bankapp.utilities.ACCOUNT_NUMBER_SIZE
+import com.example.bankapp.utilities.amountFieldValidator
+import com.example.bankapp.utilities.amountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
-import com.example.bankapp.utilities.NegativeAmountErrorMessageBuilder
 import com.example.bankapp.utilities.invalidNumericalFieldErrorMessageBuilder
+import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 import com.example.bankapp.utilities.toDbAccNo
+import com.example.bankapp.utilities.uiAccNo
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.util.UUID
 
 class CashTransferViewModel(
     private val sessionState: SessionState.Authenticated.AccountRegistered,
-    private val transactionRepository: TransactionRepository)
-    : ViewModel() {
+    private val transactionRepository: TransactionRepository,
+    private val beneficiaryRepository: BeneficiaryRepository,
+    private val accountRepository: AccountRepository
+) : ViewModel() {
 
     private val account = sessionState.account
 
-    private val user = sessionState.user
-    var accountNumber by mutableStateOf<String>("")
+    private val homeSessionHandler: HomeSessionHandler
+        get() = TransactionSessionManager.currentHandler
+
+    private val cashTransfer: HomeSessionHandler.CashTransfer
+        get() = homeSessionHandler as HomeSessionHandler.CashTransfer
+
+
+    var accountNumber by mutableStateOf("")
         private set
 
     var accountNumberError by mutableStateOf<FormError?>(null)
         private set
 
-    fun onAccountNumberChange(newAccountNumber: String){
-        accountNumber = newAccountNumber
-        accountNumberError = accountNumber.emptyTextFieldErrorMessageBuilder(R.string.account_number) ?:
-            accountNumber.invalidNumericalFieldErrorMessageBuilder(R.string.account_number)
-        onSubmitErrorReset()
-    }
+    var accountExistsStatus by mutableStateOf<AccountStatus?>(null)
+        private set
 
-
-    var amount by mutableStateOf<BigDecimal>(BigDecimal.ZERO)
+    var amount by mutableStateOf("")
         private set
 
     var amountError by mutableStateOf<FormError?>(null)
         private set
 
-    fun onAmountChange(newAmount: String){
-        amount = newAmount.toBigDecimalOrNull() ?: BigDecimal.ZERO
-        amountError = newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
-                amount.NegativeAmountErrorMessageBuilder()
-        onSubmitErrorReset()
-    }
-
-    var password by mutableStateOf<String>("")
-    private set
-
-    var passwordError by mutableStateOf<FormError?>(value = null)
-        private set
-
-    var passwordVisible by mutableStateOf(false)
-        private set
-
-    fun onPasswordChange(newPassword: String){
-        password = newPassword
-        passwordError = password.emptyTextFieldErrorMessageBuilder(R.string.password_field_name)
-        onSubmitErrorReset()
-    }
-
-    fun onPasswordVisibleChange(){
-        passwordVisible = !passwordVisible
-    }
-
     var submitError by mutableStateOf<FormError?>(null)
         private set
-
-    var transactionResult by mutableStateOf<TransactionResult?>(null)
-        private set
-
-
-    private var idempotencyKey = UUID.randomUUID().toString()
-
-    fun onSubmitErrorReset(){
-        if(amountError==null && accountNumberError==null && passwordError==null){
-            submitError = null
-        }
-    }
-
-    var isTransactionSuccess by mutableStateOf(false)
-        private set
-
-    fun resetData(){
-        onAmountChange("")
-        onPasswordChange("")
-        onAccountNumberChange("")
-       // submitError = null
-    }
 
     var isLoading by mutableStateOf(false)
         private set
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun onSubmit(){
 
-        if(isLoading)
-            return
 
-        isLoading = true
+    var isVerifySuccessful by mutableStateOf(false)
+        private set
 
-        onAmountChange(amount.toString())
-        onPasswordChange(password)
-        onAccountNumberChange(accountNumber)
-
-        println("Reached 1")
+    fun onAccountNumberChange(newAccountNumber: String) {
+        if (newAccountNumber.length <= ACCOUNT_NUMBER_SIZE)
+            accountNumber = newAccountNumber
+        accountNumberError =
+            newAccountNumber.emptyTextFieldErrorMessageBuilder(R.string.account_number) ?:
+                    newAccountNumber.maxAllowedCharacterErrorMessageBuilder(R.string.account_number, ACCOUNT_NUMBER_SIZE) ?:
+                    newAccountNumber.invalidNumericalFieldErrorMessageBuilder(R.string.account_number)
         onSubmitErrorReset()
 
+        if (newAccountNumber.length == ACCOUNT_NUMBER_SIZE && accountNumberError == null) {
+            checkAccountExists(newAccountNumber)
+        } else {
+            accountExistsStatus = null
+        }
+    }
 
-
-
-            viewModelScope.launch {
-
-                try {
-                    if (passwordError != null || amountError != null || accountNumberError != null) {
-                        submitError = FormError.InvalidData
-                        return@launch
-                    }
-
-                    println("Reached 2")
-                    if (submitError == null) {
-                        if (PasswordHashingService.matches(password, user.passwordHashed)) {
-
-                            println("Reached 3")
-                            val receiverAccountNumber = accountNumber.toDbAccNo()
-                            transactionResult = transactionRepository.cashTransfer(
-                                fromAccountNo = account.accNo,
-                                toAccountNo = receiverAccountNumber,
-                                amount = amount,
-                                idempotencyKey = idempotencyKey
-                            )
-                            if (transactionResult != TransactionResult.Error.RepeatedTransaction)
-                                idempotencyKey = UUID.randomUUID().toString()
-                            println(account.balance)
-                            println(amount)
-                            println("Result is..................$")
-                            if (transactionResult is TransactionResult.Success) {
-                                isTransactionSuccess = true
-                            }
-                        } else {
-                            submitError = FormError.PasswordDoesntMatch
-                        }
-                    }
-
-                } catch (e: Exception) {
-                    submitError = FormError.UnknownError
-                } finally {
-                    isLoading = false
-                }
+    private fun checkAccountExists(accNo: String) {
+        if (accNo.toDbAccNo() == account.accNo) {
+            accountExistsStatus = AccountStatus.SAME_ACCOUNT
+            return
+        }
+        viewModelScope.launch {
+            try {
+                val exists = transactionRepository.checkIfAccountExists(accNo.toDbAccNo())
+                accountExistsStatus =
+                    if (exists)
+                        AccountStatus.EXISTS
+                    else
+                        AccountStatus.NOT_FOUND
+            } catch (e: Exception) {
+                accountExistsStatus = AccountStatus.ERROR
             }
+        }
+    }
+
+    fun onAmountChange(newAmount: String) {
+        if (newAmount.isEmpty() || newAmount.matches(amountRegex))
+            amount = newAmount
+        amountError =
+            newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
+                    newAmount.amountFieldValidator()
+        onSubmitErrorReset()
+    }
+
+    private fun onSubmitErrorReset() {
+        if (amountError == null && accountNumberError == null) {
+            submitError = null
+        }
+    }
+
+    fun onCredentialsSubmit() {
+        if (isLoading)
+            return
+
+        onAmountChange(amount)
+        onAccountNumberChange(accountNumber)
+        onSubmitErrorReset()
+
+        viewModelScope.launch {
+            try {
+                isLoading = true
+                if (amountError != null || accountNumberError != null || accountExistsStatus != AccountStatus.EXISTS) {
+                    submitError = FormError.InvalidData
+                    return@launch
+                }
+
+                val convertedAmount = amount.toBigDecimalOrNull()
+                if (convertedAmount == null) {
+                    amountError = FormError.InvalidAmount
+                    submitError = FormError.InvalidData
+                    return@launch
+                }
+
+                if (submitError == null) {
+
+                    val otherUserId = accountRepository.getUserIdByAccNo(accountNumber.toDbAccNo())
+
+                    val isFriend = beneficiaryRepository.getBeneficiary(sessionState.user.userId, otherUserId) != null
+
+
+                    cashTransfer.onInitialize(
+                        sessionState.account.accNo,
+                        accountNumber.toDbAccNo(),
+                        convertedAmount,
+                        isFriend
+                    )
+
+                    cashTransfer.intent = CurrentSessionIntent.CASH_TRANSFER
+
+                    isVerifySuccessful = true
+
+                }
+            } catch (_: Exception) {
+                submitError = FormError.UnknownError
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun resetScreenState() {
+        accountNumber = ""
+        amount = ""
+        accountNumberError = null
+        amountError = null
+        submitError = null
+        accountExistsStatus = null
+        isVerifySuccessful = false
+        isLoading = false
     }
 }

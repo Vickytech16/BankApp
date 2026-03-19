@@ -3,7 +3,7 @@ package com.example.bankapp.daos
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.bankapp.entities.Account
+import com.example.bankapp.entities.dbtables.Account
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -24,8 +24,8 @@ interface AccountDao {
     suspend fun deposit(amount: BigDecimal, updateAt: LocalDateTime, accNo: Long) : Int
 
     @Query("select * from accounts where accNo = :accNo")
-    suspend fun getAccountByAccNo(accNo: Long): Account?
+    fun getAccountAsFlowByAccNo(accNo: Long): Flow<Account?>
 
-    @Query("select * from accounts where accNo = :accNo")
-    fun getAccountFlowByAccNo(accNo: Long): Flow<Account?>
+    @Query("select userId from accounts where accNo = :accNo")
+    fun getUserIdByAccNo(accNo: Long): Long
 }

@@ -1,4 +1,4 @@
-package com.example.bankapp.ui.components.items
+package com.example.bankapp.ui.components.homeitems
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -24,20 +24,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.utilities.HIDDENBALANCE
-import com.example.bankapp.utilities.RUPEESYMBOL
+import com.example.bankapp.utilities.HIDDEN_BALANCE
+import com.example.bankapp.utilities.RUPEE_SYMBOL
 
 @Composable
 fun HomeScreenCard(balance: String, accNo: String , isBalanceVisible: Boolean, onIsBalanceVisibleChange: ()-> Unit)
 {
     Card(
-        shape = RoundedCornerShape(size = 24.dp),
+        shape = RoundedCornerShape(size = dimensionResource(R.dimen.home_screen_card_rounded_corner)),
         elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.home_screen_card_elevation)),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -69,7 +68,7 @@ fun HomeScreenCard(balance: String, accNo: String , isBalanceVisible: Boolean, o
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = RUPEESYMBOL,
+                        text = RUPEE_SYMBOL,
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -81,7 +80,7 @@ fun HomeScreenCard(balance: String, accNo: String , isBalanceVisible: Boolean, o
                         text = if (isBalanceVisible)
                                     balance
                                 else
-                                    HIDDENBALANCE,
+                                    HIDDEN_BALANCE,
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer

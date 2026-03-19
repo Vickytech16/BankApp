@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,7 +17,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.bankapp.ui.components.ErrorTextBuilder
-import com.example.bankapp.ui.theme.textFieldLabelFontSize
 import com.example.bankapp.entities.errors.FormError
 
 @Composable
@@ -39,7 +39,7 @@ fun PasswordVerificationOutlinedTextField(
         label = {
             Text(
                 "Password",
-                fontSize = textFieldLabelFontSize
+                style = MaterialTheme.typography.bodyLarge
             )
         },
         singleLine = true,

@@ -6,6 +6,7 @@ import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.PasswordError
 import java.math.BigDecimal
 
+val amountRegex = Regex("^(0|[1-9]\\d{0,7})(\\.\\d{0,2})?$")
 
 fun String.emptyTextFieldErrorMessageBuilder(fieldNameRes: Int) : FormError?{
     return if(this.isBlank())
@@ -42,13 +43,8 @@ fun String.invalidNumericalFieldErrorMessageBuilder(fieldNameRes: Int): FormErro
         null
 }
 
-fun String.invalidAmountErrorMessageBuilder(): FormError? {
 
-    return if(this.toBigDecimalOrNull()==null)
-        FormError.InvalidAmount
-    else
-        null
-}
+
 
 fun String.invalidPasswordErrorMessageBuilder(): List<PasswordError> {
     return PasswordValidationService.validatePassword(this)
@@ -61,9 +57,22 @@ fun String.invalidConfirmPasswordErrorMessageBuilder(password: String): FormErro
         null
 }
 
-fun BigDecimal.NegativeAmountErrorMessageBuilder(): FormError? {
-    return if(this <= BigDecimal.ZERO)
-        FormError.NegativeAmount
-    else
-        null
+fun String.amountFieldValidator(): FormError? {
+
+    if (this.isBlank())
+        return null
+
+    if (!this.matches(amountRegex))
+        return FormError.InvalidAmountFormat
+
+    val bigDecimal =
+        this.toBigDecimalOrNull()
+        ?: return FormError.InvalidAmount
+
+    if (bigDecimal <= BigDecimal.ZERO)
+        return FormError.NegativeAmount
+
+    return null
 }
+
+

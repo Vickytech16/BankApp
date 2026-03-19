@@ -26,6 +26,13 @@ fun MediumSpacer()
 }
 
 @Composable
-fun SmallSpacer(){
+fun LargeSpacer()
+{
+    Spacer(Modifier.height(AppSpacing.lg))
+}
+
+@Composable
+fun SmallSpacer()
+{
     Spacer(Modifier.height(AppSpacing.sm))
 }

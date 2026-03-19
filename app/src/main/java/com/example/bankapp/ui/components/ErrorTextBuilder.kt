@@ -9,7 +9,8 @@ import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.UiError
 
 @Composable
-fun ErrorTextBuilder(error: FormError?){
+fun ErrorTextBuilder(
+    error: FormError?){
 
     error?.let {
         val message =
@@ -38,8 +39,11 @@ fun ErrorTextBuilder(error: FormError?){
 
                 is FormError.OtpDoesntMatch,
 
-                is FormError.OtpExpired
+                is FormError.OtpExpired,
 
+                is FormError.InvalidAmountFormat,
+
+                is FormError.AlreadyYourFriendError
                                          ->
 
                     stringResource(error.message)
@@ -70,9 +74,14 @@ fun ErrorTextBuilder(error: FormError?){
                         stringResource(error.fieldNameRes)
                     )
 
+
+                is FormError.YouAreTheUser ->
+                    stringResource(error.message, stringResource(error.fieldNameRes))
             }
 
-        Text(message, color = MaterialTheme.colorScheme.error)
+        Text(
+            message, color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall)
     }
 }
 

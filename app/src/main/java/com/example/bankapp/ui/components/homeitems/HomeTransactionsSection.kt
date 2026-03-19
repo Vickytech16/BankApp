@@ -1,7 +1,5 @@
-package com.example.bankapp.ui.components
+package com.example.bankapp.ui.components.homeitems
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,17 +12,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
-import com.example.bankapp.ui.screens.TransactionListItem
+import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.ui.components.SmallSpacer
+import com.example.bankapp.ui.components.navigators.TransactionScreen
+import com.example.bankapp.ui.components.transactionitems.TransactionListItem
+
 import com.example.bankapp.ui.screens.uiAmountDisplay
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeTransactionSection(
     transactions : List<TransactionHistoryItemDto>,
     onSeeAllClickAction: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavController
 ) {
 
     Column(modifier = modifier) {
@@ -53,11 +56,30 @@ fun HomeTransactionSection(
 
         transactions.take(3).forEach {
             transaction ->
+
+            val counterPartyName =
+                if(transaction.transactionType == TransactionType.DEPOSIT)
+                    transaction.myUserName
+                else
+                    transaction.counterpartyName
+
+            val counterPartyPfp =
+                if(transaction.transactionType == TransactionType.DEPOSIT)
+                    transaction.myPfpUrl
+                else
+                    transaction.counterpartyPfp
+
             TransactionListItem(
-                counterPartyName = transaction.counterparty_name ?: "",
+                counterPartyName = counterPartyName ?: "?",
                 transactionDirection = transaction.direction,
-                amount = transaction.amount.toString().uiAmountDisplay(),
-                transactionDate = transaction.transaction_date
+                amount = transaction.amount.uiAmountDisplay(),
+                transactionDate = transaction.transactionDate,
+                pfpURL = counterPartyPfp,
+                onClickAction = {
+                    navController.navigate(
+                        TransactionScreen.CashTransferDetailScreen.createRoute(transaction.transactionId)
+                    )
+                }
             )
         }
         }

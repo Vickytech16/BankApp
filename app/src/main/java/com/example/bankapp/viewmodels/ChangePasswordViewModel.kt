@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
 import com.example.bankapp.usecases.ChangePasswordUseCase
@@ -52,16 +52,15 @@ class ChangePasswordViewModel(
     }
 
     fun onPasswordChange(newPassword: String) {
-        password = newPassword
+        if (newPassword.length <= PASSWORD_MAX_SIZE)
+            password = newPassword
         passwordError = listOfNotNull(
-            password.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
-            password.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name,
-                PASSWORD_MAX_SIZE
-            )
-        ) + password.invalidPasswordErrorMessageBuilder()
+            newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
+                        newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
+        ) + newPassword.invalidPasswordErrorMessageBuilder()
 
         if(confirmPassword.isNotBlank())
-            confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
+            confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(newPassword)
     }
 
     var passwordVisible by mutableStateOf(false)
@@ -78,11 +77,12 @@ class ChangePasswordViewModel(
         private set
 
     fun onConfirmPasswordChange(newConfirmPassword: String) {
-        confirmPassword = newConfirmPassword
+        if (newConfirmPassword.length <= PASSWORD_MAX_SIZE)
+            confirmPassword = newConfirmPassword
         confirmPasswordError =
-            confirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
-            confirmPassword.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE) ?:
-            confirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
+                    newConfirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
+                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE) ?:
+                    newConfirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
     }
 
     var confirmPasswordVisible by mutableStateOf(false)
@@ -92,7 +92,7 @@ class ChangePasswordViewModel(
         confirmPasswordVisible = !confirmPasswordVisible
     }
 
-    var isSubmitButtonClicked by mutableStateOf(false)
+    private var isSubmitButtonClicked by mutableStateOf(false)
         private set
 
     var submitError by mutableStateOf<FormError?>(null)
@@ -109,6 +109,8 @@ class ChangePasswordViewModel(
         if(isLoading)
             return
 
+        println("This reached")
+
         isLoading = true
 
         isSubmitButtonClicked = true
@@ -116,38 +118,40 @@ class ChangePasswordViewModel(
         onConfirmPasswordChange(confirmPassword)
 
 
-            viewModelScope.launch {
+        viewModelScope.launch {
+            try {
 
-                try {
-                    if (password.isBlank() || confirmPassword.isBlank()) {
-                        submitError = FormError.AllFieldsAreRequired
-                        return@launch
-                    }
-
-                    if (passwordError.isNotEmpty() || confirmPasswordError != null) {
-                        submitError = FormError.InvalidData
-                        return@launch
-                    }
-                    updateCurrentUser()
-                    if (user != null) {
-                        submitError = FormError.PasswordDoesntMatch
-                        if (submitError == null) {
-                            val updatedUser = user!!.copy(
-                                passwordHashed = PasswordHashingService.hash(password)
-                            )
-                            userRepository.updateUser(updatedUser)
-                            isSubmitSuccessful = true
-                            submitError = null
-                        } else {
-                            submitError = FormError.UnknownError
-                        }
-                    }
-
-                } catch (_: Exception) {
-                    submitError = FormError.UnknownError
-                } finally {
-                    isLoading = false
+                if (password.isBlank() || confirmPassword.isBlank()) {
+                    submitError = FormError.AllFieldsAreRequired
+                    return@launch
                 }
+
+                if (passwordError.isNotEmpty() || confirmPasswordError != null) {
+                    submitError = FormError.InvalidData
+                    return@launch
+                }
+
+                updateCurrentUser()
+
+                if (user == null) {
+                    submitError = FormError.UnknownError
+                    return@launch
+                }
+
+                val updatedUser = user!!.copy(
+                    passwordHashed = PasswordHashingService.hash(password)
+                )
+
+                userRepository.updateUser(updatedUser)
+
+                isSubmitSuccessful = true
+                submitError = null
+
+            } catch (_: Exception) {
+                submitError = FormError.UnknownError
+            } finally {
+                isLoading = false
             }
+        }
     }
 }

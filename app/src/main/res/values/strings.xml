@@ -31,6 +31,8 @@
     <string name="something_wrong_happened">Something wrong happened</string>
     <string name="otp_doesnt_match">Incorrect OTP. Please try again.</string>
     <string name="otp_expired">Otp Expired</string>
+    <string name="invalid_amount_format_error">Amount must be less than 1000000 and only up to 2 decimal characters are allowed</string>
+    <string name="your_own_details_error">This is your %1$s</string>
 
 <!-- Transaction Errors  -->
     <string name="transaction_success">Transaction success</string>
@@ -63,6 +65,11 @@
     <string name="enter_your_details_headline">Enter your details</string>
     <string name="create_account">Create Account</string>
     <string name="create_account_description">Looks like you don\'t have an account, let\'s create one quickly.</string>
+    <string name="enter_transaction_details">Enter transaction details</string>
+    <string name="transfer_to_account_label">Transfer to account</string>
+    <string name="deposit_label">Deposit</string>
+    <string name="select_your_account_type_label">Select your account type</string>
+
 
 <!--  Otp identifiers-->
     <string name="your_otp">Your Otp</string>
@@ -78,16 +85,116 @@
 
 <!--  Home screen  -->
     <string name="welcome_back">Welcome back</string>
-    <string name="open_menu_content_description">Open menu</string>
     <string name="quick_actions_label">Quick Actions</string>
     <string name="deposit_button">Deposit</string>
     <string name="cash_transfer_button">Cash Transfer</string>
     <string name="see_transactions_button">See Transactions</string>
     <string name="total_account_balance_label">Total Account Balance</string>
     <string name="logout_button">Logout</string>
-    <string name="balance_visibility_on">Balance visibility on</string>
-    <string name="balance_visibility_off">Balance visibility off</string>
     <string name="more">More</string>
     <string name="transaction_history_label">Transaction History</string>
     <string name="see_all_label">See all →</string>
+
+<!--   Filters -->
+    <string name="filter_label">Filter</string>
+    <string name="sort_label">Sort</string>
+    <string name="apply_label">Apply</string>
+    <string name="reset_label">Reset</string>
+    <string name="filter_sort_label">Filter &amp; Sort</string>
+    <string name="status_label">Status</string>
+    <string name="completed_label">Completed</string>
+    <string name="pending_label">Pending</string>
+    <string name="failed_label">Failed</string>
+    <string name="transaction_type_label">Transaction Type</string>
+    <string name="deposit_filter_label">Deposit</string>
+    <string name="cash_transfer_label">Cash Transfer</string>
+    <string name="scheduled_transfer_label">Scheduled Transfer</string>
+    <string name="direction_label">Direction</string>
+    <string name="credit_label">Credit</string>
+    <string name="debit_label">Debit</string>
+    <string name="sort_by_label">Sort By</string>
+    <string name="newest_first_label">Newest First</string>
+    <string name="oldest_first_label">Oldest First</string>
+    <string name="expensive_first_label">Expensive First</string>
+    <string name="search_transactions_hint">Search transactions</string>
+    <string name="both_label">Both</string>
+
+<!--   content deascriptions -->
+    <string name="balance_visibility_on">Balance visibility on</string>
+    <string name="balance_visibility_off">Balance visibility off</string>
+    <string name="back_button_icon">Back button</string>
+    <string name="open_menu_content_description">Open menu</string>
+
+<!--    success confimrations-->
+    <string name="register_successful">Registration successful!</string>
+    <string name="login_succcessful">Login successful!</string>
+    <string name="password_changed_successfully">Password changed successfully</string>
+    <string name="redirecting_to_login">Redirecting to login</string>
+    <string name="loading_your_account">Wait a min, we are loading your account</string>
+
+    <string name="bottom_nav_home">Home</string>
+    <string name="bottom_nav_pay">Pay</string>
+    <string name="bottom_nav_profile">Profile</string>
+    <string name="share_button_content_description">Share button</string>
+
+<!--    Transaction details -->
+    <string name="transaction_details">Transaction Details</string>
+    <string name="share_button">Share</string>
+    <string name="transaction_to">To %s</string>
+    <string name="rupee_symbol">₹</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_failed">Failed</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_unknown">Unknown</string>
+    <string name="reference_id">Reference ID</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="party_name_label">Name</string>
+    <string name="account_number_label">Account Number</string>
+    <string name="balance_after_transaction">Balance After</string>
+    <string name="bank_name">Bank</string>
+    <string name="loading">Loading…</string>
+    <string name="no_transactions_found">No transactions found</string>
+    <string name="other_person_name_if_null">You</string>
+    <string name="vangi">Vangi</string>
+
+    <string name="otp_sent_message">We\'ve sent you an OTP</string>
+    <string name="otp_instruction_text">Please enter the OTP to verify</string>
+    <string name="verify_button">Verify</string>
+    <string name="otp_verified_success">OTP verified successfully!</string>
+    <string name="didnt_receive_code">Didn\'t receive code?</string>
+    <string name="resend_in_formatted">Resend in %1$d</string>
+
+    <string name="account_not_found">Account not found</string>
+    <string name="account_found">Account found</string>
+    <string name="unable_to_verify">Unable to verify</string>
+    <string name="same_account">This is your current account!</string>
+
+    <string name="verify_pass">Enter Your Password</string>
+    <string name="cancel">cancel</string>
+    <string name="cancel_transaction">Cancel Transaction?</string>
+    <string name="dismissing_Cancel_transaction_message">Dismissing will terminate the entire transaction.</string>
+    <string name="yes_cancel_confirmation">Yes, Cancel</string>
+    <string name="continue_label">Continue.</string>
+
+    <string name="pay_screen_title">Pay</string>
+    <string name="pay_section_label">Pay</string>
+    <string name="pay_to_friend">Pay to Friend</string>
+    <string name="pay_anyone">Pay Anyone</string>
+    <string name="beneficiary_section_label">Beneficiary</string>
+    <string name="add_beneficiary">Add Beneficiary</string>
+    <string name="manage_beneficiary">Manage</string>
+    <string name="schedule_pay_section_label">Schedule Pay</string>
+    <string name="schedule_pay">Schedule Pay</string>
+    <string name="manage_schedule">Manage</string>
+    <string name="scheduled_payments_label">Scheduled Payments</string>
+    <string name="already_your_friend">This user is already your friend</string>
+
+    <string name="add_beneficiary_headline">Add Them as Beneficiary</string>
+    <string name="add_beneficiary_description">Avoid entering account number for direct payments</string>
+    <string name="done">Done</string>
+    <string name="transaction_failed">Transaction Failed</string>
+    <string name="try_again">Try again</string>
+
+
 </resources>

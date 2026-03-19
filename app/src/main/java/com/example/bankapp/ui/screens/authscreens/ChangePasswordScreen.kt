@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -32,7 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.ChangePasswordViewModelFactory
-import com.example.bankapp.ui.components.Appbar
+import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
@@ -50,7 +51,6 @@ import com.example.bankapp.ui.theme.AppPadding
 
 
 import com.example.bankapp.ui.theme.screenPadding
-import com.example.bankapp.ui.theme.titleFontSize
 import com.example.bankapp.viewmodels.ChangePasswordViewModel
 
 
@@ -101,7 +101,7 @@ fun ChangePasswordScreen(windowSizeClass: WindowSizeClass,navController: NavCont
 
             Text(
                 text = stringResource(R.string.enter_your_details_headline),
-                fontSize = titleFontSize,
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.ExtraBold
@@ -137,7 +137,7 @@ fun ChangePasswordScreen(windowSizeClass: WindowSizeClass,navController: NavCont
                             onPasswordVisibleChange = viewModel::onPasswordVisibleChange,
                             passwordVisible = viewModel.passwordVisible
                         )
-                    },
+                    }
                 )
 
                 MediumSpacer()
@@ -171,17 +171,6 @@ fun ChangePasswordScreen(windowSizeClass: WindowSizeClass,navController: NavCont
                         navController.navigate(LOGIN_ROUTE)
                     }
                 }
-
-                LaunchedEffect(viewModel.isSubmitSuccessful) {
-                    if (viewModel.isSubmitSuccessful) {
-                        navController.navigate(LOGIN_SUCCESS_ROUTE){
-                            popUpTo(0){
-                                inclusive = true
-                            }
-                        }
-                    }
-                }
-
 
                 ErrorTextBuilder(viewModel.submitError)
             }

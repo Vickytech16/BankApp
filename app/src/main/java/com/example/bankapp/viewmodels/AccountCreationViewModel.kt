@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
-import com.example.bankapp.entities.Account
+import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.TransactionResult
 import com.example.bankapp.entities.types.AccountType
@@ -17,9 +17,13 @@ import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.services.PasswordHashingService
 
 import com.example.bankapp.usecases.SessionUseCase
+import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
+import com.example.bankapp.utilities.amountFieldValidator
+import com.example.bankapp.utilities.amountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
-import com.example.bankapp.utilities.invalidAmountErrorMessageBuilder
-import com.example.bankapp.utilities.NegativeAmountErrorMessageBuilder
+
+import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
+
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -38,16 +42,18 @@ class AccountCreationViewModel(
         accountType = newAccountType
     }
 
-    var balance by mutableStateOf<BigDecimal>(BigDecimal.ZERO)
+    var amount by mutableStateOf<String>("")
         private set
 
-    var balanceError by mutableStateOf<FormError?>(null)
+    var amountError by mutableStateOf<FormError?>(null)
         private set
 
-    fun onBalanceChange(newBalance: String){
-        balance = newBalance.toBigDecimalOrNull() ?: (-1).toBigDecimal()
-        balanceError = newBalance.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
-                       newBalance.invalidAmountErrorMessageBuilder() ?: balance.NegativeAmountErrorMessageBuilder()
+    fun onAmountChange(newAmount: String){
+        if(newAmount.isEmpty() || newAmount.matches(amountRegex))
+            amount = newAmount
+        amountError =
+            newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
+                    newAmount.amountFieldValidator()
         onSubmitErrorReset()
     }
 
@@ -61,8 +67,11 @@ class AccountCreationViewModel(
         private set
 
     fun onPasswordChange(newPassword: String){
-        password = newPassword
-        passwordError = password.emptyTextFieldErrorMessageBuilder(R.string.password_field_name)
+        if (newPassword.length <= PASSWORD_MAX_SIZE)
+            password = newPassword
+        passwordError =
+                    newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name) ?:
+                    newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
         onSubmitErrorReset()
     }
 
@@ -77,7 +86,7 @@ class AccountCreationViewModel(
         private set
 
     fun onSubmitErrorReset(){
-        if(balanceError==null && passwordError==null)
+        if(amountError==null && passwordError==null)
             submitError = null
     }
 
@@ -94,50 +103,63 @@ class AccountCreationViewModel(
 
         isLoading = true
 
-        onBalanceChange(balance.toString())
+        onAmountChange(amount.toString())
         onPasswordChange(password)
 
         onSubmitErrorReset()
 
+        viewModelScope.launch {
+            try {
+                if (passwordError != null || amountError != null) {
+                    submitError = FormError.InvalidData
+                    return@launch
+                }
 
-            viewModelScope.launch {
-                try {
-                    if (passwordError != null || balanceError != null) {
-                        submitError = FormError.InvalidData
-                        return@launch
+                val convertedAmount = amount.toBigDecimalOrNull()
+                if(convertedAmount==null){
+                    amountError = FormError.InvalidAmount
+                    submitError = FormError.InvalidData
+                    return@launch
+                }
+
+                if (submitError == null) {
+
+                    val user = sessionUseCase.getUserFromSharedPreferences()
+
+                    if (user == null) {
+                        submitError = FormError.UnknownError
                     }
-                    if (submitError == null) {
 
-                        val user = sessionUseCase.getUserFromSharedPreferences()
-                        if (user == null) {
-                            submitError = FormError.UnknownError
-                        } else {
-                            if (PasswordHashingService.matches(password, user.passwordHashed)) {
-                                isSubmitSuccessful = true
-                                val account = Account(
-                                    userId = user.userId,
-                                    accountType = accountType,
-                                    createdAt = LocalDateTime.now(),
-                                    updatedAt = LocalDateTime.now()
-                                )
-                                val accNo = accountRepository.createAccount(account)
-                                val result =
-                                    transactionRepository.deposit(accNo, balance, idempotencyKey)
-                                if (result is TransactionResult.Error.RepeatedTransaction)
-                                    idempotencyKey = UUID.randomUUID().toString()
-                                println("Result is..................${result.message}")
-                            } else {
-                                passwordError = FormError.PasswordDoesntMatch
-                                submitError = FormError.PasswordDoesntMatch
-                            }
+                    else {
+                        if (PasswordHashingService.matches(password, user.passwordHashed)) {
+                            isSubmitSuccessful = true
+                            val account = Account(
+                                userId = user.userId,
+                                accountType = accountType,
+                                createdAt = LocalDateTime.now(),
+                                updatedAt = LocalDateTime.now()
+                            )
+
+                            val accNo =
+                                accountRepository.createAccount(account)
+                            val result =
+                                transactionRepository.deposit(accNo, convertedAmount, idempotencyKey)
+
+                            if (result is TransactionResult.Error.RepeatedTransaction)
+                                idempotencyKey = UUID.randomUUID().toString()
+                            println("Result is..................${result.message}")
+                        }
+                        else {
+                            passwordError = FormError.PasswordDoesntMatch
+                            submitError = FormError.PasswordDoesntMatch
                         }
                     }
-
-                } catch (_: Exception) {
-                    submitError = FormError.UnknownError
-                } finally {
-                    isLoading = false
                 }
+            } catch (_: Exception) {
+                submitError = FormError.UnknownError
+            } finally {
+                isLoading = false
             }
+        }
     }
 }

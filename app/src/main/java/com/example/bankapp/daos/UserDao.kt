@@ -5,11 +5,10 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 
 @Dao
-interface UserDao
-{
+interface UserDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun createUser(user: User): Long
 

@@ -1,44 +1,49 @@
 package com.example.bankapp.ui.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
-import com.example.bankapp.di.viewmodelfactory.TransactionsViewModelFactory
-import com.example.bankapp.entities.types.LedgerDirection
-import com.example.bankapp.ui.components.Appbar
-import com.example.bankapp.ui.components.TransactionLazyList
-import com.example.bankapp.ui.components.UserAvatar
-import com.example.bankapp.ui.components.XLSpacer
-import com.example.bankapp.ui.theme.AppPadding
-import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.ui.theme.screenPadding
-import com.example.bankapp.utilities.RUPEESYMBOL
+import com.example.bankapp.di.viewmodelfactory.FilterViewModelFactory
+import com.example.bankapp.entities.types.UiLedgerDirection
+import com.example.bankapp.ui.components.appbar.Appbar
+import com.example.bankapp.ui.components.transactionitems.TransactionLazyList
+import com.example.bankapp.ui.components.filters.FilterButton
+import com.example.bankapp.ui.components.filters.FilterSection
+import com.example.bankapp.ui.components.filters.SortButton
+import com.example.bankapp.ui.components.transactionitems.TransactionSearchBar
+import com.example.bankapp.viewmodels.FilterViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -47,87 +52,140 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionsScreen(
-    transactionsViewModel: TransactionsViewModel, navController: NavController
+    transactionsViewModel: TransactionsViewModel, navController: NavController,
+    filterViewModelFactory: FilterViewModelFactory
 ) {
-
-
     val transactions by transactionsViewModel.transactions.collectAsState()
+    val query by transactionsViewModel.query.collectAsState()
+    val filterViewModel: FilterViewModel = viewModel(factory = filterViewModelFactory)
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val lazyListState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
     //val scrollState = rememberScrollState()
 
-    Scaffold(topBar = {
+    val isLoading = transactionsViewModel.isLoading.collectAsState().value
+
+
+    LaunchedEffect(filterViewModel.filterState) {
+        transactionsViewModel.updateFilters(filterViewModel.filterState)
+    }
+
+    LaunchedEffect(filterViewModel.sortState) {
+        transactionsViewModel.updateSort(filterViewModel.sortState)
+    }
+
+    Scaffold(
+        topBar = {
         Appbar(
             stringResource(R.string.transactions),
             navBehaviour = { navController.popBackStack() },
             scrollBehavior = null
         )
-    }) {
-        paddingValues ->
-        TransactionLazyList(
-            transactions = transactions,
-            modifier = AppPadding.padding(screenPadding)
-                .fillMaxWidth()
-                .padding(paddingValues)
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun TransactionListItem(
-    counterPartyName: String,
-    transactionDirection: String,
-    amount: String,
-    transactionDate: String,
-    transactionURL: String? = null
-){
-    val formattedDate = transactionDate.toMonthAndDayOnlyDate()
-    val isCredit = transactionDirection.equals("CREDIT", true)
-
-    val amountColor =
-        if(isCredit)
-            Color.Green
-        else
-            MaterialTheme.colorScheme.error
-
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
+    },
+        contentWindowInsets = WindowInsets.systemBars
     ) {
-        if(transactionURL==null)
-            UserAvatar(counterPartyName, size = dimensionResource(R.dimen.user_avatar_transaction))
-        else
-            UserAvatar(counterPartyName, transactionURL,size = dimensionResource(R.dimen.user_avatar_transaction))
-
+        paddingValues ->
         Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            Text(
-                text = counterPartyName,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+
+            TransactionSearchBar(
+                query,  // Use StateFlow value
+                transactionsViewModel::onQueryChange,
+                {
+                    keyboardController?.hide()
+                    scope.launch {
+                        lazyListState.animateScrollToItem(0)
+                    }
+                },
+                {
+                    transactionsViewModel.onQueryChange("")
+                    keyboardController?.hide()
+                }
             )
-            Text(
-                text = formattedDate,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(R.dimen.filter_sheet_padding)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing))
+            ) {
+
+                FilterButton(
+                    labelText = stringResource(R.string.filter_label),
+                    activeCount = filterViewModel.filterState.selectedStatus.size +
+                            filterViewModel.filterState.selectedTypes.size +
+                            if (filterViewModel.filterState.selectedDirection != UiLedgerDirection.BOTH)
+                                1
+                            else
+                                0,
+                    sheetContent = {
+                        FilterSection(
+                            pendingState = filterViewModel.pendingState,
+                            onPendingStateChange = filterViewModel::onPendingStateChange,
+                            onApply = filterViewModel::onFilterApply,
+                            onReset = filterViewModel::onFilterReset,
+                            onDismiss = {
+                                filterViewModel.onFilterShowSheetChange(false)
+                            }
+                        )
+                    },
+                    showSheet = filterViewModel.filterShowSheet,
+                    onShowSheetChange = filterViewModel::onFilterShowSheetChange,
+                )
+
+                SortButton(
+                    selectedSort = filterViewModel.pendingSortState,
+                    onSortChange = filterViewModel::onSortChange,
+                    labelText = stringResource(R.string.sort_label),
+                    showSheet = filterViewModel.sortShowSheet,
+                    onShowSheetChange = filterViewModel::onSortShowSheetChange,
+                    onReset = { filterViewModel.onSortReset() },
+                    onApply = { filterViewModel.onSortApply()}
+                )
+            }
+
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            if (!isLoading && transactions.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_transactions_found),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            TransactionLazyList(
+                transactions = transactions,
+                state = lazyListState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
+                contentPadding = PaddingValues(
+                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                ),
+                navController = navController
             )
         }
-        Text(
-            text = "$RUPEESYMBOL$amount",
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            color = amountColor
-        )
     }
-
 }
+
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun String.toMonthAndDayOnlyDate(): String{
@@ -141,13 +199,19 @@ fun String.toMonthAndDayOnlyDate(): String{
     }
 }
 
-fun String.uiAmountDisplay(): String{
-    val parts = this.toString().split(".")
+fun String.uiAmountDisplay(): String {
+    val parts = this.split(".")
+
+    if (parts.size < 2) {
+        return this
+    }
+
     val wholePart = parts[0]
     val decimalPart = parts[1]
 
-    if(decimalPart.all{it=='0'})
-        return wholePart
-    else
-        return this
+    return if (decimalPart.all { it == '0' }) {
+        wholePart
+    } else {
+        this
+    }
 }

@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -53,7 +54,6 @@ import com.example.bankapp.ui.components.textfields.TrialingIconBehaviour
 import com.example.bankapp.ui.components.textfields.passwordHide
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.screenPadding
-import com.example.bankapp.ui.theme.titleFontSize
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -94,7 +94,7 @@ fun RegisterScreen(registerViewModelFactory: RegisterViewModelFactory, windowSiz
 
             Text(
                 text = stringResource(R.string.register_new_user_headline),
-                fontSize = titleFontSize,
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.ExtraBold
@@ -114,7 +114,7 @@ fun RegisterScreen(registerViewModelFactory: RegisterViewModelFactory, windowSiz
                     labelText = stringResource(R.string.username_field_name),
                     isError = viewModel.userNameError!=null,
                     supportingText = { ErrorTextBuilder(viewModel.userNameError) },
-                    leadingIcon = Icons.Outlined.Person,
+                    leadingIcon = Icons.Outlined.Person
                 )
 
                 MediumSpacer()
@@ -153,7 +153,7 @@ fun RegisterScreen(registerViewModelFactory: RegisterViewModelFactory, windowSiz
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number
                     ),
-                    leadingIcon = Icons.Outlined.Phone,
+                    leadingIcon = Icons.Outlined.Phone
                 )
 
                 MediumSpacer()

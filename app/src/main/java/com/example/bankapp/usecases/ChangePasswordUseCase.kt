@@ -1,11 +1,8 @@
 package com.example.bankapp.usecases
 
-import com.example.bankapp.entities.User
+import com.example.bankapp.entities.dbtables.User
 
 class ChangePasswordUseCase {
     var user: User? = null
 
-    fun clearUser(){
-        user = null
-    }
 }
