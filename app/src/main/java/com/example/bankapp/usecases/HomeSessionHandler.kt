@@ -6,12 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.example.bankapp.R
+import com.example.bankapp.entities.dbtables.Beneficiary
 import java.math.BigDecimal
+
+
 
 sealed class HomeSessionHandler {
 
     var intent: CurrentSessionIntent? = null
-
 
     companion object {
         private val instances = mutableMapOf<CurrentSessionIntent, HomeSessionHandler>()
@@ -20,6 +22,8 @@ sealed class HomeSessionHandler {
             return instances.getOrPut(type) {
                 when (type) {
                     CurrentSessionIntent.CASH_TRANSFER -> CashTransfer()
+                    CurrentSessionIntent.DEPOSIT -> Deposit()
+                    CurrentSessionIntent.BENEFICIARY_ADDITION -> AddBeneficiary()
                     else -> CashTransfer()
                 }
             }
@@ -33,8 +37,6 @@ sealed class HomeSessionHandler {
         actionState = newValue
     }
 
-
-
     var onOtpSuccess: (() -> Unit) = {}
     var onOtpDismiss: (() -> Unit) = {}
     var onPasswordSuccess: (() -> Unit) = {}
@@ -42,10 +44,7 @@ sealed class HomeSessionHandler {
 
     var resultContent by mutableStateOf<ResultContent?>(null)
 
-
     class CashTransfer: HomeSessionHandler() {
-
-
 
         var transactionId: String? = null
         var fromAccNo: Long = 0
@@ -58,13 +57,13 @@ sealed class HomeSessionHandler {
 
         var isFriend: Boolean = false
 
-        var onTransactionSuccessPrimaryAction: (() -> Unit)? = null
+        var onActionSuccessPrimaryAction: (() -> Unit)? = null
 
-        var onTransactionSuccessSecondaryAction: (() ->Unit)? = null
+        var onActionSuccessSecondaryAction: (() ->Unit)? = null
 
-        var onTransactionFailurePrimaryAction: (() -> Unit)? = null
+        var onActionFailurePrimaryAction: (() -> Unit)? = null
 
-        var onTransactionFailureSecondaryAction: (() -> Unit)? = null
+        var onActionFailureSecondaryAction: (() -> Unit)? = null
 
         fun onInitialize(fromAccNo: Long, toAccNo: Long, amount: BigDecimal, isFriend: Boolean) {
             this.fromAccNo = fromAccNo
@@ -87,64 +86,146 @@ sealed class HomeSessionHandler {
             isSuccess: Boolean,
             reason: String? = null
         ) {
-            println("DEBUG: buildResultContent called with isSuccess=$isSuccess")
             resultContent = if (isSuccess) {
-                val content = ResultContent(
-                    messages = listOf(
-                        ResultTextContent(
-                            text = UiText.StringResource(R.string.transaction_success),
-                            textType = TextType.TITLE
-                        ),
-                        ResultTextContent(
-                            text = UiText.DynamicString(amount.toPlainString()),
-                            textType = TextType.SUBTITLE
-                        ),
-                        ResultTextContent(
-                            text = UiText.DynamicString(
-                                java.time.LocalDateTime.now().toString()
-                            ),
-                            textType = TextType.MESSAGE
-                        )
+                ResultContent(
+                    text1 = UiText.StringResource(R.string.transaction_success),
+                    text2 = UiText.DynamicString(amount.toPlainString()),
+                    text3 = UiText.DynamicString(java.time.LocalDateTime.now().toString()),
+                    text4 = null,
+                    text5 = null,
+                    primaryButton = ResultButton(
+                        text = UiText.StringResource(R.string.done),
+                        onClick = {
+                            onActionSuccessPrimaryAction?.invoke()
+                        }
                     ),
-                    buttons = listOf(
-                        ResultButton(
-                            text = UiText.StringResource(R.string.done),
-                            onClick = {
-                                onTransactionSuccessPrimaryAction?.invoke()
-
-                            },
-                            role = ResultButtonType.PRIMARY
-                        )
-                    )
+                    secondaryButton = null
                 )
-                println("DEBUG: SUCCESS content created with ${content.messages.size} messages")
-                content
             }
             else {
                 ResultContent(
-                    messages = listOf(
-                        ResultTextContent(
-                            text = UiText.StringResource(R.string.transaction_failed),
-                            textType = TextType.TITLE
-                        ),
-                        ResultTextContent(
-                            text = UiText.DynamicString(reason ?: ""),
-                            textType = TextType.SUBTITLE
-                        )
+                    text1 = UiText.StringResource(R.string.transaction_failed),
+                    text2 = UiText.DynamicString(reason ?: ""),
+                    text3 = null,
+                    text4 = null,
+                    text5 = null,
+                    primaryButton = ResultButton(
+                        text = UiText.StringResource(R.string.try_again),
+                        onClick = {
+                            onActionFailurePrimaryAction?.invoke()
+                        }
                     ),
-                    buttons = listOf(
-                        ResultButton(
-                            text = UiText.StringResource(R.string.try_again),
-                            onClick = {
-                                onTransactionFailurePrimaryAction?.invoke()
-                            },
-                            role = ResultButtonType.PRIMARY
-                        )
-                    )
+                    secondaryButton = null
                 )
-
             }
-            println("DEBUG: resultContent set to $resultContent")
+        }
+    }
+
+    class Deposit: HomeSessionHandler(){
+
+        var transactionId: String? = null
+
+        var userAccNo: Long = 0
+
+        var userId: Long = 0
+
+        var amount: BigDecimal = BigDecimal.ZERO
+
+        var navigationLocked: Boolean = false
+
+        var onActionSuccessPrimaryAction: (() -> Unit)? = null
+
+        var onTransactionSuccessSecondaryAction: (() ->Unit)? = null
+
+        var onActionFailurePrimaryAction: (() -> Unit)? = null
+
+        var onTransactionFailureSecondaryAction: (() -> Unit)? = null
+
+        fun onInitialize(userAccNo: Long, userId: Long, amount: BigDecimal){
+            this.userAccNo = userAccNo
+            this.userId = userId
+            this.amount = amount
+        }
+
+        fun onDispose(){
+
+        }
+
+        fun buildResultContent(
+            isSuccess: Boolean,
+        ) {
+            resultContent = if (isSuccess) {
+                ResultContent(
+                    text1 = UiText.StringResource(R.string.transaction_success),
+                    text2 = UiText.DynamicString(amount.toPlainString()),
+                    text3 = UiText.DynamicString(java.time.LocalDateTime.now().toString()),
+                    text4 = null,
+                    text5 = null,
+                    primaryButton = ResultButton(
+                        text = UiText.StringResource(R.string.done),
+                        onClick = {
+                            onActionSuccessPrimaryAction?.invoke()
+                        }
+                    ),
+                    secondaryButton = null
+                )
+            }
+            else {
+                ResultContent(
+                    text1 = UiText.StringResource(R.string.transaction_failed),
+                    text2 = UiText.DynamicString(java.time.LocalDateTime.now().toString()),
+                    text3 = null,
+                    text4 = null,
+                    text5 = null,
+                    primaryButton = ResultButton(
+                        text = UiText.StringResource(R.string.try_again),
+                        onClick = {
+                            onActionFailurePrimaryAction?.invoke()
+                        }
+                    ),
+                    secondaryButton = null
+                )
+            }
+        }
+    }
+
+    class AddBeneficiary: HomeSessionHandler(){
+        var currentUserId: Long = 0
+
+        var otherUserId: Long = 0
+
+        var nickname: String = ""
+
+        fun onInitialize(currentUserId: Long, otherUserId: Long, nickname: String){
+            this.currentUserId = currentUserId
+            this.otherUserId = otherUserId
+            this.nickname = nickname
+        }
+
+        var onActionSuccessPrimaryAction: (() -> Unit)? = null
+
+        var onTransactionSuccessSecondaryAction: (() ->Unit)? = null
+
+        var onActionFailurePrimaryAction: (() -> Unit)? = null
+
+        var onTransactionFailureSecondaryAction: (() -> Unit)? = null
+
+        fun buildContent(isSuccess: Boolean){
+            resultContent =
+                if(isSuccess){
+                    ResultContent(
+                        text1 = UiText.StringResource(R.string.beneficiary_added_successfully),
+                        primaryButton = ResultButton(UiText.StringResource(R.string.done),
+                            { onActionSuccessPrimaryAction?.invoke() })
+                    )
+                 }
+                else{
+                    ResultContent(
+                        text1 = UiText.StringResource(R.string.failed_label),
+                        primaryButton = ResultButton(UiText.StringResource(R.string.try_again),
+                            {onActionFailurePrimaryAction?.invoke()})
+                    )
+                }
         }
     }
 }
@@ -156,32 +237,19 @@ enum class ActionState {
 }
 
 data class ResultContent(
-    val messages: List<ResultTextContent>,
-    val buttons: List<ResultButton>
+    val text1: UiText? = null,
+    val text2: UiText? = null,
+    val text3: UiText? = null,
+    val text4: UiText? = null,
+    val text5: UiText? = null,
+    val primaryButton: ResultButton? = null,
+    val secondaryButton: ResultButton? = null
 )
 
 data class ResultButton(
     val text: UiText,
-    val onClick: () -> Unit,
-    val role: ResultButtonType
+    val onClick: () -> Unit
 )
-
-data class ResultTextContent(
-    val text: UiText,
-    val textType: TextType
-)
-
-enum class ResultButtonType() {
-    PRIMARY,
-    SECONDARY,
-    TERTIARY
-}
-
-enum class TextType {
-    TITLE,
-    SUBTITLE,
-    MESSAGE
-}
 
 sealed class UiText {
     data class StringResource(val resId: Int) : UiText()

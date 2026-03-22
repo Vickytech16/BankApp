@@ -1,10 +1,13 @@
 package com.example.bankapp.ui.screens.authscreens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -30,13 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.example.bankapp.viewmodels.RegisterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -55,11 +59,14 @@ import com.example.bankapp.ui.components.textfields.passwordHide
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.screenPadding
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun RegisterScreen(registerViewModelFactory: RegisterViewModelFactory, windowSizeClass: WindowSizeClass, navController: NavController) {
-
+fun RegisterScreen(
+    registerViewModelFactory: RegisterViewModelFactory,
+    windowSizeClass: WindowSizeClass,
+    navController: NavController
+) {
     val viewModel: RegisterViewModel = viewModel(factory = registerViewModelFactory)
 
     val scrollState = rememberScrollState()
@@ -74,9 +81,18 @@ fun RegisterScreen(registerViewModelFactory: RegisterViewModelFactory, windowSiz
 
     BackButtonHandler(navController, LOGIN_ROUTE)
 
+    LaunchedEffect(viewModel.isSubmitSuccessful) {
+        if (viewModel.isSubmitSuccessful) {
+            navController.navigate("success-register")
+            viewModel.reset()
+        }
+    }
+
     Scaffold {
+        contentPadding ->
         Column(
-            modifier = AppPadding.padding(screenPadding).verticalScroll(scrollState),
+            modifier = getModifier(windowSizeClass, contentPadding, scrollState)
+                ,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         )
@@ -86,7 +102,8 @@ fun RegisterScreen(registerViewModelFactory: RegisterViewModelFactory, windowSiz
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp).padding(bottom = 30.dp),
+                    .height(dimensionResource(R.dimen.illustration_height))
+                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
                 contentScale = ContentScale.Fit
             )
 
@@ -209,11 +226,6 @@ fun RegisterScreen(registerViewModelFactory: RegisterViewModelFactory, windowSiz
                     isLoading = viewModel.isLoading,
                     text = stringResource(R.string.register_button)
                 )
-                LaunchedEffect(viewModel.isSubmitSuccessful) {
-                    if (viewModel.isSubmitSuccessful) {
-                        navController.navigate("success-register")
-                    }
-                }
 
                 ErrorTextBuilder(viewModel.submitError)
 
@@ -233,8 +245,30 @@ fun RegisterScreen(registerViewModelFactory: RegisterViewModelFactory, windowSiz
                         Text(stringResource(R.string.login_button))
                     }
                 }
+
+                XLSpacer()
+
             }
         }
+    }
+}
+
+
+fun getModifier(windowSizeClass: WindowSizeClass, contentPadding: PaddingValues, scrollState: ScrollState, ): Modifier{
+    if(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact || windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact){
+        return AppPadding
+            .verticalScroll(scrollState)
+            .padding(contentPadding)
+            .padding(screenPadding)
+            .fillMaxHeight()
+    }
+    else{
+        return AppPadding
+            .padding(contentPadding)
+            .padding(screenPadding)
+            .fillMaxHeight()
+            .verticalScroll(scrollState)
+
     }
 }
 

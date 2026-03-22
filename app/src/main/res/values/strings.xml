@@ -13,6 +13,8 @@
     <string name="account_number">Account Number</string>
     <string name="transactions">Transactions</string>
     <string name="home_tab_label">Home</string>
+    <string name="savings_account">Savings</string>
+    <string name="current_account">Current</string>
 
 
 <!-- Form Errors -->
@@ -195,6 +197,14 @@
     <string name="done">Done</string>
     <string name="transaction_failed">Transaction Failed</string>
     <string name="try_again">Try again</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="beneficiary_added_successfully">beneficiary added successfully!</string>
+    <string name="beneficiaries">Beneficiaries</string>
+    <string name="no_beneficiaries_found">No beneficiaries found</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="status_completed_successfully">Completed successfully!</string>
+    <string name="status_failed_insufficient_balance">Failed (Insufficient balance)</string>
 
 
 </resources>

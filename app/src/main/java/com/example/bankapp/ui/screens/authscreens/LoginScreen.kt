@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,8 +48,12 @@ import com.example.bankapp.ui.components.navigators.REGISTER_ROUTE
 
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.entities.types.LoginType
+import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.MediumHorizontalSpacer
+import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.viewmodels.LoginViewModel
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
+import com.example.bankapp.ui.components.navigators.LOGIN_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
 import com.example.bankapp.ui.theme.screenPadding
@@ -55,7 +61,6 @@ import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                  loginViewModelFactory: LoginViewModelFactory,
@@ -79,9 +84,18 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
             else -> 0.8f
         }
 
+    LaunchedEffect(loginViewModel.isLoginSuccessful) {
+        if (loginViewModel.isLoginSuccessful) {
+            navController.navigate(LOGIN_SUCCESS_ROUTE)
+        }
+    }
+
     Scaffold {
+        contentPadding ->
         Column(
-            modifier = AppPadding.padding(screenPadding).verticalScroll(scrollState),
+            modifier = getModifier(windowSizeClass, contentPadding, scrollState)
+            ,
+
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -91,7 +105,8 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp).padding(bottom = 30.dp),
+                    .height(dimensionResource(R.dimen.illustration_height))
+                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
                 contentScale = ContentScale.Fit
             )
 
@@ -163,7 +178,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                             FORGOT_PASSWORD_ROUTE
                         )
                     },
-                    modifier = Modifier.padding(top = 0.dp).align(alignment = Alignment.End),
+                    modifier = Modifier.align(alignment = Alignment.End),
                 ) {
 
                     Text(stringResource(R.string.forgot_password))
@@ -172,16 +187,12 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                 XLSpacer()
 
                 SubmitButton(
-                    onClick = {loginViewModel.onSubmit()},
+                    onClick = {
+                        loginViewModel.onSubmit()
+                              },
                     text = stringResource(R.string.login_button),
                     isLoading = loginViewModel.isLoading
                 )
-
-                LaunchedEffect(loginViewModel.isLoginSuccessful) {
-                    if (loginViewModel.isLoginSuccessful) {
-                        loggedInSessionViewModel.restoreSession()
-                    }
-                }
 
                ErrorTextBuilder(loginViewModel.submitError)
 
@@ -191,14 +202,14 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                 ) {
                     HorizontalDivider(
                         modifier = Modifier.weight(1f),
-                        thickness = 2.dp,
-                        color = MaterialTheme.colorScheme.outline
+                        thickness = dimensionResource(R.dimen.divider_thickness),
+                        color = MaterialTheme.colorScheme.outlineVariant
                     )
                     Text(" or ")
                     HorizontalDivider(
                         modifier = Modifier.weight(1f),
-                        thickness = 2.dp,
-                        color = MaterialTheme.colorScheme.outline
+                        thickness = dimensionResource(R.dimen.divider_thickness),
+                        color = MaterialTheme.colorScheme.outlineVariant
                     )
                 }
 
@@ -243,6 +254,7 @@ private fun SwitchToEmailLoginButton(onclickAction: (LoginType)->Unit){
         modifier = Modifier.fillMaxWidth()
     ){
         Icon(Icons.Outlined.Email, contentDescription = null)
+        MediumHorizontalSpacer()
         Text(stringResource(R.string.login_type_description, stringResource(R.string.email_field_name)))
     }
 }
@@ -256,6 +268,7 @@ private fun SwitchToPhoneNumberLoginButton(onclickAction: (LoginType) -> Unit){
         modifier = Modifier.fillMaxWidth()
     ){
         Icon(Icons.Outlined.Phone, contentDescription = null)
+        MediumHorizontalSpacer()
         Text(stringResource(R.string.login_type_description, stringResource(R.string.phone_number_field_name)))
     }
 }

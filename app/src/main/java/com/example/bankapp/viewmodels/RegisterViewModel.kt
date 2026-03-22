@@ -51,10 +51,13 @@ class RegisterViewModel(
     var emailFieldSelected by mutableStateOf(false)
         private set
 
+    fun onEmailFieldSelectedChange(newValue: Boolean){
+        emailFieldSelected = newValue
+    }
 
     fun onEmailChange(newEmail: String) {
         if (newEmail.length <= EMAIL_MAX_SIZE)
-            email = newEmail
+            email = newEmail.lowercase()
         emailError =
             newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
                     newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE) ?:
@@ -62,9 +65,6 @@ class RegisterViewModel(
         submitErrorReset()
     }
 
-    fun onEmailFieldSelectedChange(newValue: Boolean){
-        emailFieldSelected = newValue
-    }
 
     var phoneNumber by mutableStateOf("")
         private set
@@ -146,24 +146,22 @@ class RegisterViewModel(
         confirmPasswordVisible = !confirmPasswordVisible
     }
 
-    var isSubmitButtonClicked by mutableStateOf(false)
-        private set
-
-    fun onIsSubmitButtonClickedChange(newValue: Boolean){
-        isSubmitButtonClicked = newValue
-    }
-
     var submitError by mutableStateOf<FormError?>(null)
         private set
 
     var isSubmitSuccessful by mutableStateOf(false)
         private set
 
+    fun reset(){
+        isSubmitSuccessful = false
+    }
+
     private fun submitErrorReset()
     {
         if(userNameError==null && passwordError.isEmpty()  && emailError==null && phoneNumberError==null && confirmPasswordError==null)
             submitError=null
     }
+
 
     var isLoading by mutableStateOf(false)
         private set
@@ -200,14 +198,15 @@ class RegisterViewModel(
                     else {
                         submitError = null
                         isSubmitSuccessful = true
+
                         userRepository.createNewUser(
                             User(
-                                email = email,
+                                email = email.trim(),
                                 passwordHashed = PasswordHashingService.hash(password),
                                 userName = userName
                                     .trim()
                                     .replace(Regex("\\s+"), " "),
-                                phoneNumber = phoneNumber
+                                phoneNumber = phoneNumber.trim()
                             )
                         )
                     }

@@ -1,10 +1,16 @@
 package com.example.bankapp.ui.theme
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import com.example.bankapp.R
 
 object AppSpacing {
     val xs = 4.dp
@@ -16,8 +22,7 @@ object AppSpacing {
     val xxl = 32.dp
 }
 
-val AppPadding = Modifier
-    .fillMaxSize()
-    .safeContentPadding()
+val AppPadding = Modifier.safeContentPadding()
 
-val screenPadding = PaddingValues(24.dp)
+
+val screenPadding = PaddingValues(horizontal = 24.dp)

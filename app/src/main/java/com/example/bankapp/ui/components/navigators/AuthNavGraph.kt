@@ -101,7 +101,9 @@ fun NavGraphBuilder.authNavGraph(
             SuccessConfirmation(
                 stringResource(R.string.login_succcessful),
                 stringResource(R.string.loading_your_account),
-                {}
+                {
+                    loggedInSessionViewModel.restoreSession()
+                }
             )
         }
 

@@ -16,13 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.example.bankapp.R
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpec
 
 @Composable
 fun BottomNavigationBar(
     currentRoute: String,
     onNavigate: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    deviceSpec: DeviceSpec
 ) {
+    val navbarHeight = deviceSpec.navBarItemheight
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -32,7 +35,7 @@ fun BottomNavigationBar(
                 start = AppSpacing.sm,
                 end = AppSpacing.sm
             )
-            .height(dimensionResource(R.dimen.bottom_nav_height))
+            .height(dimensionResource(navbarHeight))
             .padding(vertical = AppSpacing.xs),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
@@ -45,7 +48,8 @@ fun BottomNavigationBar(
                 isSelected = isSelected,
                 onClick = {
                     onNavigate(item.route)
-                }
+                },
+                deviceSpec = deviceSpec
             )
         }
     }

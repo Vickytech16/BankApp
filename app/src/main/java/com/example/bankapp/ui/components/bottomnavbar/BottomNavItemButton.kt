@@ -19,12 +19,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpec
 
 @Composable
 fun BottomNavItemButton(
     item: BottomNavItem,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    deviceSpec: DeviceSpec
 ) {
     val animatedIconColor = animateColorAsState(
         targetValue = if (isSelected) {
@@ -44,11 +46,14 @@ fun BottomNavItemButton(
         label = "textColor"
     ).value
 
+    val navItemWidth = deviceSpec.navBarItemWidth
+    val navItemHeight = deviceSpec.navBarItemheight
+
     Column(
         modifier = Modifier
             .size(
-                width = dimensionResource(R.dimen.bottom_nav_item_width),
-                height = dimensionResource(R.dimen.bottom_nav_item_height)
+                width = dimensionResource(navItemWidth),
+                height = dimensionResource(navItemHeight)
             )
             .selectable(
                 selected = isSelected,

@@ -25,7 +25,7 @@ import java.time.LocalDateTime
     ],
     indices = [Index(value = ["userId"])])
 
-data class Account @RequiresApi(Build.VERSION_CODES.O) constructor(
+data class Account  constructor(
     @PrimaryKey(autoGenerate = true) val accNo: Long = 0,
     @ColumnInfo(name = "userId")
     val userId: Long,

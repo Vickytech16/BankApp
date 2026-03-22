@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,6 +42,7 @@ import com.example.bankapp.ui.components.filters.FilterButton
 import com.example.bankapp.ui.components.filters.FilterSection
 import com.example.bankapp.ui.components.filters.SortButton
 import com.example.bankapp.ui.components.transactionitems.TransactionSearchBar
+import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.viewmodels.FilterViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 import kotlinx.coroutines.launch
@@ -53,7 +55,8 @@ import java.util.Locale
 @Composable
 fun TransactionsScreen(
     transactionsViewModel: TransactionsViewModel, navController: NavController,
-    filterViewModelFactory: FilterViewModelFactory
+    filterViewModelFactory: FilterViewModelFactory,
+    windowSizeClass: WindowSizeClass
 ) {
     val transactions by transactionsViewModel.transactions.collectAsState()
     val query by transactionsViewModel.query.collectAsState()
@@ -65,6 +68,8 @@ fun TransactionsScreen(
     //val scrollState = rememberScrollState()
 
     val isLoading = transactionsViewModel.isLoading.collectAsState().value
+
+    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
 
 
     LaunchedEffect(filterViewModel.filterState) {
@@ -179,7 +184,8 @@ fun TransactionsScreen(
                 contentPadding = PaddingValues(
                     bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                 ),
-                navController = navController
+                navController = navController,
+                deviceSpec = deviceSpec
             )
         }
     }
@@ -187,7 +193,6 @@ fun TransactionsScreen(
 
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun String.toMonthAndDayOnlyDate(): String{
     return try {
         val truncated = this.substringBeforeLast(".")

@@ -29,6 +29,8 @@ import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.amountGreenColor
 import com.example.bankapp.utilities.formatTransactionDateTime
 import com.example.bankapp.utilities.uiAccNo
 
@@ -38,6 +40,9 @@ fun DepositDetailBody(
     paddingValues: PaddingValues,
     windowSizeClass: WindowSizeClass
 ) {
+
+    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,23 +72,34 @@ fun DepositDetailBody(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
+            println(transactionItem.direction)
+            val isCredit = transactionItem.direction.uppercase().equals("CREDIT", true)
+            val amountColor = if (isCredit) amountGreenColor else MaterialTheme.colorScheme.error
+            val amountPrefix = if (isCredit) "+" else "-"
+
+            Text(
+                text = amountPrefix,
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.Bold,
+                color = amountColor
+            )
             Text(
                 text = stringResource(R.string.rupee_symbol),
                 style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = amountColor
             )
             Text(
                 text = transactionItem.amount,
                 style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = amountColor
             )
         }
 
         LargeSpacer()
 
-        StatusSection(transactionItem.transactionStatus)
+        StatusSection(transactionItem.transactionStatus, deviceSpec = deviceSpec)
 
         LargeSpacer()
 
@@ -104,9 +120,10 @@ fun DepositDetailBody(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            DepositDetailsCard(
+            TransactionDetailsCard(
                 historyItem = transactionItem,
-                windowSizeClass = windowSizeClass
+                windowSizeClass = windowSizeClass,
+                isDeposit = true
             )
         }
 
@@ -114,53 +131,3 @@ fun DepositDetailBody(
     }
 }
 
-@Composable
-private fun DepositDetailsCard(
-    historyItem: TransactionHistoryItemDto,
-    windowSizeClass: WindowSizeClass
-) {
-    val cardWidthFraction = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 0.9f
-        WindowWidthSizeClass.Medium -> 0.6f
-        WindowWidthSizeClass.Expanded -> 0.5f
-        else -> 0.9f
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(cardWidthFraction)
-            .clip(RoundedCornerShape(dimensionResource(R.dimen.card_rounded_shape))),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = dimensionResource(R.dimen.card_elevation)
-        ),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.card_rounded_shape))
-    ) {
-        Column(
-            modifier = Modifier.padding(AppSpacing.md)
-        ) {
-            BankSection()
-
-            LargeSpacer()
-
-            TransactionField(
-                label = stringResource(R.string.reference_id),
-                value = historyItem.referenceNumber
-            )
-
-            LargeSpacer()
-
-            TransactionPartySection(
-                label = stringResource(R.string.deposit_label),
-                name = historyItem.myUserName,
-                accountNo = historyItem.myAccountNo.uiAccNo
-            )
-
-            LargeSpacer()
-
-            BalanceAfterSection(balanceAfter = historyItem.balanceAfter)
-        }
-    }
-}

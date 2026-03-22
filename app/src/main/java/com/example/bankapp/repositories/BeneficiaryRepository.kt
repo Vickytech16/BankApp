@@ -3,6 +3,7 @@ package com.example.bankapp.repositories
 
 import com.example.bankapp.entities.dbtables.Beneficiary
 import com.example.bankapp.daos.BeneficiaryDao
+import com.example.bankapp.entities.dtos.FriendDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -37,6 +38,12 @@ class BeneficiaryRepository(private val beneficiaryDao: BeneficiaryDao) {
     suspend fun getBeneficiary(userId: Long, beneficiaryUserId: Long): Beneficiary? {
         return withContext(Dispatchers.IO) {
             beneficiaryDao.getBeneficiary(userId, beneficiaryUserId)
+        }
+    }
+
+    suspend fun getAllBeneficiariesForUser(userId: Long): List<FriendDto> {
+        return  withContext(Dispatchers.IO) {
+            beneficiaryDao.getAllFriends(userId)
         }
     }
 

@@ -1,6 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+
+<!--    illustration content -->
+    <dimen name="illustration_height">200dp</dimen>
+    <dimen name="illustration_bottom_padding">30dp</dimen>
+
+<!--    padding values-->
+    <dimen name="horizontal_screen_padding">24dp</dimen>
+    <dimen name="app_bottom_paddin">24dp</dimen>
+
+<!--    buttons -->
+    <dimen name="submit_button_max_width">400dp</dimen>
+    <dimen name="divider_thickness">2dp</dimen>
+
+<!--    success confirmation screen -->
+    <dimen name="success_spacer_height">24dp</dimen>
+    <dimen name="success_subtitle_spacing">8dp</dimen>
+    <dimen name="login_screen_switch_button_spacing">10dp</dimen>
+
+<!--    home app bar items -->
+    <dimen name="home_appbar_padding_horizontal_mobile">24dp</dimen>
+    <dimen name="home_appbar_padding_top">24dp</dimen>
+    <dimen name="home_appbar_padding_bottom">16dp</dimen>
+    <dimen name="home_appbar_spacing_vertical">4dp</dimen>
+
+    <dimen name="home_appbar_padding_horizontal_tablet">32dp</dimen>
+
+    <dimen name="home_appbar_menu_button_size_mobile">48dp</dimen>
+
+    <dimen name="home_appbar_menu_button_size_tablet">56dp</dimen>
+
+<!--    navbar -->
+    <dimen name="bottom_nav_item_width_mobile_portrait">120dp</dimen>
+    <dimen name="bottom_nav_item_height_mobile_portrait">56dp</dimen>
+
+    <dimen name="bottom_nav_item_width_mobile_landscape">200dp</dimen>
+    <dimen name="bottom_nav_item_height_mobile_landscape">64dp</dimen>
+
+    <dimen name="bottom_nav_item_width_tablet_portrait">250dp</dimen>
+    <dimen name="bottom_nav_item_height_tablet_portrait">64dp</dimen>
+
+    <dimen name="bottom_nav_item_width_tablet_landscape">200dp</dimen>
+    <dimen name="bottom_nav_item_height_tablet_landscape">56dp</dimen>
+
+<!--    home screen card -->
+    <dimen name="home_screen_card_min_height">280dp</dimen>
+    <dimen name="home_screen_card_min_height_tablet">320dp</dimen>
+    <dimen name="home_screen_card_min_height_tablet_landscape">240dp</dimen>
+    <dimen name="home_screen_card_rounded_corner">24dp</dimen>
+    <dimen name="home_screen_card_elevation">4dp</dimen>
+    <dimen name="home_screen_card_inner_box_rounded_corner">12dp</dimen>
+    <dimen name="home_screen_card_inner_box_padding">16dp</dimen>
+    <dimen name="home_screen_card_logo_size_mobile">48dp</dimen>
+    <dimen name="home_screen_card_logo_size_tablet">56dp</dimen>
+    <dimen name="home_screen_card_spacing_vertical">4dp</dimen>
+    <dimen name="home_screen_card_account_info_padding">16dp</dimen>
+    <dimen name="home_screen_card_account_info_rounded_corner">12dp</dimen>
+    <dimen name="home_screen_card_account_section_spacing">24dp</dimen>
+
+<!--    transaction list item-->
+    <dimen name="transaction_list_item_avatar_size">52dp</dimen>
+    <dimen name="transaction_list_item_horizontal_padding">16dp</dimen>
+    <dimen name="transaction_list_item_vertical_padding">12dp</dimen>
+    <dimen name="transaction_list_item_spacing">16dp</dimen>
+    <dimen name="transaction_list_item_avatar_size_tablet">64dp</dimen>
+    <dimen name="transaction_list_item_Rounded_border">12dp</dimen>
+
+<!--    transaction detail section -->
+    <dimen name="status_section_rounded_corner">16dp</dimen>
+    <dimen name="status_icon_size">20dp</dimen>
+    <dimen name="transaction_detail_avatar_size_mobile">120dp</dimen>
+    <dimen name="transaction_detail_avatar_size_tablet">140dp</dimen>
+
+    <!-- Pay Screen Buttons -->
+    <dimen name="pay_screen_button_size_mobile">72dp</dimen>
+    <dimen name="pay_screen_button_size_tablet">120dp</dimen>
+    <dimen name="pay_screen_button_icon_size_mobile">40dp</dimen>
+    <dimen name="pay_screen_button_icon_size_tablet">52dp</dimen>
+
+    <!-- Pay Screen Section Card -->
+    <dimen name="pay_screen_card_padding">24dp</dimen>
+    <dimen name="pay_screen_card_padding_tablet">32dp</dimen>
+    <dimen name="pay_screen_section_spacing">24dp</dimen>
+
+
+
+
     <dimen name="splash_logo_top_padding">48dp</dimen>
     <dimen name="splash_logo_size">96dp</dimen>
     <dimen name="splash_horizontal_padding">32dp</dimen>
@@ -9,28 +95,34 @@
     <dimen name="splash_lottie_height">180dp</dimen>
     <dimen name="splash_lottie_bottom_padding">32dp</dimen>
     <dimen name="drawer_user_avatar_size">90dp</dimen>
-
-    <dimen name="home_screen_card_elevation">6dp</dimen>
-    <dimen name="home_screen_card_rounded_corner">24dp</dimen>
     <dimen name="user_avatar_transaction">50dp</dimen>
 
     <dimen name="filter_chip_spacing">8dp</dimen>
 <!--    <dimen name="filter_section_spacing">16dp</dimen>-->
     <dimen name="filter_bar_vertical_padding">8dp</dimen>
     <dimen name="filter_sheet_padding">16dp</dimen>
-    <dimen name="filter_icon_size">18dp</dimen>
+    <dimen name="filter_icon_size">24dp</dimen>
 
     <dimen name="screen_padding">24dp</dimen>
     <dimen name="search_bar_padding">8dp</dimen>
     <dimen name="search_bar_round_shape">50dp</dimen>
 
-    <dimen name="home_filled_icon_button_size">56dp</dimen>
-    <dimen name="home_filled_icon_button_icon_size">24dp</dimen>
+    <dimen name="qab_button_size">64dp</dimen>
+    <dimen name="qab_button_size_landscape">80dp</dimen>
+    <dimen name="qab_button_size_tab">100dp</dimen>
+
+
+    <dimen name="qab_icon_size">28dp</dimen>
+    <dimen name="qab_icon_size_landscape">28dp</dimen>
+    <dimen name="qab_icon_size_tab">40dp</dimen>
 
     <dimen name="button_circular_progress_indicator_size">16dp</dimen>
     <dimen name="button_circular_progress_indicator_stroke">2dp</dimen>
 
-    <dimen name="bottom_nav_height">72dp</dimen>
+
+
+
+
     <dimen name="amount_input_height">72dp</dimen>
     <dimen name="amount_input_corner_radius">12dp</dimen>
 
@@ -56,4 +148,10 @@
 
     <dimen name="bottom_nav_item_width">120dp</dimen>
     <dimen name="bottom_nav_item_height">56dp</dimen>
+    <dimen name="otp_field_max_width">320dp</dimen>
+
+
+    <dimen name="filter_button_width">90dp</dimen>
+    <dimen name="filter_button_height">48dp</dimen>
+
 </resources>

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -31,17 +32,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
-import com.example.bankapp.entities.SessionState
-import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.repositories.BeneficiaryRepository
+import com.example.bankapp.services.HomeSessionHandlerManager
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
-import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_RESULT_ROUTE
+
 import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
+import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
@@ -49,22 +49,32 @@ import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.usecases.CurrentSessionIntent
-import com.example.bankapp.usecases.TransactionSessionHolder
+import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.viewmodels.AddBeneficiaryViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBeneficiaryScreen(
     windowSizeClass: WindowSizeClass,
     navController: NavController,
     beneficiaryViewModelFactory: AddBeneficiaryViewModelFactory,
-    transactionSessionHolder: TransactionSessionHolder
 ) {
 
     val viewModel: AddBeneficiaryViewModel = viewModel(factory = beneficiaryViewModelFactory)
 
+    LaunchedEffect(Unit) {
+        HomeSessionHandlerManager.setHandlerByIntent(CurrentSessionIntent.BENEFICIARY_ADDITION)
+    }
+
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(viewModel.isVerificationSuccessful) {
+        if(viewModel.isVerificationSuccessful) {
+            viewModel.onVerificationSuccessful(navController)
+            navController.navigate("$HOME_OTP/$ADD_BENEFICIARY_ROUTE")
+        }
+    }
 
     val textFieldColumnWidth = when (windowSizeClass.widthSizeClass) {
         WindowWidthSizeClass.Compact -> 0.9f
@@ -79,10 +89,9 @@ fun AddBeneficiaryScreen(
         topBar = { Appbar(stringResource(R.string.add_beneficiary), { navController.navigate(HOME_ROUTE) }, null) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) {
+        contentPadding ->
         Column(
-            modifier = AppPadding
-                .padding(screenPadding)
-                .verticalScroll(scrollState),
+            modifier = AppPadding.padding(contentPadding).fillMaxHeight().verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -157,11 +166,7 @@ fun AddBeneficiaryScreen(
                 LaunchedEffect(viewModel.isVerificationSuccessful) {
                     if (viewModel.isVerificationSuccessful) {
 
-                                transactionSessionHolder.onTransactionTypeChange(
-                                    CurrentSessionIntent.BENEFICIARY_ADDITION)
-                                transactionSessionHolder.onPasswordVerificationNavigation = {
-                                    navController.navigate(ADD_BENEFICIARY_RESULT_ROUTE)
-                                }
+
                                 navController.navigate("$HOME_OTP/$ADD_BENEFICIARY_ROUTE")
 
                     }

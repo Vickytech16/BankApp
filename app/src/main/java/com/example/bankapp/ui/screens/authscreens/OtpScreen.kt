@@ -76,7 +76,12 @@ fun OtpScreen(
     val title = stringResource(R.string.your_otp)
     val message = stringResource(R.string.otp_field_name)
 
-    BackButtonHandler(navController, backRoute, onDismiss)
+    BackButtonHandler(navController, backRoute, {
+        otpViewModel.resetOtpState()
+        onDismiss()
+    })
+
+    println("Config change happened, current time is ${otpViewModel.otpExpiresAt}")
 
     val sendOtp = notificationPermissionHandler(
         {
@@ -94,13 +99,16 @@ fun OtpScreen(
     )
 
     LaunchedEffect(Unit) {
-        sendOtp()
+        if(!otpViewModel.isInitialOtpSent) {
+            sendOtp()
+            otpViewModel.onIsInitialOtpSentChange(true)
+        }
     }
 
     LaunchedEffect(notificationViewModel.hasPermissionBeenRequested) {
         if (notificationViewModel.hasPermissionBeenRequested && !notificationViewModel.isPermissionGranted) {
             val isNowGranted = checkPermission(context)
-            if (isNowGranted) {
+            if (isNowGranted && !otpViewModel.isOtpSent) {
                 sendOtp(
                     notificationViewModel = notificationViewModel,
                     otpViewModel = otpViewModel,
@@ -114,6 +122,7 @@ fun OtpScreen(
 
     LaunchedEffect(otpViewModel.isOtpValid) {
         if (otpViewModel.isOtpValid == true) {
+            otpViewModel.resetOtpState()
             onOtpSuccess()
         }
     }
@@ -122,11 +131,12 @@ fun OtpScreen(
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     DisposableEffect(Unit) {
-        val lifecycleObserver = LifecycleEventObserver { _, event ->
+        val lifecycleObserver = LifecycleEventObserver {
+            _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 if (notificationViewModel.hasPermissionBeenRequested && !notificationViewModel.isPermissionGranted) {
                     val isNowGranted = checkPermission(context)
-                    if (isNowGranted) {
+                    if (isNowGranted && !otpViewModel.isOtpSent) {
                         sendOtp(
                             notificationViewModel = notificationViewModel,
                             otpViewModel = otpViewModel,
@@ -146,11 +156,11 @@ fun OtpScreen(
         }
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            otpViewModel.resetOtpState()
-        }
-    }
+//    DisposableEffect(backRoute) {
+//        onDispose {
+//            otpViewModel.resetOtpState()
+//        }
+//    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -167,7 +177,8 @@ fun OtpScreen(
                 scrollBehavior = null
             )
         }
-    ) { paddingValues ->
+    ) {
+        paddingValues ->
         if (!notificationViewModel.isPermissionGranted && notificationViewModel.hasPermissionBeenRequested) {
             NotificationPermissionScreen(
                 modifier = Modifier.padding(paddingValues),
@@ -201,7 +212,7 @@ fun OtpInputScreen(
             .padding(paddingValues)
             .verticalScroll(androidx.compose.foundation.rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.lg),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.weight(0.3f))
 

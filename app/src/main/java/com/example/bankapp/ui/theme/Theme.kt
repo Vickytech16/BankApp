@@ -15,40 +15,41 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF1B3A6B),
+    primary = Color(0xFF8B4513),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFC8D9F5),
-    onPrimaryContainer = Color(0xFF0A1E3F),
+    primaryContainer = Color(0xFFD4A574),
+    onPrimaryContainer = Color(0xFF3E2010),
 
-    secondary = Color(0xFFB8860B),
+    secondary = Color(0xFFA0826D),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFFFE5A0),
-    onSecondaryContainer = Color(0xFF2A1F00),
+    secondaryContainer = Color(0xFFE8D5C4),
+    onSecondaryContainer = Color(0xFF3E2F23),
 
-    tertiary = Color(0xFF2E7D6B),
+    tertiary = Color(0xFF9B6B47),
     onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFF9FE5D3),
-    onTertiaryContainer = Color(0xFF001511),
+    tertiaryContainer = Color(0xFFDEC9B0),
+    onTertiaryContainer = Color(0xFF35220A),
 
-    background = Color(0xFFFAFBFE),
-    onBackground = Color(0xFF0A1118),
+    background = Color(0xFFE8DCC8),
+    onBackground = Color(0xFF2B2520),
 
-    surface = Color(0xFFFDFDFE),
-    onSurface = Color(0xFF0A1118),
-    surfaceVariant = Color(0xFFF0F4FC),
-    onSurfaceVariant = Color(0xFF515A6D),
+    surface = Color(0xFFE8DCC8),
+    onSurface = Color(0xFF2B2520),
+    surfaceContainer = Color(0xFFD9C9B3),
+    surfaceVariant = Color(0xFFD4C4B0),
+    onSurfaceVariant = Color(0xFF6B6158),
 
     error = Color(0xFFB3261E),
     onError = Color(0xFFFFFFFF),
     errorContainer = Color(0xFFF9DEDC),
     onErrorContainer = Color(0xFF370B0E),
 
-    outline = Color(0xFF8A93A5),
-    outlineVariant = Color(0xFFD6DFEE),
+    outline = Color(0xFF9B8B7E),
+    outlineVariant = Color(0xFFD9CFBF),
     scrim = Color(0xFF000000),
-    inverseSurface = Color(0xFF0F1419),
-    inverseOnSurface = Color(0xFFF5F5F5),
-    inversePrimary = Color(0xFFADC8FF),
+    inverseSurface = Color(0xFF3F3935),
+    inverseOnSurface = Color(0xFFE8DCC8),
+    inversePrimary = Color(0xFFD4A574),
 )
 
 val DarkColorScheme = darkColorScheme(
@@ -123,3 +124,42 @@ fun BankAppTheme(
         content = content
     )
 }
+
+/*
+val LightColorScheme = lightColorScheme(
+    primary = Color(0xFF0D2A5C),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFB8D1F5),
+    onPrimaryContainer = Color(0xFF001A41),
+
+    secondary = Color(0xFF996F00),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFFFD89D),
+    onSecondaryContainer = Color(0xFF1F1500),
+
+    tertiary = Color(0xFF1F6B5C),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFF82EED9),
+    onTertiaryContainer = Color(0xFF00201B),
+
+    background = Color(0xFFF8FAFD),
+    onBackground = Color(0xFF07101A),
+
+    surface = Color(0xFFFBFCFE),
+    onSurface = Color(0xFF07101A),
+    surfaceVariant = Color(0xFFE7F0FA),
+    onSurfaceVariant = Color(0xFF3F4A62),
+
+    error = Color(0xFFAA3830),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFF7D8D6),
+    onErrorContainer = Color(0xFF2A0D0B),
+
+    outline = Color(0xFF6F7A8F),
+    outlineVariant = Color(0xFFCED8ED),
+    scrim = Color(0xFF000000),
+    inverseSurface = Color(0xFF0C1520),
+    inverseOnSurface = Color(0xFFF2F6FC),
+    inversePrimary = Color(0xFFC4D9FF),
+)
+ */

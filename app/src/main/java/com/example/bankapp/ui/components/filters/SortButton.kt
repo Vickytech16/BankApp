@@ -19,6 +19,7 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -46,7 +47,10 @@ fun SortButton(
         AssistChip(
             onClick = { onShowSheetChange(true) },
             label = {
-                Text(labelText)
+                Text(
+                    labelText,
+                    style = MaterialTheme.typography.labelLarge
+                )
             },
             leadingIcon = {
                 Icon(
@@ -54,7 +58,11 @@ fun SortButton(
                     contentDescription = null,
                     modifier = Modifier.size(dimensionResource(R.dimen.filter_icon_size))
                 )
-            }
+            },
+            modifier = Modifier.size(
+                width = dimensionResource(R.dimen.filter_button_width),
+                height = dimensionResource(R.dimen.filter_button_height)
+            )
         )
 
     if (showSheet) {
@@ -73,7 +81,7 @@ fun SortButton(
             ) {
                 FilterSortRadioButton(
                     title = stringResource(R.string.sort_label),
-                    options = SortOptions.entries.toList(),
+                    options = SortOptions.entries.toList().filter { it != SortOptions.EXPENSIVE_FIRST },
                     selected = selectedSort,
                     onClick = { sortOption ->
                         onSortChange(sortOption)

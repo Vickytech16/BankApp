@@ -1,10 +1,9 @@
 package com.example.bankapp.ui.screens.authscreens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,12 +24,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
@@ -51,7 +50,6 @@ import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.viewmodels.ForgotPasswordViewModel
 import com.example.bankapp.viewmodels.OtpVerificationViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgetPasswordScreen(
@@ -73,14 +71,21 @@ fun ForgetPasswordScreen(
 
     BackButtonHandler(navController, LOGIN_ROUTE)
 
+    LaunchedEffect(viewModel.isVerificationSuccessful) {
+        if (viewModel.isVerificationSuccessful) {
+            navController.navigate("$AUTH_OTP/$FORGOT_PASSWORD_ROUTE")
+        }
+    }
+
     Scaffold(
-        topBar = { Appbar("Forgot Password", { navController.navigate(AUTH_ROUTE) }, null) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
-    ) {
+        topBar = {
+            Appbar(stringResource(R.string.forgot_password),
+                { navController.navigate(AUTH_ROUTE) },
+                null)
+        }
+    ) { contentPadding ->
         Column(
-            modifier = AppPadding
-                .padding(screenPadding)
-                .verticalScroll(scrollState),
+            modifier = getModifier(windowSizeClass,contentPadding,scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -89,12 +94,12 @@ fun ForgetPasswordScreen(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(bottom = 30.dp),
+                    .height(dimensionResource(R.dimen.illustration_height))
+                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
                 contentScale = ContentScale.Fit
             )
 
-            XLSpacer()
+            MediumSpacer()
 
             Text(
                 text = stringResource(R.string.enter_your_details_headline),
@@ -150,13 +155,7 @@ fun ForgetPasswordScreen(
 
                 ErrorTextBuilder(viewModel.submitError)
 
-                MediumSpacer()
-
-                LaunchedEffect(viewModel.isVerificationSuccessful) {
-                    if (viewModel.isVerificationSuccessful) {
-                        navController.navigate("$AUTH_OTP/$FORGOT_PASSWORD_ROUTE")
-                    }
-                }
+                XLSpacer()
             }
         }
     }

@@ -2,11 +2,14 @@ package com.example.bankapp.ui.screens
 
 import AmountOutlinedTextField
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -14,14 +17,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -29,6 +30,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,46 +55,60 @@ import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_R
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.ui.components.navigators.TransactionSessionManager
+import com.example.bankapp.services.HomeSessionHandlerManager
 import com.example.bankapp.ui.components.textfields.AccountNumberOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
-import com.example.bankapp.usecases.TransactionSessionHolder
+import com.example.bankapp.utilities.toDbAccNo
 import com.example.bankapp.viewmodels.CashTransferViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CashTransferScreen(
     windowSizeClass: WindowSizeClass,
     cashTransferViewModelFactory: CashTransferViewModelFactory,
     navController: NavController,
+    friendAccNo: String? = null
 ) {
 
-    LaunchedEffect(Unit) {
-        TransactionSessionManager.setHandlerByIntent(CurrentSessionIntent.CASH_TRANSFER)
-    }
-
     val viewModel: CashTransferViewModel = viewModel(factory = cashTransferViewModelFactory)
+
+    LaunchedEffect(Unit) {
+        HomeSessionHandlerManager.setHandlerByIntent(CurrentSessionIntent.CASH_TRANSFER)
+        friendAccNo?.let {
+            viewModel.onFriendPay(friendAccNo)
+        }
+    }
     val scrollState = rememberScrollState()
+
+    val illustrationHeight = dimensionResource(R.dimen.illustration_height).value.toInt()
+
+    LaunchedEffect(windowSizeClass.heightSizeClass) {
+        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
+            scrollState.animateScrollTo(illustrationHeight + 400)
+        }
+    }
 
 
     LaunchedEffect(viewModel.isVerifySuccessful) {
-        val homeSessionHandler = TransactionSessionManager.currentHandler
-        val cashTransfer = homeSessionHandler as HomeSessionHandler.CashTransfer
 
-        if (viewModel.isVerifySuccessful) {
+        if (viewModel.isVerifySuccessful && !viewModel.isNavigationSet) {
+
+            viewModel.isNavigationSet = true
+
+            val homeSessionHandler = HomeSessionHandlerManager.currentHandler
+            val cashTransfer = homeSessionHandler as HomeSessionHandler.CashTransfer
+
             cashTransfer.navigationLocked = false
 
-            cashTransfer.onTransactionSuccessPrimaryAction = {
+            cashTransfer.onActionSuccessPrimaryAction = {
                 if (!cashTransfer.navigationLocked) {
                     cashTransfer.navigationLocked = true
                     val transactionId = cashTransfer.transactionId
-
-                    println("DEBUG: Done button clicked, transactionId = $transactionId")
 
                     if (transactionId != null) {
                         navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
@@ -106,7 +124,7 @@ fun CashTransferScreen(
                 }
             }
 
-            cashTransfer.onTransactionFailurePrimaryAction = {
+            cashTransfer.onActionFailurePrimaryAction = {
                 if (!cashTransfer.navigationLocked) {
                     cashTransfer.navigationLocked= true
                     navController.navigate(CASH_TRANSFER_ROUTE) {
@@ -135,14 +153,14 @@ fun CashTransferScreen(
                 }
             }
 
-
-                navController.navigate("$HOME_OTP/$CASH_TRANSFER_ROUTE")
+            navController.navigate("$HOME_OTP/$CASH_TRANSFER_ROUTE")
         }
+
     }
 
     val textFieldColumnWidth =
         when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> 0.9f
+            WindowWidthSizeClass.Compact -> 0.8f
             WindowWidthSizeClass.Medium -> 0.6f
             WindowWidthSizeClass.Expanded -> 0.5f
             else -> 0.8f
@@ -150,11 +168,11 @@ fun CashTransferScreen(
 
 
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.resetScreenState()
-        }
-    }
+//    DisposableEffect(Unit) {
+//        onDispose {
+//            viewModel.resetScreenState()
+//        }
+//    }
 
     Scaffold(
         topBar = {
@@ -168,13 +186,24 @@ fun CashTransferScreen(
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) {
+        contentPadding ->
         Column(
-            modifier = AppPadding
-                .padding(screenPadding)
-                .verticalScroll(scrollState),
+            modifier = AppPadding.padding(contentPadding).fillMaxHeight().verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.signup_illustration),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dimensionResource(R.dimen.illustration_height))
+                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
+                contentScale = ContentScale.Fit
+            )
+
+            MediumSpacer()
+
             Text(
                 text = stringResource(R.string.enter_transaction_details),
                 style = MaterialTheme.typography.titleLarge,
@@ -189,17 +218,20 @@ fun CashTransferScreen(
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AccountNumberOutlinedTextField(
-                    accountNumber = viewModel.accountNumber,
-                    onAccountNumberChange = viewModel::onAccountNumberChange,
-                    accountNumberError = viewModel.accountNumberError,
-                )
 
-                XSSpacer()
+                if(friendAccNo?.toDbAccNo()==null || friendAccNo.toDbAccNo()==0.toLong()) {
+                    AccountNumberOutlinedTextField(
+                        accountNumber = viewModel.accountNumber,
+                        onAccountNumberChange = viewModel::onAccountNumberChange,
+                        accountNumberError = viewModel.accountNumberError,
+                    )
 
-                AccountVerificationMessage(viewModel.accountExistsStatus)
+                    XSSpacer()
 
-                MediumSpacer()
+                    AccountVerificationMessage(viewModel.accountExistsStatus)
+
+                    MediumSpacer()
+                }
 
                 AmountOutlinedTextField(
                     amount = viewModel.amount,
@@ -221,6 +253,8 @@ fun CashTransferScreen(
 
                 ErrorTextBuilder(viewModel.submitError)
             }
+
+            XLSpacer()
         }
     }
 }
@@ -229,9 +263,11 @@ fun CashTransferScreen(
 private fun AccountVerificationMessage(accountExistsStatus: AccountStatus?) {
     if (accountExistsStatus != null) {
         Row(
-            modifier = Modifier.padding(top = AppSpacing.sm),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = AppSpacing.sm),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+            horizontalArrangement = Arrangement.Start
         ) {
             Icon(
                 imageVector = when (accountExistsStatus) {

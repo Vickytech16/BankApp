@@ -54,7 +54,9 @@ fun TransactionDetailsScreen(
                 navBehaviour = {navController.popBackStack()},
                 scrollBehavior = null,
                 actions = {
-                    IconButton(onClick = { /* Share action */ }) {
+                    IconButton(onClick = {
+
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.Share,
                             contentDescription = stringResource(R.string.share_button_content_description),
@@ -75,6 +77,7 @@ fun TransactionDetailsScreen(
                 when (detailItem.transactionType) {
 
                     TransactionType.CASH_TRANSFER -> {
+                        print(detailItem.direction +"ghjhg")
                         CashTransferDetailBody(
                             transactionItem = detailItem,
                             paddingValues = paddingValues,

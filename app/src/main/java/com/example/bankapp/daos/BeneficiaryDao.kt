@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.bankapp.entities.dbtables.Beneficiary
+import com.example.bankapp.entities.dtos.FriendDto
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,4 +28,36 @@ interface BeneficiaryDao {
 
     @Query("DELETE FROM beneficiaries WHERE userId = :userId AND beneficiaryUserId = :beneficiaryUserId")
     suspend fun removeBeneficiary(userId: Long, beneficiaryUserId: Long)
+
+    @Query("""
+    SELECT 
+        b.beneficiaryId,
+        b.userId,
+        u.userName as friendName,
+        b.beneficiaryUserId as friendUserId,
+        u.pfpURL as friendPfp,
+        a.accNo as friendPrimaryAccNo
+    FROM beneficiaries b
+    INNER JOIN users u ON b.beneficiaryUserId = u.userId
+    INNER JOIN accounts a ON u.userId = a.userId
+    WHERE b.userId = :userId
+    ORDER BY b.addedDate DESC
+""")
+    suspend fun getAllFriends(userId: Long): List<FriendDto>
+
+    @Query("""
+    SELECT 
+        b.beneficiaryId,
+        b.userId,
+        u.userName as friendName,
+        b.beneficiaryUserId as friendUserId,
+        u.pfpURL as friendPfp,
+        a.accNo as friendPrimaryAccNo
+    FROM beneficiaries b
+    INNER JOIN users u ON b.beneficiaryUserId = u.userId
+    INNER JOIN accounts a ON u.userId = a.userId
+    WHERE b.beneficiaryId = :beneficiaryId
+    LIMIT 1
+""")
+    suspend fun getFriendById(beneficiaryId: Long): FriendDto?
 }

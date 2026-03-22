@@ -45,5 +45,7 @@ const val TRANSACTION_RESULT_ROUTE = "transaction_result"
 
 const val ADD_BENEFICIARY_ROUTE = "add_beneficiary"
 
-const val ADD_BENEFICIARY_RESULT_ROUTE = "add_beneficiary_result"
+const val PAY_TO_BENEFICIARY_ROUTE = "pay_to_beneficiary"
+
+
 

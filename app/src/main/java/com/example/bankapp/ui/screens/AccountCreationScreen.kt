@@ -32,12 +32,12 @@ import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
+import com.example.bankapp.ui.screens.authscreens.getModifier
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.viewmodels.AccountCreationViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
 @Composable
 fun AccountCreationScreen(navController: NavController, accountCreationViewModelFactory: AccountCreationViewModelFactory, windowSizeClass: WindowSizeClass, restoreSession: ()-> Unit)
 {
@@ -55,8 +55,9 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
         }
 
     Scaffold() {
+        contentPadding ->
         Column(
-            modifier = AppPadding.padding(screenPadding).verticalScroll(scrollState),
+            modifier = getModifier(windowSizeClass, contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

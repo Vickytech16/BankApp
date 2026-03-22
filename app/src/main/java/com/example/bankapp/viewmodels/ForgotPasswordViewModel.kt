@@ -83,7 +83,7 @@ class ForgotPasswordViewModel(
                     submitError = FormError.AllFieldsAreRequired
                 else {
                     val user: User? =
-                        userRepository.getUserByEmailAndPhoneNumber(email.trim(), phoneNumber)
+                        userRepository.getUserByEmailAndPhoneNumber(email.trim().lowercase(), phoneNumber)
                     if (user == null)
                         submitError = FormError.InvalidCredentials
                     else {

@@ -2,12 +2,15 @@ package com.example.bankapp.ui.components.transactionitems
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,9 +23,10 @@ import com.example.bankapp.R
 import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.screens.toMonthAndDayOnlyDate
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.amountGreenColor
 import com.example.bankapp.utilities.RUPEE_SYMBOL
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TransactionListItem(
     counterPartyName: String,
@@ -30,60 +34,64 @@ fun TransactionListItem(
     amount: String,
     transactionDate: String,
     pfpURL: String? = null,
-    onClickAction: () -> Unit = {}
-){
+    onClickAction: () -> Unit = {},
+    deviceSpec: DeviceSpec
+) {
     val formattedDate = transactionDate.toMonthAndDayOnlyDate()
     val isCredit = transactionDirection.equals("CREDIT", true)
+    val avatarSize = dimensionResource(deviceSpec.transactionListItemAvatarSize)
 
-    val amountColor =
-        if(isCredit)
-            Color.Green
-        else
-            MaterialTheme.colorScheme.error
-    Row(
+    val amountColor = if (isCredit) amountGreenColor else MaterialTheme.colorScheme.error
+    val amountPrefix = if (isCredit) "+" else "-"
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm)
-            .clickable(
-                enabled = true,
-                onClick = onClickAction
+            .clickable(enabled = true, onClick = onClickAction)
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(dimensionResource(R.dimen.transaction_list_item_Rounded_border))
             )
-        ,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
+            .padding(deviceSpec.transactionListItemHorizontalPadding)
 
     ) {
-        if(pfpURL==null)
-            UserAvatar(counterPartyName, size = dimensionResource(R.dimen.user_avatar_transaction))
-        else
-            UserAvatar(
-                counterPartyName,
-                pfpURL,
-                size = dimensionResource(R.dimen.user_avatar_transaction)
-            )
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(deviceSpec.transactionListItemSpacing)
         ) {
+            if (pfpURL == null)
+                UserAvatar(counterPartyName, size = avatarSize)
+            else
+                UserAvatar(
+                    counterPartyName,
+                    pfpURL,
+                    size = avatarSize
+                )
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+            ) {
+                Text(
+                    text = counterPartyName,
+                    style = deviceSpec.transactionListItemCounterPartyNameStyle(),
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = formattedDate,
+                    style = deviceSpec.transactionListItemDateStyle(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Text(
-                text = counterPartyName,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = formattedDate,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = "$amountPrefix$RUPEE_SYMBOL$amount",
+                style = deviceSpec.transactionListItemMoneyStyle(),
+                fontWeight = FontWeight.Bold,
+                color = amountColor
             )
         }
-        Text(
-            text = "$RUPEE_SYMBOL$amount",
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            color = amountColor
-        )
     }
-
 }

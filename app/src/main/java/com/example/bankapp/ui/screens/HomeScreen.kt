@@ -1,20 +1,32 @@
 package com.example.bankapp.ui.screens
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.More
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.outlined.AccountBalance
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,24 +34,27 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.HomeViewModelFactory
-import com.example.bankapp.ui.components.appbar.HomeAppBar
-import com.example.bankapp.ui.components.HomeDrawer
-import com.example.bankapp.ui.components.homeitems.HomeTransactionSection
-import com.example.bankapp.ui.components.homeitems.HomeScreenCard
+import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.XLSpacer
+import com.example.bankapp.ui.components.appbar.HomeAppBar
 import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
 import com.example.bankapp.ui.components.buttons.QuickActionsButton
+import com.example.bankapp.ui.components.homeitems.HomeScreenCard
+import com.example.bankapp.ui.components.homeitems.HomeTransactionSection
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
+import com.example.bankapp.ui.components.navigators.PAY_TO_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTIONS_LOG_ROUTE
-import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.ui.theme.screenPadding
+import com.example.bankapp.ui.screens.authscreens.getModifier
+import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.utilities.uiAccNo
 import com.example.bankapp.viewmodels.HomeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -56,36 +71,37 @@ fun HomeScreen(
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: HOME_ROUTE
 
-
     val scrollState = rememberScrollState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
+    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val isTablet = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
+    val isLandscape = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val detailsCardColumnWidth = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 1f
-        WindowWidthSizeClass.Medium -> 0.75f
-        WindowWidthSizeClass.Expanded -> 0.6f
-        else -> 0.9f
-    }
-
-    val drawerWidth = when(windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 0.75f
-        WindowWidthSizeClass.Medium -> 0.60f
-        WindowWidthSizeClass.Expanded -> 0.5f
-        else -> 0.75f
-    }
-
-    HomeDrawer(drawerState = drawerState, logoutAction = logoutAction, username = homeViewModel.username, modifier = Modifier.fillMaxWidth(drawerWidth))
-    {
+    com.example.bankapp.ui.components.HomeDrawer(
+        drawerState = drawerState,
+        logoutAction = logoutAction,
+        username = homeViewModel.username,
+        modifier = Modifier.fillMaxWidth(
+            when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 0.75f
+                WindowWidthSizeClass.Medium -> 0.60f
+                WindowWidthSizeClass.Expanded -> 0.5f
+                else -> 0.75f
+            }
+        )
+    ) {
         Scaffold(
             topBar = {
-                HomeAppBar(homeViewModel.username, drawerState)
+                HomeAppBar(homeViewModel.username, drawerState, scrollBehavior, deviceSpec)
             },
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             bottomBar = {
                 BottomNavigationBar(
                     currentRoute = currentRoute,
-                    onNavigate = {
-                            route ->
+                    deviceSpec = deviceSpec,
+                    onNavigate = { route ->
                         navController.navigate(route) {
                             popUpTo(HOME_ROUTE) {
                                 saveState = true
@@ -95,74 +111,82 @@ fun HomeScreen(
                         }
                     }
                 )
-            },
-            contentWindowInsets = WindowInsets.systemBars
-        ) {
-                contentPadding ->
-
+            }
+        ) { innerPadding ->
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .padding(contentPadding)
-                    .padding(screenPadding)
-                    .padding(top = AppSpacing.md),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = getModifier(windowSizeClass, innerPadding, scrollState)
+                  ,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
                 Box(
-                    modifier = Modifier.fillMaxWidth(detailsCardColumnWidth)
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    HomeScreenCard(account.balance.toString(), account.accNo.uiAccNo, homeViewModel.isBalanceVisible, homeViewModel::onIsBalanceVisibleChange)
+                    HomeScreenCard(
+                        account = account,
+                        isBalanceVisible = homeViewModel.isBalanceVisible,
+                        onIsBalanceVisibleChange = homeViewModel::onIsBalanceVisibleChange,
+                        deviceSpec = deviceSpec
+                    )
                 }
 
                 XLSpacer()
 
-                Text(
-                    text = stringResource(R.string.quick_actions_label),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .fillMaxWidth(detailsCardColumnWidth)
-                        .padding(bottom = AppSpacing.sm)
-                )
-
+//                Text(
+//                    text = stringResource(R.string.quick_actions_label),
+//                    style = deviceSpec.quickActionsLabelStyle(),
+//                    fontWeight = FontWeight.SemiBold,
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                    modifier = Modifier
+//                        .fillMaxWidth(deviceSpec.cardWidth)
+//                        .padding(
+//                            horizontal = deviceSpec.HomeCardHorizontalPadding,
+//                            vertical = deviceSpec.HomeCardVerticalPadding
+//                        )
+//                )
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    modifier = Modifier
+                        .fillMaxWidth(deviceSpec.cardWidth)
+                        .padding(horizontal = deviceSpec.HomeCardHorizontalPadding),
+                    horizontalArrangement = Arrangement.spacedBy(deviceSpec.quickActionsSpacing)
                 ) {
                     QuickActionsButton(
-                        onClickAction = { navController.navigate(CASH_TRANSFER_ROUTE) },
+                        onClickAction = { navController.navigate(PAY_TO_BENEFICIARY_ROUTE) },
                         icon = Icons.Outlined.AccountBalance,
                         label = stringResource(R.string.pay_to_friend),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        deviceSpec = deviceSpec
                     )
                     QuickActionsButton(
                         onClickAction = { navController.navigate(CASH_TRANSFER_ROUTE) },
                         icon = Icons.Outlined.SwapHoriz,
                         label = stringResource(R.string.pay_anyone),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        deviceSpec = deviceSpec
                     )
                     QuickActionsButton(
                         onClickAction = { navController.navigate(DEPOSIT_ROUTE) },
                         icon = Icons.Outlined.AccountBalanceWallet,
                         label = stringResource(R.string.deposit_button),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        deviceSpec = deviceSpec
                     )
                 }
 
-                Spacer(Modifier.height(AppSpacing.lg))
+                LargeSpacer()
 
                 HomeTransactionSection(
-                    transactions,
-                    {
+                    transactions = transactions,
+                    onSeeAllClickAction = {
                         navController.navigate(TRANSACTIONS_LOG_ROUTE)
                     },
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    navController
-
+                        .fillMaxWidth()
+                        .padding(horizontal = deviceSpec.HomeCardHorizontalPadding),
+                    navController = navController,
+                    deviceSpec = deviceSpec
                 )
             }
         }

@@ -16,6 +16,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -49,7 +50,8 @@ fun FilterButton(
         AssistChip(
             onClick = { onShowSheetChange(true) },
             label = {
-                Text(labelText)
+                Text(labelText,
+                    style = MaterialTheme.typography.labelLarge)
             },
             leadingIcon = {
                 Icon(
@@ -57,7 +59,11 @@ fun FilterButton(
                     contentDescription = null,
                     modifier = Modifier.size(dimensionResource(R.dimen.filter_icon_size))
                 )
-            }
+            },
+            modifier = Modifier.size(
+                width = dimensionResource(R.dimen.filter_button_width),
+                height = dimensionResource(R.dimen.filter_button_height)
+            )
         )
     }
 

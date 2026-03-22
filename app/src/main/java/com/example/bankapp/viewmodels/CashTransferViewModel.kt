@@ -8,15 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.FormError
-import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.entities.types.AccountStatus
-import com.example.bankapp.entities.types.TransactionType
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.ui.components.navigators.TransactionSessionManager
+import com.example.bankapp.services.HomeSessionHandlerManager
 import com.example.bankapp.usecases.CurrentSessionIntent
-import com.example.bankapp.usecases.CurrentTransactionStatus
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.ACCOUNT_NUMBER_SIZE
 import com.example.bankapp.utilities.amountFieldValidator
@@ -25,7 +22,6 @@ import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidNumericalFieldErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 import com.example.bankapp.utilities.toDbAccNo
-import com.example.bankapp.utilities.uiAccNo
 import kotlinx.coroutines.launch
 
 class CashTransferViewModel(
@@ -38,7 +34,7 @@ class CashTransferViewModel(
     private val account = sessionState.account
 
     private val homeSessionHandler: HomeSessionHandler
-        get() = TransactionSessionManager.currentHandler
+        get() = HomeSessionHandlerManager.currentHandler
 
     private val cashTransfer: HomeSessionHandler.CashTransfer
         get() = homeSessionHandler as HomeSessionHandler.CashTransfer
@@ -65,10 +61,18 @@ class CashTransferViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
+    var isNavigationSet by mutableStateOf(false)
 
 
     var isVerifySuccessful by mutableStateOf(false)
         private set
+
+    fun onFriendPay(accNo: String){
+        accountNumber = accNo
+        accountNumberError = null
+        checkAccountExists(accNo)
+        isVerifySuccessful = false
+    }
 
     fun onAccountNumberChange(newAccountNumber: String) {
         if (newAccountNumber.length <= ACCOUNT_NUMBER_SIZE)
@@ -126,6 +130,10 @@ class CashTransferViewModel(
 
         onAmountChange(amount)
         onAccountNumberChange(accountNumber)
+
+        if(accountNumber.length<12 && accountNumber.isNotEmpty()){
+            accountExistsStatus = AccountStatus.NOT_FOUND
+        }
         onSubmitErrorReset()
 
         viewModelScope.launch {
@@ -144,11 +152,9 @@ class CashTransferViewModel(
                 }
 
                 if (submitError == null) {
-
                     val otherUserId = accountRepository.getUserIdByAccNo(accountNumber.toDbAccNo())
 
                     val isFriend = beneficiaryRepository.getBeneficiary(sessionState.user.userId, otherUserId) != null
-
 
                     cashTransfer.onInitialize(
                         sessionState.account.accNo,
@@ -160,7 +166,6 @@ class CashTransferViewModel(
                     cashTransfer.intent = CurrentSessionIntent.CASH_TRANSFER
 
                     isVerifySuccessful = true
-
                 }
             } catch (_: Exception) {
                 submitError = FormError.UnknownError

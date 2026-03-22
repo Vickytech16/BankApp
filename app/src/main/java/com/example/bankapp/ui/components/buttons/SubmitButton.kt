@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +23,9 @@ import com.example.bankapp.R
 @Composable
 fun SubmitButton(
     onClick: ()->Unit,
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier.
+                         widthIn(max = dimensionResource(R.dimen.submit_button_max_width)).
+                         fillMaxWidth(),
     text: String = stringResource(R.string.submit_button),
     enabled: Boolean = true,
     isLoading: Boolean = false

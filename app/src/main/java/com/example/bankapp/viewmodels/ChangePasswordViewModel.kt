@@ -101,6 +101,12 @@ class ChangePasswordViewModel(
     var isSubmitSuccessful by mutableStateOf(false)
         private set
 
+    fun submitErrorReset(){
+        if(passwordError.isEmpty() && confirmPasswordError==null){
+            submitError = null
+        }
+    }
+
     var isLoading by mutableStateOf(false)
         private set
 

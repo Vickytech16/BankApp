@@ -24,6 +24,8 @@ class OtpViewModel: ViewModel(){
         expireOtp()
     }
 
+    var isInitialOtpSent by mutableStateOf(false)
+        private set
 
     var otpExpiresAt by mutableIntStateOf(60)
         private set
@@ -31,18 +33,41 @@ class OtpViewModel: ViewModel(){
     var isOtpSent by mutableStateOf(false)
         private set
 
+    private var remainingTime by mutableStateOf(60)
+
     fun generateOtp(){
+        otpExpiryJob?.cancel()
+
+        println("generate otp called on config")
+
         generatedOtp = (100000..999999).random()
         otpExpiresAt = 60
+        remainingTime = 60
 
         isOtpSent = true
-        otpExpiryJob?.cancel()
+        resetOtpInputs()
+
+
         otpExpiryJob = viewModelScope.launch {
-            while(otpExpiresAt>0){
+            while(remainingTime>0){
                 delay(1000)
-                otpExpiresAt--
+                remainingTime--
+                otpExpiresAt = remainingTime
             }
             expireOtp()
+        }
+    }
+
+    fun onOtpInputChange(index: Int, value: String) {
+        if (value.length <= 1 && (value.isEmpty() || value.all { it.isDigit() })) {
+            val newInputs = otpInputs.toMutableList()
+            newInputs[index] = value
+            otpInputs = newInputs.toList()
+
+            if (value.isNotEmpty()) {
+                submitError = null
+                isOtpValid = null
+            }
         }
     }
 
@@ -70,19 +95,12 @@ class OtpViewModel: ViewModel(){
         private set
 
 
-    fun onOtpInputChange(index: Int, value: String) {
-        if (value.length <= 1 && (value.isEmpty() || value.all { it.isDigit() })) {
-            val newInputs = otpInputs.toMutableList()
-            newInputs[index] = value
-            otpInputs = newInputs
-
-            submitError = null
-            isOtpValid = null
-        }
-    }
-
     fun resetOtpInputs() {
         otpInputs = List(6) { "" }
+    }
+
+    fun onIsInitialOtpSentChange(newValue: Boolean){
+        isInitialOtpSent = newValue
     }
 
     fun resetOtpState() {
@@ -108,3 +126,14 @@ class OtpViewModel: ViewModel(){
         }
     }
 }
+
+//fun onOtpInputChange(index: Int, value: String) {
+//    if (value.length <= 1 && (value.isEmpty() || value.all { it.isDigit() })) {
+//        val newInputs = otpInputs.toMutableList()
+//        newInputs[index] = value
+//        otpInputs = newInputs
+//
+//        submitError = null
+//        isOtpValid = null
+//    }
+//}

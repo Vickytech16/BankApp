@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -45,6 +46,10 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 
+
+
+val otpFontSize = 20.sp
+
 @Composable
 fun OtpInputField(
     otpInputs: List<String>,
@@ -73,27 +78,35 @@ fun OtpInputField(
         focusRequesters[nextFocusIndex].requestFocus()
     }
 
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(x = shakeOffset.dp),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing)),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
+        contentAlignment = Alignment.Center
     ) {
-        repeat(6) { index ->
-            OtpBox(
-                value = otpInputs[index],
-                isError = isError,
-                onValueChange = { newValue ->
-                    onOtpChange(index, newValue)
-                },
-                onBackspace = {
-                    if (index > 0) {
-                        focusRequesters[index - 1].requestFocus()
-                    }
-                },
-                focusRequester = focusRequesters[index]
-            )
+        Row(
+            modifier = Modifier
+                .widthIn(dimensionResource(R.dimen.otp_field_max_width))
+                .offset(x = shakeOffset.dp),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(6) { index ->
+                OtpBox(
+                    value = otpInputs[index],
+                    isError = isError,
+                    onValueChange = { newValue ->
+                        onOtpChange(index, newValue)
+                    },
+                    onBackspace = {
+                        if (index > 0) {
+                            focusRequesters[index - 1].requestFocus()
+                        }
+                    },
+                    focusRequester = focusRequesters[index],
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
@@ -104,7 +117,8 @@ private fun OtpBox(
     isError: Boolean,
     onValueChange: (String) -> Unit,
     onBackspace: () -> Unit,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    modifier: Modifier = Modifier
 ) {
     val scale = animateFloatAsState(
         targetValue = 1f,
@@ -125,8 +139,7 @@ private fun OtpBox(
                 onValueChange(newValue)
             }
         },
-        modifier = Modifier
-            .size(dimensionResource(R.dimen.otp_box_size))
+        modifier = modifier
             .scale(scale.value)
             .border(
                 width = dimensionResource(R.dimen.otp_box_border),
@@ -148,7 +161,7 @@ private fun OtpBox(
         ),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         textStyle = TextStyle(
-            fontSize = 20.sp,
+            fontSize = otpFontSize,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface
@@ -164,7 +177,7 @@ private fun OtpBox(
                     Text(
                         text = "•",
                         style = TextStyle(
-                            fontSize = 20.sp,
+                            fontSize = otpFontSize,
                             color = MaterialTheme.colorScheme.outlineVariant
                         )
                     )
@@ -172,7 +185,7 @@ private fun OtpBox(
                     Text(
                         text = "•",
                         style = TextStyle(
-                            fontSize = 20.sp,
+                            fontSize = otpFontSize,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
