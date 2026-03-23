@@ -6,10 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.example.bankapp.R
-import com.example.bankapp.entities.dbtables.Beneficiary
 import java.math.BigDecimal
-
-
 
 sealed class HomeSessionHandler {
 
@@ -49,6 +46,7 @@ sealed class HomeSessionHandler {
         var transactionId: String? = null
         var fromAccNo: Long = 0
         var toAccNo: Long = 0
+
         var amount: BigDecimal = BigDecimal.ZERO
 
         var onNavigate: (() -> Unit)? = null
@@ -74,13 +72,13 @@ sealed class HomeSessionHandler {
 
         }
 
-        fun onDispose() {
-            onNavigate = null
-            onOtpSuccess = {}
-            onOtpDismiss = {}
-            onPasswordSuccess = {}
-            onPasswordFailure = {}
-        }
+//        fun onDispose() {
+//            onNavigate = null
+//            onOtpSuccess = {}
+//            onOtpDismiss = {}
+//            onPasswordSuccess = {}
+//            onPasswordFailure = {}
+//        }
 
         fun buildResultContent(
             isSuccess: Boolean,
@@ -91,31 +89,24 @@ sealed class HomeSessionHandler {
                     text1 = UiText.StringResource(R.string.transaction_success),
                     text2 = UiText.DynamicString(amount.toPlainString()),
                     text3 = UiText.DynamicString(java.time.LocalDateTime.now().toString()),
-                    text4 = null,
-                    text5 = null,
                     primaryButton = ResultButton(
                         text = UiText.StringResource(R.string.done),
                         onClick = {
                             onActionSuccessPrimaryAction?.invoke()
                         }
                     ),
-                    secondaryButton = null
                 )
             }
             else {
                 ResultContent(
                     text1 = UiText.StringResource(R.string.transaction_failed),
                     text2 = UiText.DynamicString(reason ?: ""),
-                    text3 = null,
-                    text4 = null,
-                    text5 = null,
                     primaryButton = ResultButton(
                         text = UiText.StringResource(R.string.try_again),
                         onClick = {
                             onActionFailurePrimaryAction?.invoke()
                         }
                     ),
-                    secondaryButton = null
                 )
             }
         }
@@ -131,7 +122,6 @@ sealed class HomeSessionHandler {
 
         var amount: BigDecimal = BigDecimal.ZERO
 
-        var navigationLocked: Boolean = false
 
         var onActionSuccessPrimaryAction: (() -> Unit)? = null
 
@@ -147,10 +137,6 @@ sealed class HomeSessionHandler {
             this.amount = amount
         }
 
-        fun onDispose(){
-
-        }
-
         fun buildResultContent(
             isSuccess: Boolean,
         ) {
@@ -159,31 +145,24 @@ sealed class HomeSessionHandler {
                     text1 = UiText.StringResource(R.string.transaction_success),
                     text2 = UiText.DynamicString(amount.toPlainString()),
                     text3 = UiText.DynamicString(java.time.LocalDateTime.now().toString()),
-                    text4 = null,
-                    text5 = null,
                     primaryButton = ResultButton(
                         text = UiText.StringResource(R.string.done),
                         onClick = {
                             onActionSuccessPrimaryAction?.invoke()
                         }
                     ),
-                    secondaryButton = null
                 )
             }
             else {
                 ResultContent(
                     text1 = UiText.StringResource(R.string.transaction_failed),
                     text2 = UiText.DynamicString(java.time.LocalDateTime.now().toString()),
-                    text3 = null,
-                    text4 = null,
-                    text5 = null,
                     primaryButton = ResultButton(
                         text = UiText.StringResource(R.string.try_again),
                         onClick = {
                             onActionFailurePrimaryAction?.invoke()
                         }
                     ),
-                    secondaryButton = null
                 )
             }
         }
@@ -215,15 +194,21 @@ sealed class HomeSessionHandler {
                 if(isSuccess){
                     ResultContent(
                         text1 = UiText.StringResource(R.string.beneficiary_added_successfully),
-                        primaryButton = ResultButton(UiText.StringResource(R.string.done),
-                            { onActionSuccessPrimaryAction?.invoke() })
+                        primaryButton = ResultButton(
+                            UiText.StringResource(R.string.done),
+                            {
+                                onActionSuccessPrimaryAction?.invoke()
+                            })
                     )
                  }
                 else{
                     ResultContent(
                         text1 = UiText.StringResource(R.string.failed_label),
-                        primaryButton = ResultButton(UiText.StringResource(R.string.try_again),
-                            {onActionFailurePrimaryAction?.invoke()})
+                        primaryButton = ResultButton(
+                            UiText.StringResource(R.string.try_again),
+                            {
+                                onActionFailurePrimaryAction?.invoke()
+                            })
                     )
                 }
         }

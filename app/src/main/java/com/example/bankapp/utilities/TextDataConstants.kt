@@ -8,13 +8,7 @@ const val PASSWORD_MAX_SIZE = 64
 
 const val PHONE_NUMBER_MAX_SIZE = 15
 
-const val AMOUNT_SIZE = 6
-
-const val AMOUNT_DECIMAL_SIZE = 2
-
 const val ACCOUNT_NUMBER_SIZE = 12
-
-const val HIDDEN_BALANCE = "******"
 
 const val RUPEE_SYMBOL = "₹"
 

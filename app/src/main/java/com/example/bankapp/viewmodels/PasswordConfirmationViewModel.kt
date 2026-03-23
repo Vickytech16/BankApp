@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class PasswordConfirmationViewModel(
     private val sessionState: SessionState.Authenticated.AccountRegistered,
-    private val transactionSessionHolder: TransactionSessionHolder
+   // private val transactionSessionHolder: TransactionSessionHolder
 ) : ViewModel() {
 
     private val user = sessionState.user
@@ -90,7 +90,7 @@ class PasswordConfirmationViewModel(
                 }
 
                 if (PasswordHashingService.matches(password, user.passwordHashed)) {
-                    transactionSessionHolder.onPasswordVerification?.invoke()
+                   // transactionSessionHolder.onPasswordVerification?.invoke()
                     isPasswordVerified = true
                 } else {
                     submitError = FormError.PasswordDoesntMatch
@@ -104,7 +104,7 @@ class PasswordConfirmationViewModel(
     }
 
     fun resetSession(){
-        transactionSessionHolder.reset()
+        ///transactionSessionHolder.reset()
     }
 
     fun resetScreenState() {

@@ -22,6 +22,7 @@ import com.example.bankapp.R
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.textFieldFontSize
 
 
 @Composable
@@ -59,7 +60,7 @@ fun AmountOutlinedTextField(
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             textStyle = TextStyle(
-                fontSize = 18.sp,
+                fontSize = textFieldFontSize,
                 fontWeight = FontWeight.Medium
             ),
             isError = amountError != null,

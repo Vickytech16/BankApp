@@ -27,7 +27,6 @@ fun LottieSuccessTick(
         speed = 1f
     )
 
-    // Detect animation end
     LaunchedEffect(progress) {
         if (progress == 1f) {
             onAnimationFinished()

@@ -48,7 +48,7 @@ fun PayToBeneficiaryScreen(
     val isLoading = viewModel.isLoading
 
     val filteredFriends = friends.filter { friend ->
-        friend.friendUserId.toString().contains(query, ignoreCase = true)
+        friend.friendName.contains(query, ignoreCase = true)
     }
 
     Scaffold(
@@ -69,10 +69,13 @@ fun PayToBeneficiaryScreen(
             TransactionSearchBar(
                 query,
                 viewModel::onQueryChange,
-                { },
+                {
+
+                },
                 {
                     viewModel.onQueryChange("")
-                }
+                },
+                placeholderText = stringResource(R.string.search_friend_hint)
             )
 
             if (isLoading) {

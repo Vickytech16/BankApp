@@ -35,4 +35,12 @@ class HomeViewModel(
     fun onIsBalanceVisibleChange() {
         isBalanceVisible = !isBalanceVisible
     }
+
+    var showLogoutDialog by mutableStateOf(false)
+
+    fun onLogoutClickChange(newValue: Boolean) {
+        showLogoutDialog = newValue
+    }
+
+
 }

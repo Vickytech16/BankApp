@@ -34,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.example.bankapp.ui.theme.textFieldFontSize
+import com.example.bankapp.utilities.ACCOUNT_NUMBER_SIZE
 
 @Composable
 fun AccountNumberOutlinedTextField(
@@ -44,6 +46,8 @@ fun AccountNumberOutlinedTextField(
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(formatAccountNumber(accountNumber)))
     }
+
+
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -60,7 +64,7 @@ fun AccountNumberOutlinedTextField(
             value = textFieldValue,
             onValueChange = { newValue ->
                 val digitsOnly = newValue.text.replace(" ", "")
-                if (digitsOnly.length <= 12) {
+                if (digitsOnly.length <= ACCOUNT_NUMBER_SIZE) {
                     onAccountNumberChange(digitsOnly)
                     val formatted = formatAccountNumber(digitsOnly)
                     val cursorPosition = minOf(newValue.selection.start + 1, formatted.length)
@@ -81,7 +85,7 @@ fun AccountNumberOutlinedTextField(
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             textStyle = TextStyle(
-                fontSize = 18.sp,
+                fontSize = textFieldFontSize,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 2.sp
             ),

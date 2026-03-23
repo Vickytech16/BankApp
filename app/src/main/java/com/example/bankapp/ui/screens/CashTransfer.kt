@@ -1,7 +1,6 @@
 package com.example.bankapp.ui.screens
 
 import AmountOutlinedTextField
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,7 +25,6 @@ import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,11 +53,10 @@ import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_R
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.services.HomeSessionHandlerManager
+import com.example.bankapp.di.HomeSessionHandlerProvider
 import com.example.bankapp.ui.components.textfields.AccountNumberOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.toDbAccNo
@@ -78,7 +75,7 @@ fun CashTransferScreen(
     val viewModel: CashTransferViewModel = viewModel(factory = cashTransferViewModelFactory)
 
     LaunchedEffect(Unit) {
-        HomeSessionHandlerManager.setHandlerByIntent(CurrentSessionIntent.CASH_TRANSFER)
+        HomeSessionHandlerProvider.setHandlerByIntent(CurrentSessionIntent.CASH_TRANSFER)
         friendAccNo?.let {
             viewModel.onFriendPay(friendAccNo)
         }
@@ -100,7 +97,7 @@ fun CashTransferScreen(
 
             viewModel.isNavigationSet = true
 
-            val homeSessionHandler = HomeSessionHandlerManager.currentHandler
+            val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
             val cashTransfer = homeSessionHandler as HomeSessionHandler.CashTransfer
 
             cashTransfer.navigationLocked = false

@@ -19,13 +19,13 @@ import java.time.LocalDateTime
             entity = User::class,
             parentColumns = arrayOf("userId"),
             childColumns = arrayOf("userId"),
-            onDelete = ForeignKey.Companion.CASCADE,
-            onUpdate = ForeignKey.Companion.CASCADE
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )
     ],
     indices = [Index(value = ["userId"])])
 
-data class Account  constructor(
+data class Account(
     @PrimaryKey(autoGenerate = true) val accNo: Long = 0,
     @ColumnInfo(name = "userId")
     val userId: Long,

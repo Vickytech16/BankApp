@@ -28,7 +28,6 @@ import com.example.bankapp.ui.screens.SuccessConfirmation
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 import com.example.bankapp.viewmodels.OtpVerificationViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.authNavGraph(
     navController: NavController,
     windowSizeClass: WindowSizeClass,
@@ -39,7 +38,7 @@ fun NavGraphBuilder.authNavGraph(
     loggedInSessionViewModel: LoggedInSessionViewModel,
     otpViewModelFactory: OtpViewModelFactory,
     notificationViewModelFactory: NotificationViewModelFactory,
-    otpVerificationViewModelFactory: OtpVerificationViewModelFactory
+
 ) {
     navigation(
         startDestination = LOGIN_ROUTE,
@@ -63,15 +62,11 @@ fun NavGraphBuilder.authNavGraph(
         }
 
         composable(FORGOT_PASSWORD_ROUTE) {
-            val otpVerificationViewModel: OtpVerificationViewModel = viewModel(
-                factory = otpVerificationViewModelFactory
-            )
 
             ForgetPasswordScreen(
                 windowSizeClass = windowSizeClass,
                 navController = navController,
-                forgotPasswordViewModelFactory = forgotPasswordViewModelFactory,
-                otpVerificationViewModel = otpVerificationViewModel
+                forgotPasswordViewModelFactory = forgotPasswordViewModelFactory
             )
         }
 

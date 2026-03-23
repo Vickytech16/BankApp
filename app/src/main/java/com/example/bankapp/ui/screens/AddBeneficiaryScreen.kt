@@ -1,7 +1,6 @@
 package com.example.bankapp.ui.screens
 
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -28,11 +28,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
-import com.example.bankapp.services.HomeSessionHandlerManager
+import com.example.bankapp.di.HomeSessionHandlerProvider
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
@@ -41,15 +42,12 @@ import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 
 import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
-import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
-import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.usecases.CurrentSessionIntent
-import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.viewmodels.AddBeneficiaryViewModel
 
 
@@ -64,10 +62,18 @@ fun AddBeneficiaryScreen(
     val viewModel: AddBeneficiaryViewModel = viewModel(factory = beneficiaryViewModelFactory)
 
     LaunchedEffect(Unit) {
-        HomeSessionHandlerManager.setHandlerByIntent(CurrentSessionIntent.BENEFICIARY_ADDITION)
+        HomeSessionHandlerProvider.setHandlerByIntent(CurrentSessionIntent.BENEFICIARY_ADDITION)
     }
 
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(windowSizeClass.heightSizeClass) {
+        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
+            scrollState.animateScrollTo(400)
+        }
+    }
+
+
 
     LaunchedEffect(viewModel.isVerificationSuccessful) {
         if(viewModel.isVerificationSuccessful) {
@@ -86,7 +92,10 @@ fun AddBeneficiaryScreen(
     BackButtonHandler(navController, PAY_ROUTE)
 
     Scaffold(
-        topBar = { Appbar(stringResource(R.string.add_beneficiary), { navController.navigate(HOME_ROUTE) }, null) },
+        topBar = { Appbar(stringResource(R.string.add_beneficiary), {
+            navController.navigate(HOME_ROUTE)
+        }, null)
+     },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) {
         contentPadding ->

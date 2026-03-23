@@ -12,7 +12,6 @@ import kotlinx.coroutines.withContext
 interface AccountRepository {
     suspend fun getAccountByUserId(userId: Long):List<Account>
 
-
     fun getAccountAsFlowByAccountNumber(accNo: Long): Flow<Account?>
 
     suspend fun createAccount(account: Account) : Long

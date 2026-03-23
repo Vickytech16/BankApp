@@ -10,7 +10,7 @@ import com.example.bankapp.entities.errors.TransactionResult
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
 
-import com.example.bankapp.services.HomeSessionHandlerManager
+import com.example.bankapp.di.HomeSessionHandlerProvider
 import com.example.bankapp.usecases.ActionState
 import com.example.bankapp.usecases.HomeSessionHandler
 import kotlinx.coroutines.launch
@@ -28,7 +28,7 @@ class TransactionResultViewModel(
 
     fun cashTransfer(){
 
-        val homeSessionHandler = HomeSessionHandlerManager.currentHandler
+        val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
 
         val cashTransfer = homeSessionHandler as HomeSessionHandler.CashTransfer
 
@@ -80,9 +80,9 @@ class TransactionResultViewModel(
 
     fun Deposit(){
 
-        val homeSessionHandler = HomeSessionHandlerManager.currentHandler
+        val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
 
-        val deposit = HomeSessionHandlerManager.currentHandler as HomeSessionHandler.Deposit
+        val deposit = HomeSessionHandlerProvider.currentHandler as HomeSessionHandler.Deposit
 
         viewModelScope.launch {
             try {
@@ -125,7 +125,7 @@ class TransactionResultViewModel(
 
     fun AddBeneficiary(){
 
-        val homeSessionHandler = HomeSessionHandlerManager.currentHandler
+        val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
         val addBeneficiary = homeSessionHandler as HomeSessionHandler.AddBeneficiary
 
         viewModelScope.launch {

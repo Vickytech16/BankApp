@@ -1,7 +1,5 @@
 package com.example.bankapp.repositories
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.withTransaction
 import com.example.bankapp.core.BankDatabase
 import com.example.bankapp.daos.AccountDao
@@ -30,8 +28,6 @@ class TransactionRepository(
    private val accountDao: AccountDao,
    private val database: BankDatabase
 ){
-
-
   fun getFilteredTransactions(
       accNo: Long,
       searchQuery: String = "",
@@ -186,12 +182,6 @@ class TransactionRepository(
                 accountDao.getAccountAsFlowByAccNo(accNo = accountNo).firstOrNull()
                     ?: return@withTransaction TransactionResult.Error.AccountNotFound
 
-    //            val existingTransaction: Transaction? = transactionDao.getTransactionByIdempotencyKey(idempotencyKey)
-    //
-    //            if(existingTransaction!=null) {
-    //                return@withTransaction TransactionResult.Error.RepeatedTransaction
-    //            }
-
             val transaction = createTransaction(
                 transactionType = TransactionType.DEPOSIT,
                 transactionStatus = TransactionStatus.PENDING,
@@ -228,21 +218,6 @@ class TransactionRepository(
         }
     }
 
-
-//    @RequiresApi(Build.VERSION_CODES.O)
-//    private fun getUpdatedAccount(balance: BigDecimal, account: Account): Account{
-//        val newAccount: Account = account.copy(
-//            userId = account.userId,
-//            ifscCode = account.ifscCode,
-//            accountType = account.accountType,
-//            balance = balance,
-//            createdAt = account.createdAt,
-//            updatedAt = LocalDateTime.now()
-//        )
-//        return newAccount
-//    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun getUpdatedTransaction(
         transaction: Transaction,
         transactionStatus: TransactionStatus,

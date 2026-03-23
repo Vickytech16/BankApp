@@ -31,8 +31,6 @@ fun FilterSection(
     onReset: () -> Unit,
     onDismiss: () -> Unit
 ){
-
-
     Column(
         modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.filter_sheet_padding)),
     ){

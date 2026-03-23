@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import com.example.bankapp.R
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.textFieldFontSize
 
 @Composable
 fun GenericOutlinedTextField(
@@ -68,7 +69,7 @@ fun GenericOutlinedTextField(
             ),
             keyboardOptions = keyboardOptions,
             textStyle = TextStyle(
-                fontSize = 18.sp,
+                fontSize = textFieldFontSize,
                 fontWeight = FontWeight.Medium
             ),
             isError = isError,

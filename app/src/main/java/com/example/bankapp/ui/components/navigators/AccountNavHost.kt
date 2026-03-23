@@ -10,8 +10,6 @@ import androidx.navigation.navigation
 import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.ui.screens.AccountCreationScreen
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
-
-@RequiresApi(Build.VERSION_CODES.O)
     fun NavGraphBuilder.accountNavGraph(
         accountCreationViewModelFactory: AccountCreationViewModelFactory,
         navController: NavController,

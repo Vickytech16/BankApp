@@ -14,30 +14,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 
-
-
-
 @Composable
-fun QuickActionsButton(
+fun PayScreenButton(
     onClickAction: () -> Unit,
     icon: ImageVector,
     label: String,
-    modifier: Modifier = Modifier,
-    deviceSpec: DeviceSpec
+    deviceSpec: DeviceSpec,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(deviceSpec.qabButtonSpacing)
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
     ) {
         FilledIconButton(
             onClick = onClickAction,
-            modifier = Modifier.size(dimensionResource(deviceSpec.qabButtonSize)),
+            modifier = Modifier.size(dimensionResource(deviceSpec.payScreenButtonSize)),
             shape = CircleShape,
             colors = IconButtonDefaults.filledIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.tertiary,
@@ -47,7 +44,7 @@ fun QuickActionsButton(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                modifier = Modifier.size(dimensionResource(deviceSpec.qabButtonIconSize)),
+                modifier = Modifier.size(dimensionResource(deviceSpec.payScreenButtonIconSize)),
             )
         }
         Text(

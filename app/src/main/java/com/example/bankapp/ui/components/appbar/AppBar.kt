@@ -23,7 +23,7 @@ fun Appbar(
     actions: @Composable () -> Unit = {}
     )
     {
-        val scrollBehavior = scrollBehavior
+     val scrollBehavior = scrollBehavior
      TopAppBar(
             scrollBehavior = scrollBehavior,
             title = {

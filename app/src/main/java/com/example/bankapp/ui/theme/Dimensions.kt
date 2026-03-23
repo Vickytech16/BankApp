@@ -10,6 +10,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.bankapp.R
 
 object AppSpacing {
@@ -21,6 +22,8 @@ object AppSpacing {
 
     val xxl = 32.dp
 }
+
+val textFieldFontSize = 18.sp
 
 val AppPadding = Modifier.safeContentPadding()
 

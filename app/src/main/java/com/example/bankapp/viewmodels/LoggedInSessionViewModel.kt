@@ -9,6 +9,9 @@ import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.usecases.SessionUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
@@ -17,8 +20,8 @@ class LoggedInSessionViewModel(
     private val accountRepository: AccountRepository
 ): ViewModel(){
 
-   var sessionState by mutableStateOf<SessionState>(SessionState.Loading)
-       private set
+    private val _sessionState = MutableStateFlow<SessionState>(SessionState.Loading)
+    val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
 
    var currentUser by mutableStateOf<User?>(null)
         private set
@@ -29,7 +32,7 @@ class LoggedInSessionViewModel(
             val user = sessionUseCase.getUserFromSharedPreferences()
             println("restoreSession user = $user")
 
-            sessionState = if(user == null) {
+            _sessionState.value = if(user == null) {
                 println("Session -> UnAuthenticated")
                 SessionState.UnAuthenticated
             } else {
@@ -55,7 +58,7 @@ class LoggedInSessionViewModel(
 
     fun logout(){
         sessionUseCase.clearSession()
-        sessionState = SessionState.UnAuthenticated
+        _sessionState .value= SessionState.UnAuthenticated
         restoreSession()
     }
 }

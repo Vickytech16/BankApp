@@ -71,8 +71,6 @@ class UserRepositoryImpl(
             userDao.getUserById(formattedUserId)
         }
     }
-
-
 }
 
 

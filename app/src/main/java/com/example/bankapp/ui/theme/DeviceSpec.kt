@@ -12,6 +12,7 @@ import com.example.bankapp.R
 sealed class DeviceSpec {
 
 
+    abstract val textFieldWidth: Float
 
     abstract val qabButtonSize: Int
     abstract val qabButtonIconSize: Int
@@ -78,8 +79,12 @@ sealed class DeviceSpec {
     abstract val payScreenButtonIconSize: Int
     abstract val payScreenCardPadding: Dp
     abstract val payScreenSectionSpacing: Dp
+    abstract val profileAvatarSize: Int
+    abstract val profileCardPadding: Dp
+    abstract val profileSectionSpacing: Dp
 
-
+    @Composable
+    abstract fun profileSectionTitleStyle(): TextStyle
 
     @Composable
     abstract fun homeTransactionHistoryLabel(): TextStyle
@@ -104,6 +109,9 @@ sealed class DeviceSpec {
 
 
     data class MobilePortrait(
+
+        override val textFieldWidth: Float = 0.9f,
+
         override val qabButtonSize: Int = R.dimen.qab_button_size,
         override val qabButtonIconSize: Int = R.dimen.qab_icon_size,
         override val qabButtonSpacing: Dp = AppSpacing.sm,
@@ -152,6 +160,10 @@ sealed class DeviceSpec {
         override val payScreenCardPadding: Dp = AppSpacing.md,
         override val payScreenSectionSpacing: Dp = AppSpacing.xl,
 
+        override val profileAvatarSize: Int = R.dimen.profile_avatar_size_mobile,
+        override val profileCardPadding: Dp = AppSpacing.md,
+        override val profileSectionSpacing: Dp = AppSpacing.xl,
+
 
 
         ) : DeviceSpec() {
@@ -188,9 +200,15 @@ sealed class DeviceSpec {
 
         @Composable
         override fun payScreenSectionTitleStyle(): TextStyle = MaterialTheme.typography.titleMedium
+
+        @Composable
+        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelMedium
     }
 
     data class MobileLandscape(
+
+        override val textFieldWidth: Float = 0.6f,
+
         override val qabButtonSize: Int = R.dimen.qab_button_size_landscape,
         override val qabButtonIconSize: Int = R.dimen.qab_icon_size_landscape,
         override val qabButtonSpacing: Dp = AppSpacing.md,
@@ -238,6 +256,10 @@ sealed class DeviceSpec {
         override val payScreenButtonIconSize: Int = R.dimen.pay_screen_button_icon_size_mobile,
         override val payScreenCardPadding: Dp = AppSpacing.md,
         override val payScreenSectionSpacing: Dp = AppSpacing.lg,
+
+        override val profileAvatarSize: Int = R.dimen.profile_avatar_size_mobile,
+        override val profileCardPadding: Dp = AppSpacing.md,
+        override val profileSectionSpacing: Dp = AppSpacing.lg,
     ) : DeviceSpec() {
 
         @Composable
@@ -273,9 +295,14 @@ sealed class DeviceSpec {
         @Composable
         override fun payScreenSectionTitleStyle(): TextStyle = MaterialTheme.typography.titleMedium
 
+        @Composable
+        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelMedium
+
     }
 
     data class TabPortrait(
+
+        override val textFieldWidth: Float = 0.6f,
 
         override val qabButtonSize: Int = R.dimen.qab_button_size_tab,
         override val qabButtonIconSize: Int = R.dimen.qab_icon_size_tab,
@@ -324,6 +351,11 @@ sealed class DeviceSpec {
         override val payScreenButtonIconSize: Int = R.dimen.pay_screen_button_icon_size_tablet,
         override val payScreenCardPadding: Dp = AppSpacing.lg,
         override val payScreenSectionSpacing: Dp = AppSpacing.xl,
+
+
+        override val profileAvatarSize: Int = R.dimen.profile_avatar_size_tablet,
+        override val profileCardPadding: Dp = AppSpacing.lg,
+        override val profileSectionSpacing: Dp = AppSpacing.xl,
     ) : DeviceSpec() {
         @Composable
         override fun qabButtonLabelSize(): TextStyle = MaterialTheme.typography.titleMedium
@@ -358,9 +390,15 @@ sealed class DeviceSpec {
         @Composable
         override fun payScreenSectionTitleStyle(): TextStyle = MaterialTheme.typography.headlineSmall
 
+        @Composable
+        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelMedium
+
     }
 
     data class TabLandscape(
+
+        override val textFieldWidth: Float = 0.5f,
+
         override val qabButtonSize: Int = R.dimen.qab_button_size_tab,
         override val qabButtonIconSize: Int = R.dimen.qab_icon_size_tab,
         override val qabButtonSpacing: Dp = AppSpacing.md,
@@ -408,6 +446,10 @@ sealed class DeviceSpec {
         override val payScreenButtonIconSize: Int = R.dimen.pay_screen_button_icon_size_tablet,
         override val payScreenCardPadding: Dp = AppSpacing.lg,
         override val payScreenSectionSpacing: Dp = AppSpacing.lg,
+
+        override val profileAvatarSize: Int = R.dimen.profile_avatar_size_tablet,
+        override val profileCardPadding: Dp = AppSpacing.lg,
+        override val profileSectionSpacing: Dp = AppSpacing.lg,
     ) : DeviceSpec() {
         @Composable
         override fun qabButtonLabelSize(): TextStyle = MaterialTheme.typography.bodyLarge
@@ -441,6 +483,9 @@ sealed class DeviceSpec {
 
         @Composable
         override fun payScreenSectionTitleStyle(): TextStyle = MaterialTheme.typography.headlineSmall
+
+        @Composable
+        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelMedium
     }
 }
 

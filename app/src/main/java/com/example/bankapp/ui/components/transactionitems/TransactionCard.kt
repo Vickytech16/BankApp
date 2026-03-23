@@ -38,6 +38,7 @@ fun TransactionDetailsCard(
 ) {
 
     val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val dividerGradient = 0.3f
 
     Card(
         modifier = Modifier
@@ -60,7 +61,7 @@ fun TransactionDetailsCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = deviceSpec.transactionDetailDividerPaddingVertical),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = dividerGradient)
             )
 
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -73,7 +74,7 @@ fun TransactionDetailsCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = deviceSpec.transactionDetailDividerPaddingVertical),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = dividerGradient)
                 )
 
                 DetailRowWithSubtext(
@@ -87,7 +88,7 @@ fun TransactionDetailsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = deviceSpec.transactionDetailDividerPaddingVertical),
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = dividerGradient)
                     )
 
                     DetailRowWithSubtext(
@@ -172,7 +173,7 @@ fun BalanceAfterSectionCard(balanceAfter: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp)),
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.balance_after_card_rounded_shape))),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.tertiary
         )

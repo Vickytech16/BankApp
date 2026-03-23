@@ -2,7 +2,6 @@ package com.example.bankapp.ui.screens.authscreens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -91,7 +90,7 @@ fun RegisterScreen(
     Scaffold {
         contentPadding ->
         Column(
-            modifier = getModifier(windowSizeClass, contentPadding, scrollState)
+            modifier = getAppModifier(windowSizeClass, contentPadding, scrollState)
                 ,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -254,7 +253,7 @@ fun RegisterScreen(
 }
 
 
-fun getModifier(windowSizeClass: WindowSizeClass, contentPadding: PaddingValues, scrollState: ScrollState, ): Modifier{
+fun getAppModifier(windowSizeClass: WindowSizeClass, contentPadding: PaddingValues, scrollState: ScrollState, ): Modifier{
     if(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact || windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact){
         return AppPadding
             .verticalScroll(scrollState)

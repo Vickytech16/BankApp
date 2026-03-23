@@ -10,7 +10,7 @@ import com.example.bankapp.viewmodels.TransactionsViewModel
 
 class PasswordConfirmationViewModelFactory(
     private val sessionState: SessionState.Authenticated.AccountRegistered,
-    private val transactionSessionHolder: TransactionSessionHolder
+
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -18,7 +18,7 @@ class PasswordConfirmationViewModelFactory(
         if (modelClass.isAssignableFrom(PasswordConfirmationViewModel::class.java)) {
             return PasswordConfirmationViewModel(
                 sessionState = sessionState,
-                transactionSessionHolder = transactionSessionHolder
+//                transactionSessionHolder = transactionSessionHolder
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

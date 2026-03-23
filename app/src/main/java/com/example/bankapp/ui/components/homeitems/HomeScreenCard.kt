@@ -29,7 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.types.AccountType
-import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
@@ -44,22 +43,26 @@ fun HomeScreenCard(
     deviceSpec: DeviceSpec
 ) {
     val maskedAccNo = "**** ${account.accNo.uiAccNo.takeLast(4)}"
+    val accNoCardGradient = 0.12f
 
     Card(
         shape = RoundedCornerShape(size = dimensionResource(deviceSpec.homeScreenCardRoundedCorner)),
         elevation = CardDefaults.cardElevation(
             defaultElevation = dimensionResource(deviceSpec.homeScreenCardElevation)
         ),
+
         modifier = Modifier
             .fillMaxWidth(deviceSpec.homeScreenCardWidth)
             .padding(vertical = AppSpacing.md)
     ) {
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.primary)
                 .padding(AppSpacing.lg)
         ) {
+
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -68,6 +71,7 @@ fun HomeScreenCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     Text(
                         text = stringResource(R.string.total_account_balance_label),
                         style = MaterialTheme.typography.labelLarge,
@@ -87,6 +91,7 @@ fun HomeScreenCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     Text(
                         text = RUPEE_SYMBOL,
                         style = MaterialTheme.typography.displayMedium,
@@ -130,7 +135,7 @@ fun HomeScreenCard(
                         .fillMaxWidth()
                         .padding(vertical = deviceSpec.homeScreenCardAccountSectionSpacing)
                         .background(
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.12f),
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = accNoCardGradient),
                             shape = RoundedCornerShape(dimensionResource(deviceSpec.homeScreenCardAccountInfoRoundedCorner))
                         )
                         .padding(deviceSpec.homeScreenCardAccountInfoPadding)

@@ -12,7 +12,7 @@ import com.example.bankapp.entities.types.AccountStatus
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.services.HomeSessionHandlerManager
+import com.example.bankapp.di.HomeSessionHandlerProvider
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.ACCOUNT_NUMBER_SIZE
@@ -34,7 +34,7 @@ class CashTransferViewModel(
     private val account = sessionState.account
 
     private val homeSessionHandler: HomeSessionHandler
-        get() = HomeSessionHandlerManager.currentHandler
+        get() = HomeSessionHandlerProvider.currentHandler
 
     private val cashTransfer: HomeSessionHandler.CashTransfer
         get() = homeSessionHandler as HomeSessionHandler.CashTransfer

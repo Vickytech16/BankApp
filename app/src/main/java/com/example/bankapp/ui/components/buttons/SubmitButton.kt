@@ -28,7 +28,8 @@ fun SubmitButton(
                          fillMaxWidth(),
     text: String = stringResource(R.string.submit_button),
     enabled: Boolean = true,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+
 ){
     Button(
             onClick = { onClick() },

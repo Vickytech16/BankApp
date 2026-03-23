@@ -8,7 +8,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryResultViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.CashTransferViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.DepositViewModelFactory
@@ -18,6 +17,7 @@ import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.PasswordConfirmationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.PayToBeneficiaryViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.ProfileViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.TransactionDetailsViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.TransactionResultViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.TransactionsViewModelFactory
@@ -26,8 +26,7 @@ import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.services.HomeSessionHandlerManager
-import com.example.bankapp.ui.screens.AddBeneficiaryResultScreen
+import com.example.bankapp.di.HomeSessionHandlerProvider
 import com.example.bankapp.ui.screens.AddBeneficiaryScreen
 import com.example.bankapp.ui.screens.CashTransferScreen
 import com.example.bankapp.ui.screens.DepositScreen
@@ -40,7 +39,6 @@ import com.example.bankapp.ui.screens.TransactionDetailsScreen
 import com.example.bankapp.ui.screens.TransactionResultScreen
 import com.example.bankapp.ui.screens.TransactionsScreen
 import com.example.bankapp.ui.screens.authscreens.OtpScreen
-import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
 sealed class TransactionScreen(val route: String) {
@@ -48,8 +46,6 @@ sealed class TransactionScreen(val route: String) {
         fun createRoute(transactionId: String): String = "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId"
     }
 }
-
-
 
 fun NavGraphBuilder.homeNavGraph(
     navController: NavController,
@@ -60,7 +56,7 @@ fun NavGraphBuilder.homeNavGraph(
     logoutAction: () -> Unit,
     otpViewModelFactory: OtpViewModelFactory,
     notificationViewModelFactory: NotificationViewModelFactory,
-    transactionSessionHolder: TransactionSessionHolder,
+    //,
     beneficiaryRepository: BeneficiaryRepository,
     userRepository: UserRepository
 ) {
@@ -85,13 +81,16 @@ fun NavGraphBuilder.homeNavGraph(
             val transactionDetailsViewModelFactory =
                 TransactionDetailsViewModelFactory(transactionRepository)
             val passwordConfirmationViewModelFactory =
-                PasswordConfirmationViewModelFactory(sessionState, transactionSessionHolder)
+                PasswordConfirmationViewModelFactory(sessionState)
             val transactionResultViewModelFactory =
                 TransactionResultViewModelFactory(sessionState,transactionRepository, beneficiaryRepository)
             val beneficiaryViewModelFactory =
                 AddBeneficiaryViewModelFactory(userRepository = userRepository, beneficiaryRepository = beneficiaryRepository, sessionState = sessionState)
+            val payToBeneficiaryViewModelFactory =
+                PayToBeneficiaryViewModelFactory(beneficiaryRepository = beneficiaryRepository, sessionState = sessionState)
+            val profileViewModelFactory =
+                ProfileViewModelFactory(userRepository = userRepository, accountRepository = accountRepository, sessionState = sessionState)
 
-            val payToBeneficiaryViewModelFactory = PayToBeneficiaryViewModelFactory(beneficiaryRepository = beneficiaryRepository, sessionState = sessionState)
 
 
 
@@ -114,7 +113,7 @@ fun NavGraphBuilder.homeNavGraph(
             }
 
             composable(PROFILE_ROUTE) {
-                ProfileScreen(navController, windowSizeClass)
+                ProfileScreen(navController = navController, windowSizeClass =  windowSizeClass, profileViewModelFactory = profileViewModelFactory)
             }
 
             composable(TRANSACTIONS_LOG_ROUTE) {
@@ -187,7 +186,7 @@ fun NavGraphBuilder.homeNavGraph(
                     passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
                     onDismissRoute = backRoute,
                     onPasswordVerificationSuccess = {
-                        val homeSessionHandler = HomeSessionHandlerManager.currentHandler
+                        val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
                         homeSessionHandler.onPasswordSuccess()
                     }
                 )
@@ -227,7 +226,7 @@ fun NavGraphBuilder.homeNavGraph(
                 )
             ) { backStackEntry ->
                 val backRoute = backStackEntry.arguments?.getString("backRoute") ?: MAIN_ROUTE
-                val homeSessionHandler = HomeSessionHandlerManager.currentHandler
+                val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
                 OtpScreen(
                     navController = navController,
                     notificationViewModelFactory = notificationViewModelFactory,

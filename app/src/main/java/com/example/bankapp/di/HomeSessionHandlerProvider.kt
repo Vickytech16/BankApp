@@ -1,14 +1,14 @@
-package com.example.bankapp.services
+package com.example.bankapp.di
 
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 
-object HomeSessionHandlerManager {
+object HomeSessionHandlerProvider {
     private var _currentHandler: HomeSessionHandler? = null
 
     val currentHandler: HomeSessionHandler
         get() = _currentHandler ?: throw IllegalStateException(
-            "Transaction handler not initialized. Call setHandler() first."
+            "Transaction handler not initialized. Call setHandler first..."
         )
 
     fun setHandler(handler: HomeSessionHandler) {
@@ -16,12 +16,12 @@ object HomeSessionHandlerManager {
     }
 
     fun setHandlerByIntent(intent: CurrentSessionIntent) {
-        _currentHandler = HomeSessionHandler.Companion.getInstance(intent)
+        _currentHandler = HomeSessionHandler.getInstance(intent)
     }
 
     fun reset() {
         _currentHandler = null
     }
 
-    fun isInitialized(): Boolean = _currentHandler != null
+   // fun isInitialized(): Boolean = _currentHandler != null
 }

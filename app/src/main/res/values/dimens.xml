@@ -154,4 +154,13 @@
     <dimen name="filter_button_width">90dp</dimen>
     <dimen name="filter_button_height">48dp</dimen>
 
+    <!-- Profile Screen -->
+    <dimen name="profile_avatar_size_mobile">104dp</dimen>
+    <dimen name="profile_avatar_size_tablet">128dp</dimen>
+    <dimen name="profile_card_padding">24dp</dimen>
+    <dimen name="profile_section_spacing">24dp</dimen>
+    <dimen name="profile_icon_wrap_size">40dp</dimen>
+    <dimen name="profile_icon_size">20dp</dimen>
+    <dimen name="balance_after_card_rounded_shape">12dp</dimen>
+
 </resources>

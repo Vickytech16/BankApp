@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
                     viewModelContainer,
                     appContainer.transactionRepository,
                     appContainer.accountRepository,
-                    appContainer.transactionHolder,
+                    //appContainer.transactionHolder,
                     appContainer.beneficiaryRepository,
                     appContainer.userRepository
                 )

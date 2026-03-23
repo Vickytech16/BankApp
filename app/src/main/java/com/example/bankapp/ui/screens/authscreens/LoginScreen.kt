@@ -1,17 +1,14 @@
 package com.example.bankapp.ui.screens.authscreens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Phone
@@ -35,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
@@ -46,17 +42,13 @@ import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.REGISTER_ROUTE
 
-import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.entities.types.LoginType
-import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumHorizontalSpacer
-import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.viewmodels.LoginViewModel
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
-import com.example.bankapp.ui.theme.screenPadding
 
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 
@@ -67,7 +59,6 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                  loggedInSessionViewModel: LoggedInSessionViewModel)
 {
     val loginViewModel: LoginViewModel = viewModel(factory = loginViewModelFactory)
-    val loggedInSessionViewModel: LoggedInSessionViewModel = loggedInSessionViewModel
 
     val scrollState = rememberScrollState()
 
@@ -93,7 +84,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
     Scaffold {
         contentPadding ->
         Column(
-            modifier = getModifier(windowSizeClass, contentPadding, scrollState)
+            modifier = getAppModifier(windowSizeClass, contentPadding, scrollState)
             ,
 
             horizontalAlignment = Alignment.CenterHorizontally,

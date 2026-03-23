@@ -10,7 +10,7 @@ import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.repositories.UserRepositoryImpl
 import com.example.bankapp.services.SessionManagementService
-import com.example.bankapp.usecases.HomeSessionHandler
+
 import com.example.bankapp.usecases.TransactionSessionHolder
 
 
@@ -30,7 +30,7 @@ class AppContainer(applicationContext: Context) {
 
     private val beneficiaryDao = database.beneficiaryDao()
 
-    val transactionHolder = TransactionSessionHolder()
+  //  val transactionHolder = TransactionSessionHolder()
 
     val userRepository: UserRepository = UserRepositoryImpl(userDao)
 
@@ -38,7 +38,7 @@ class AppContainer(applicationContext: Context) {
 
     val transactionRepository: TransactionRepository = TransactionRepository(transactionDao, ledgerDao, accountDao, database)
 
-    val beneficiaryRepository: BeneficiaryRepository = BeneficiaryRepository(beneficiaryDao)
+    val beneficiaryRepository: BeneficiaryRepository = BeneficiaryRepository(beneficiaryDao, userRepository)
     private val sessionManagementService: SessionManagementService = SessionManagementService(applicationContext)
     private val useCaseContainer: UseCaseContainer = UseCaseContainer(
         sessionManagementService = sessionManagementService,

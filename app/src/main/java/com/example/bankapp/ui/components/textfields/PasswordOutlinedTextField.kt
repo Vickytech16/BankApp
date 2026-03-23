@@ -27,6 +27,7 @@ import com.example.bankapp.R
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.textFieldFontSize
 
 @Composable
 fun PasswordVerificationOutlinedTextField(
@@ -66,7 +67,7 @@ fun PasswordVerificationOutlinedTextField(
                 keyboardType = androidx.compose.ui.text.input.KeyboardType.Password
             ),
             textStyle = TextStyle(
-                fontSize = 18.sp,
+                fontSize = textFieldFontSize,
                 fontWeight = FontWeight.Medium
             ),
             visualTransformation = if (passwordVisible) {

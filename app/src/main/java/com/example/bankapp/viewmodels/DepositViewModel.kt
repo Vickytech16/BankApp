@@ -17,7 +17,7 @@ import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_R
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.services.HomeSessionHandlerManager
+import com.example.bankapp.di.HomeSessionHandlerProvider
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.amountFieldValidator
@@ -36,10 +36,10 @@ class DepositViewModel(
     private val user = sessionState.user
 
     private val homeSessionHandler: HomeSessionHandler
-        get() = HomeSessionHandlerManager.currentHandler
+        get() = HomeSessionHandlerProvider.currentHandler
 
     private val deposit: HomeSessionHandler.Deposit
-        get() = HomeSessionHandlerManager.currentHandler as HomeSessionHandler.Deposit
+        get() = HomeSessionHandlerProvider.currentHandler as HomeSessionHandler.Deposit
 
     var amount by mutableStateOf<String>("")
         private set

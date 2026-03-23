@@ -42,13 +42,17 @@ fun FilterButton(
     BadgedBox(
         badge = {
             if(activeCount > 0){
-                Badge { Text(activeCount.toString()) }
+                Badge {
+                    Text(activeCount.toString())
+                }
             }
         },
         modifier = modifier
     ) {
         AssistChip(
-            onClick = { onShowSheetChange(true) },
+            onClick = {
+                onShowSheetChange(true)
+            },
             label = {
                 Text(labelText,
                     style = MaterialTheme.typography.labelLarge)

@@ -3,13 +3,11 @@ package com.example.bankapp.ui.screens.authscreens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Phone
@@ -45,10 +43,7 @@ import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
-import com.example.bankapp.ui.theme.AppPadding
-import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.viewmodels.ForgotPasswordViewModel
-import com.example.bankapp.viewmodels.OtpVerificationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +51,6 @@ fun ForgetPasswordScreen(
     windowSizeClass: WindowSizeClass,
     forgotPasswordViewModelFactory: ForgotPasswordViewModelFactory,
     navController: NavController,
-    otpVerificationViewModel: OtpVerificationViewModel
 ) {
     val viewModel: ForgotPasswordViewModel = viewModel(factory = forgotPasswordViewModelFactory)
     val scrollState = rememberScrollState()
@@ -85,7 +79,7 @@ fun ForgetPasswordScreen(
         }
     ) { contentPadding ->
         Column(
-            modifier = getModifier(windowSizeClass,contentPadding,scrollState),
+            modifier = getAppModifier(windowSizeClass,contentPadding,scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

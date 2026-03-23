@@ -3,7 +3,6 @@ package com.example.bankapp.ui.components.filters
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -44,8 +43,12 @@ fun <T> FilterItem(
             options.forEach { option ->
                 FilterChip(
                     selected = option in selected,
-                    onClick = { onClick(option) },
-                    label = { Text(labelFor(option)) }
+                    onClick = {
+                        onClick(option)
+                    },
+                    label = {
+                        Text(labelFor(option))
+                    }
                 )
             }
         }

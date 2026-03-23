@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +35,12 @@ import com.example.bankapp.ui.components.buttons.QuickActionsButton
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
 import com.example.bankapp.ui.components.XLSpacer
+import com.example.bankapp.ui.components.appbar.NameOnlyAppBar
+import com.example.bankapp.ui.components.buttons.PayScreenButton
 import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
+import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
+import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
+import com.example.bankapp.ui.components.navigators.PAY_TO_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
@@ -54,15 +60,13 @@ fun PayScreen(
 
     val scrollState = rememberScrollState()
     val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
         topBar = {
-            Appbar(
-                title = stringResource(R.string.pay_screen_title),
-                navBehaviour = { navController.navigate(HOME_ROUTE) },
-                scrollBehavior = null
-            )
+            NameOnlyAppBar(stringResource(R.string.pay_screen_title), scrollBehavior = scrollBehavior)
         },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = currentRoute,
@@ -105,21 +109,21 @@ fun PayScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         PayScreenButton(
-                            onClickAction = { navController.navigate(HOME_ROUTE) },
+                            onClickAction = { navController.navigate(PAY_TO_BENEFICIARY_ROUTE) },
                             icon = Icons.Outlined.AccountBalance,
                             label = stringResource(R.string.pay_to_friend),
                             deviceSpec = deviceSpec,
                             modifier = Modifier.weight(1f)
                         )
                         PayScreenButton(
-                            onClickAction = { navController.navigate(HOME_ROUTE) },
+                            onClickAction = { navController.navigate(CASH_TRANSFER_ROUTE) },
                             icon = Icons.Outlined.SwapHoriz,
                             label = stringResource(R.string.pay_anyone),
                             deviceSpec = deviceSpec,
                             modifier = Modifier.weight(1f)
                         )
                         PayScreenButton(
-                            onClickAction = { navController.navigate(HOME_ROUTE) },
+                            onClickAction = { navController.navigate(DEPOSIT_ROUTE) },
                             icon = Icons.Outlined.AccountBalanceWallet,
                             label = stringResource(R.string.deposit_button),
                             deviceSpec = deviceSpec,
@@ -214,40 +218,3 @@ private fun PaySectionCard(
     }
 }
 
-@Composable
-private fun PayScreenButton(
-    onClickAction: () -> Unit,
-    icon: ImageVector,
-    label: String,
-    deviceSpec: DeviceSpec,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
-    ) {
-        FilledIconButton(
-            onClick = onClickAction,
-            modifier = Modifier.size(dimensionResource(deviceSpec.payScreenButtonSize)),
-            shape = CircleShape,
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.onTertiary
-            )
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                modifier = Modifier.size(dimensionResource(deviceSpec.payScreenButtonIconSize)),
-            )
-        }
-        Text(
-            text = label,
-            style = deviceSpec.qabButtonLabelSize(),
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        )
-    }
-}

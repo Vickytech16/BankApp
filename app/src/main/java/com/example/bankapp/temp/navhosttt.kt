@@ -1,3 +1,7 @@
+package com.example.bankapp.temp
+
+/*
+
 package com.example.bankapp.ui.components.navigators
 
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -31,9 +35,9 @@ fun AppNavHost(
     val sessionViewModel: LoggedInSessionViewModel =
         viewModel(factory = viewModelContainer.loggedInSessionViewModelFactory)
 
-    LaunchedEffect(Unit) {
-        sessionViewModel.restoreSession()
-    }
+//    LaunchedEffect(Unit) {
+//        sessionViewModel.restoreSession()
+//    }
 
     val sessionState by sessionViewModel.sessionState.collectAsState()
 
@@ -107,3 +111,105 @@ fun AppNavHost(
 //    }
 
 }
+ */
+
+/*
+from github
+
+package com.example.bankapp.ui.components.navigators
+
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import com.example.bankapp.di.ViewModelContainer
+import com.example.bankapp.entities.SessionState
+import com.example.bankapp.repositories.AccountRepository
+import com.example.bankapp.repositories.BeneficiaryRepository
+import com.example.bankapp.repositories.TransactionRepository
+import com.example.bankapp.repositories.UserRepository
+import com.example.bankapp.usecases.TransactionSessionHolder
+import com.example.bankapp.viewmodels.LoggedInSessionViewModel
+
+@Composable
+fun AppNavHost(
+    windowSizeClass: WindowSizeClass,
+    viewModelContainer: ViewModelContainer,
+    transactionRepository: TransactionRepository,
+    accountRepository: AccountRepository,
+    transactionSessionHolder: TransactionSessionHolder,
+    beneficiaryRepository: BeneficiaryRepository,
+    userRepository: UserRepository
+) {
+    val navController = rememberNavController()
+
+    val sessionViewModel: LoggedInSessionViewModel =
+        viewModel(factory = viewModelContainer.loggedInSessionViewModelFactory)
+
+    val sessionState = sessionViewModel.sessionState
+
+    LaunchedEffect(Unit) {
+        sessionViewModel.restoreSession()
+    }
+
+    val startDestination = when(sessionState) {
+
+        is SessionState.Loading ->
+            LOADING_ROUTE
+
+        is SessionState.UnAuthenticated ->
+            AUTH_ROUTE
+
+        is SessionState.Authenticated.AccountNotRegistered ->
+            ACCOUNT_ROUTE
+
+        is SessionState.Authenticated.AccountRegistered ->
+            MAIN_ROUTE
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    )  {
+            authNavGraph(
+                navController = navController,
+                windowSizeClass = windowSizeClass,
+                loginViewModelFactory = viewModelContainer.loginViewModelFactory,
+                registerViewModelFactory = viewModelContainer.registerViewModelFactory,
+                forgotPasswordViewModelFactory = viewModelContainer.forgotPasswordViewModelFactory,
+                changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
+                loggedInSessionViewModel = sessionViewModel,
+                otpViewModelFactory = viewModelContainer.otpViewModelFactory,
+                notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
+                otpVerificationViewModelFactory = viewModelContainer.otpVerificationViewModelFactory
+            )
+
+            homeNavGraph(
+                navController = navController,
+                windowSizeClass = windowSizeClass,
+                sessionState = sessionState,
+                transactionRepository = transactionRepository,
+                accountRepository = accountRepository,
+                otpViewModelFactory = viewModelContainer.otpViewModelFactory,
+                notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
+                logoutAction = {
+                    sessionViewModel.logout()
+                },
+                transactionSessionHolder = transactionSessionHolder,
+                beneficiaryRepository = beneficiaryRepository,
+                userRepository = userRepository
+
+            )
+            splashNavGraph()
+
+            accountNavGraph(
+                accountCreationViewModelFactory = viewModelContainer.accountCreationViewModelFactory,
+                navController = navController,
+                windowSizeClass = windowSizeClass, loggedInSessionViewModel = sessionViewModel
+            )
+    }
+
+}
+ */

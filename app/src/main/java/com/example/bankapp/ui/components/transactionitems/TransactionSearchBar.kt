@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
 import com.example.bankapp.R
 
 
@@ -24,14 +25,15 @@ fun TransactionSearchBar(
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
     onCancel: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    placeholderText: String = stringResource(R.string.search_transactions_hint)
 ) {
 
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
         placeholder = {
-            Text(stringResource(R.string.search_transactions_hint))
+            Text( placeholderText )
                       },
         singleLine = true,
         leadingIcon = {

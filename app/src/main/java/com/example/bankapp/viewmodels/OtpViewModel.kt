@@ -21,9 +21,14 @@ class OtpViewModel: ViewModel(){
 
     override fun onCleared() {
         super.onCleared()
-        expireOtp()
+        println("OtpViewModel CLEARED")
+
+
     }
 
+    init {
+        println("OtpViewModel CREATED")
+    }
     var isInitialOtpSent by mutableStateOf(false)
         private set
 
@@ -71,6 +76,23 @@ class OtpViewModel: ViewModel(){
         }
     }
 
+    fun restoreOtp(otp: Int, timeLeft: Int) {
+        otpExpiryJob?.cancel()
+        generatedOtp = otp
+        isOtpSent = true
+        remainingTime = timeLeft
+        otpExpiresAt = timeLeft
+
+        otpExpiryJob = viewModelScope.launch {
+            while (remainingTime > 0) {
+                delay(1000)
+                remainingTime--
+                otpExpiresAt = remainingTime
+            }
+            expireOtp()
+        }
+    }
+
     private fun expireOtp(){
         generatedOtp = null
         isOtpSent = false
@@ -111,6 +133,7 @@ class OtpViewModel: ViewModel(){
         userEnteredOtp = ""
         isOtpValid = null
         otpExpiresAt = 60
+        isInitialOtpSent = false
     }
 
     private fun onOtpSubmit(newOtp: Int){

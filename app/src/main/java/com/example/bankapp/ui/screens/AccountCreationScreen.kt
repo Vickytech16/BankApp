@@ -1,15 +1,10 @@
 package com.example.bankapp.ui.screens
 
 import AmountOutlinedTextField
-import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,9 +27,7 @@ import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
-import com.example.bankapp.ui.screens.authscreens.getModifier
-import com.example.bankapp.ui.theme.AppPadding
-import com.example.bankapp.ui.theme.screenPadding
+import com.example.bankapp.ui.screens.authscreens.getAppModifier
 import com.example.bankapp.viewmodels.AccountCreationViewModel
 
 
@@ -57,7 +50,7 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
     Scaffold() {
         contentPadding ->
         Column(
-            modifier = getModifier(windowSizeClass, contentPadding, scrollState),
+            modifier = getAppModifier(windowSizeClass, contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

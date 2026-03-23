@@ -87,8 +87,6 @@ fun CashTransferDetailBody(
             )
         }
 
-
-
         LargeSpacer()
 
         StatusSection(transactionItem.transactionStatus, deviceSpec = deviceSpec)

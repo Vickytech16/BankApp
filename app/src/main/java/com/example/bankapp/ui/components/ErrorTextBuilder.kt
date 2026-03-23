@@ -17,7 +17,6 @@ fun ErrorTextBuilder(
 
             when(error){
 
-
                 is FormError.InvalidAmount ,
 
                 is FormError.InvalidCredentials ,

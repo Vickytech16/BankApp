@@ -9,37 +9,31 @@ import com.example.bankapp.ui.theme.AppSpacing
 
 
 @Composable
-fun XSSpacer()
-{
+fun XSSpacer() {
     Spacer(Modifier.height(AppSpacing.xs))
 }
 
 @Composable
-fun XLSpacer()
-{
+fun XLSpacer() {
     Spacer(Modifier.height(AppSpacing.xl))
 }
 
 @Composable
-fun MediumSpacer()
-{
+fun MediumSpacer() {
     Spacer(Modifier.height(AppSpacing.md))
 }
 
 @Composable
-fun LargeSpacer()
-{
+fun LargeSpacer() {
     Spacer(Modifier.height(AppSpacing.lg))
 }
 
 @Composable
-fun SmallSpacer()
-{
+fun SmallSpacer() {
     Spacer(Modifier.height(AppSpacing.sm))
 }
 
 @Composable
-fun MediumHorizontalSpacer()
-{
+fun MediumHorizontalSpacer() {
     Spacer(Modifier.width(AppSpacing.md))
 }
