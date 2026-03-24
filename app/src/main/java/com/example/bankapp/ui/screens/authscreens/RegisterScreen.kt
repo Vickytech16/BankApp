@@ -59,6 +59,10 @@ import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.components.textfields.passwordHide
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.screenPadding
+import com.example.bankapp.utilities.EmailFieldStrategy
+import com.example.bankapp.utilities.PasswordFieldStrategy
+import com.example.bankapp.utilities.PhoneNumberFieldStrategy
+import com.example.bankapp.utilities.UserNameFieldStrategy
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -131,9 +135,10 @@ fun RegisterScreen(
                     onValueChange = viewModel::onUserNameChange,
                     labelText = stringResource(R.string.username_field_name),
                     isError = viewModel.userNameError != null,
-                    fieldType = TextFieldType.GENERIC,
-                    leadingIcon = Icons.Outlined.Person,
-                    supportingText = { ErrorTextBuilder(viewModel.userNameError) }
+                    supportingText = {
+                        ErrorTextBuilder(viewModel.userNameError)
+                    },
+                    strategy = UserNameFieldStrategy
                 )
                 MediumSpacer()
 
@@ -142,8 +147,6 @@ fun RegisterScreen(
                     onValueChange = viewModel::onEmailChange,
                     labelText = stringResource(R.string.email_field_name),
                     isError = viewModel.emailError != null && !viewModel.emailFieldSelected,
-                    fieldType = TextFieldType.EMAIL,
-                    leadingIcon = Icons.Outlined.Email,
                     supportingText = {
                         if (!viewModel.emailFieldSelected)
                             ErrorTextBuilder(viewModel.emailError)
@@ -153,7 +156,8 @@ fun RegisterScreen(
                             viewModel.onEmailFieldSelectedChange(true)
                         else
                             viewModel.onEmailFieldSelectedChange(false)
-                    }.fillMaxWidth()
+                    }.fillMaxWidth(),
+                    strategy = EmailFieldStrategy
                 )
 
                 MediumSpacer()
@@ -163,12 +167,10 @@ fun RegisterScreen(
                     onValueChange = viewModel::onPhoneNumberChange,
                     labelText = stringResource(R.string.phone_number_field_name),
                     isError = viewModel.phoneNumberError != null,
-                    fieldType = TextFieldType.GENERIC,
-                    leadingIcon = Icons.Outlined.Phone,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     supportingText = {
                         ErrorTextBuilder(viewModel.phoneNumberError)
-                    }
+                    },
+                    strategy = PhoneNumberFieldStrategy
                 )
 
                 MediumSpacer()
@@ -178,10 +180,6 @@ fun RegisterScreen(
                     onValueChange = viewModel::onPasswordChange,
                     labelText = stringResource(R.string.password_field_name),
                     isError = viewModel.passwordError.isNotEmpty() && viewModel.hasPasswordFieldEverUnFocused,
-                    fieldType = TextFieldType.PASSWORD,
-                    leadingIcon = Icons.Outlined.Password,
-                    passwordVisible = viewModel.passwordVisible,
-                    onPasswordVisibleChange = viewModel::onPasswordVisibleChange,
                     supportingText = {
                         if (viewModel.hasPasswordFieldEverUnFocused)
                             PasswordErrorTextBuilder(viewModel.passwordError)
@@ -191,7 +189,8 @@ fun RegisterScreen(
                             viewModel.onHasPasswordFieldEverFocusedChange(true)
                         else if (viewModel.hasPasswordFieldEverFocused)
                             viewModel.onHasPasswordFieldEverUnFocusedChange(true)
-                    }.fillMaxWidth()
+                    }.fillMaxWidth(),
+                    strategy = PasswordFieldStrategy(viewModel.passwordVisible, viewModel::onPasswordVisibleChange)
                 )
 
                 MediumSpacer()
@@ -201,13 +200,10 @@ fun RegisterScreen(
                     onValueChange = viewModel::onConfirmPasswordChange,
                     labelText = stringResource(R.string.confirm_password_field_name),
                     isError = viewModel.confirmPasswordError != null,
-                    fieldType = TextFieldType.PASSWORD,
-                    leadingIcon = Icons.Outlined.Password,
-                    passwordVisible = viewModel.confirmPasswordVisible,
-                    onPasswordVisibleChange = viewModel::onConfirmPasswordVisibleChange,
                     supportingText = {
                         ErrorTextBuilder(viewModel.confirmPasswordError)
-                    }
+                    },
+                    strategy = PasswordFieldStrategy(viewModel.confirmPasswordVisible, viewModel::onConfirmPasswordVisibleChange)
                 )
 
                 MediumSpacer()

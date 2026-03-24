@@ -17,7 +17,7 @@ import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.ACCOUNT_NUMBER_SIZE
 import com.example.bankapp.utilities.amountFieldValidator
-import com.example.bankapp.utilities.amountRegex
+import com.example.bankapp.utilities.cashTransferAmountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidNumericalFieldErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
@@ -91,6 +91,10 @@ class CashTransferViewModel(
     }
 
     private fun checkAccountExists(accNo: String) {
+        if(accNo.isEmpty() || accNo.isBlank() || accNo=="0"){
+            accountExistsStatus = AccountStatus.EMPTY
+            return
+        }
         if (accNo.toDbAccNo() == account.accNo) {
             accountExistsStatus = AccountStatus.SAME_ACCOUNT
             return
@@ -110,11 +114,11 @@ class CashTransferViewModel(
     }
 
     fun onAmountChange(newAmount: String) {
-        if (newAmount.isEmpty() || newAmount.matches(amountRegex))
+        if (newAmount.isEmpty() || newAmount.matches(cashTransferAmountRegex))
             amount = newAmount
         amountError =
             newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
-                    newAmount.amountFieldValidator()
+                    newAmount.amountFieldValidator(cashTransferAmountRegex)
         onSubmitErrorReset()
     }
 
@@ -130,6 +134,7 @@ class CashTransferViewModel(
 
         onAmountChange(amount)
         onAccountNumberChange(accountNumber)
+
 
         if(accountNumber.length<12 && accountNumber.isNotEmpty()){
             accountExistsStatus = AccountStatus.NOT_FOUND

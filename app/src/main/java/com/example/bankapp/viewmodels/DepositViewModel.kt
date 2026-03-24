@@ -21,7 +21,8 @@ import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.amountFieldValidator
-import com.example.bankapp.utilities.amountRegex
+import com.example.bankapp.utilities.cashTransferAmountRegex
+import com.example.bankapp.utilities.depositAmountRegex
 
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import kotlinx.coroutines.Dispatchers
@@ -48,11 +49,11 @@ class DepositViewModel(
         private set
 
     fun onAmountChange(newAmount: String) {
-        if (newAmount.isEmpty() || newAmount.matches(amountRegex))
+        if (newAmount.isEmpty() || newAmount.matches(depositAmountRegex))
             amount = newAmount
         amountError =
             newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name)
-                ?: newAmount.amountFieldValidator()
+                ?: newAmount.amountFieldValidator(depositAmountRegex)
         onSubmitErrorReset()
     }
 

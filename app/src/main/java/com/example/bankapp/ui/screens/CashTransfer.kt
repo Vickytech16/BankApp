@@ -54,11 +54,16 @@ import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
 import com.example.bankapp.di.providers.HomeSessionHandlerProvider
+import com.example.bankapp.entities.errors.FormError
+import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.textfields.AccountNumberOutlinedTextField
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
+import com.example.bankapp.utilities.AmountFieldStrategy
+import com.example.bankapp.utilities.FieldTypeStrategy
 import com.example.bankapp.utilities.toDbAccNo
 import com.example.bankapp.viewmodels.CashTransferViewModel
 
@@ -217,10 +222,12 @@ fun CashTransferScreen(
             ) {
 
                 if(friendAccNo?.toDbAccNo()==null || friendAccNo.toDbAccNo()==0.toLong()) {
+
+
                     AccountNumberOutlinedTextField(
-                        accountNumber = viewModel.accountNumber,
-                        onAccountNumberChange = viewModel::onAccountNumberChange,
-                        accountNumberError = viewModel.accountNumberError,
+                        viewModel.accountNumber,
+                        viewModel::onAccountNumberChange,
+                        viewModel.accountNumberError
                     )
 
                     XSSpacer()
@@ -230,11 +237,15 @@ fun CashTransferScreen(
                     MediumSpacer()
                 }
 
-                AmountOutlinedTextField(
-                    amount = viewModel.amount,
-                    onAmountChange = viewModel::onAmountChange,
-                    fieldName = stringResource(R.string.amount_field_name),
-                    amountError = viewModel.amountError
+                UnifiedOutlinedTextField(
+                    value = viewModel.amount,
+                    onValueChange = viewModel::onAmountChange,
+                    labelText = stringResource(R.string.amount_field_name),
+                    isError = viewModel.amountError != null,
+                    supportingText = {
+                        ErrorTextBuilder(viewModel.amountError)
+                    },
+                    strategy = AmountFieldStrategy(TransactionType.CASH_TRANSFER),
                 )
 
                 MediumSpacer()
@@ -272,6 +283,7 @@ private fun AccountVerificationMessage(accountExistsStatus: AccountStatus?) {
                     AccountStatus.NOT_FOUND -> Icons.Default.Close
                     AccountStatus.ERROR -> Icons.Default.Close
                     AccountStatus.SAME_ACCOUNT -> Icons.Default.Close
+                    AccountStatus.EMPTY -> Icons.Default.Close
                 },
                 contentDescription = null,
                 tint = when (accountExistsStatus) {
@@ -281,12 +293,15 @@ private fun AccountVerificationMessage(accountExistsStatus: AccountStatus?) {
                 modifier = Modifier.size(18.dp)
             )
 
+
+
             Text(
                 text = when (accountExistsStatus) {
                     AccountStatus.EXISTS -> stringResource(R.string.account_found)
                     AccountStatus.NOT_FOUND -> stringResource(R.string.account_not_found)
                     AccountStatus.ERROR -> stringResource(R.string.unable_to_verify)
                     AccountStatus.SAME_ACCOUNT -> stringResource(R.string.same_account)
+                    AccountStatus.EMPTY -> stringResource(R.string.empty_field_error, stringResource(R.string.account_number_label))
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = when (accountExistsStatus) {

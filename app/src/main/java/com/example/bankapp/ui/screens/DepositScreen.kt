@@ -39,10 +39,13 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
 import com.example.bankapp.di.providers.HomeSessionHandlerProvider
+import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.usecases.CurrentSessionIntent
+import com.example.bankapp.utilities.AmountFieldStrategy
 import com.example.bankapp.viewmodels.DepositViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,12 +123,17 @@ fun DepositScreen(
             modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
             horizontalAlignment = Alignment.CenterHorizontally
             ) {
-            AmountOutlinedTextField(
-                amount = viewModel.amount,
-                onAmountChange = viewModel::onAmountChange,
-                fieldName = stringResource(R.string.amount_field_name),
-                amountError = viewModel.amountError
-            )
+
+             UnifiedOutlinedTextField(
+                 value = viewModel.amount,
+                 onValueChange = viewModel::onAmountChange,
+                 labelText = stringResource(R.string.amount_field_name),
+                 isError = viewModel.amountError != null,
+                 supportingText = {
+                     ErrorTextBuilder(viewModel.amountError)
+                    },
+                 strategy = AmountFieldStrategy(TransactionType.DEPOSIT),
+                )
 
             XLSpacer()
 

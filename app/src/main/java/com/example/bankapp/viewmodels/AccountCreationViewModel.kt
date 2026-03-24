@@ -19,7 +19,8 @@ import com.example.bankapp.services.PasswordHashingService
 import com.example.bankapp.usecases.SessionUseCase
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.amountFieldValidator
-import com.example.bankapp.utilities.amountRegex
+import com.example.bankapp.utilities.cashTransferAmountRegex
+import com.example.bankapp.utilities.depositAmountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
@@ -48,11 +49,11 @@ class AccountCreationViewModel(
         private set
 
     fun onAmountChange(newAmount: String){
-        if(newAmount.isEmpty() || newAmount.matches(amountRegex))
+        if(newAmount.isEmpty() || newAmount.matches(depositAmountRegex))
             amount = newAmount
         amountError =
             newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
-                    newAmount.amountFieldValidator()
+                    newAmount.amountFieldValidator(depositAmountRegex)
         onSubmitErrorReset()
     }
 

@@ -14,8 +14,6 @@ sealed class SessionState {
 
         abstract val user: User
 
-        abstract val account: Account
-
         data class AccountRegistered(val user: User, val account: Account) : SessionState()
 
         data class AccountNotRegistered(val user: User): SessionState()

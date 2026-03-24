@@ -51,6 +51,9 @@ import com.example.bankapp.ui.components.navigators.LOGIN_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
+import com.example.bankapp.utilities.EmailFieldStrategy
+import com.example.bankapp.utilities.PasswordFieldStrategy
+import com.example.bankapp.utilities.PhoneNumberFieldStrategy
 
 
 @Composable
@@ -74,11 +77,11 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
             else -> 0.8f
         }
 
-//    LaunchedEffect(loginViewModel.isLoginSuccessful) {
-//        if (loginViewModel.isLoginSuccessful) {
-//            navController.navigate(LOGIN_SUCCESS_ROUTE)
-//        }
-//    }
+    LaunchedEffect(loginViewModel.isLoginSuccessful) {
+        if (loginViewModel.isLoginSuccessful) {
+            navController.navigate(LOGIN_SUCCESS_ROUTE)
+        }
+    }
 
     Scaffold {
         contentPadding ->
@@ -130,11 +133,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                              supportingText = {
                                  ErrorTextBuilder(loginViewModel.emailError)
                              },
-                             fieldType = TextFieldType.EMAIL,
-                             keyboardOptions = KeyboardOptions(
-                                 keyboardType = KeyboardType.Email,
-                             ),
-                             leadingIcon = Icons.Outlined.Email
+                             strategy = EmailFieldStrategy,
                          )
 
                     LoginType.PHONE_NUMBER ->
@@ -146,21 +145,21 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                             supportingText = {
                                 ErrorTextBuilder(loginViewModel.phoneNumberError)
                             },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.NumberPassword
-                            ),
-                            leadingIcon = Icons.Outlined.Phone
+                            strategy = PhoneNumberFieldStrategy
                         )
                 }
 
                 MediumSpacer()
 
-                PasswordVerificationOutlinedTextField(
-                    password = loginViewModel.password,
-                    onPasswordChange = loginViewModel::onPasswordChange,
-                    passwordVisible = loginViewModel.passwordVisible,
-                    passwordError = loginViewModel.passwordError,
-                    onPasswordVisibleChange = loginViewModel::onPasswordVisibleChange
+                UnifiedOutlinedTextField(
+                    value = loginViewModel.password,
+                    onValueChange = loginViewModel::onPasswordChange,
+                    labelText = stringResource(R.string.password_field_name),
+                    isError = loginViewModel.passwordError != null,
+                    supportingText = {
+                        ErrorTextBuilder(loginViewModel.passwordError)
+                    },
+                    strategy = PasswordFieldStrategy(loginViewModel.passwordVisible, loginViewModel::onPasswordVisibleChange)
                 )
 
                 TextButton(
@@ -178,9 +177,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                 XLSpacer()
 
                 SubmitButton(
-                    onClick = {
-                        loginViewModel.onSubmit()
-                              },
+                    onClick = { loginViewModel.onSubmit() },
                     text = stringResource(R.string.login_button),
                     isLoading = loginViewModel.isLoading
                 )

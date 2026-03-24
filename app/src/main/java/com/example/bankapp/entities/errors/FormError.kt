@@ -56,6 +56,11 @@ sealed class FormError(override val message: Int): UiError {
     object OtpExpired:
             FormError(R.string.otp_expired)
 
-    object InvalidAmountFormat:
-            FormError(R.string.invalid_amount_format_error)
+    object InvalidDepositAmountFormat:
+            FormError(R.string.invalid_deposit_amount_format_error)
+
+    object InvalidCashTransferAmountFormat:
+            FormError(R.string.invalid_cash_transfer_amount_format_error)
+
+
 }

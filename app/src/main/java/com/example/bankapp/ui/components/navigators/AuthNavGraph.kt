@@ -90,7 +90,7 @@ fun NavGraphBuilder.authNavGraph(
             SuccessConfirmation(
                  title =stringResource(R.string.login_succcessful),
                  subtitle = stringResource(R.string.loading_your_account),
-                 onDone = restoreSession
+                 onDone = { restoreSession() }
             )
         }
 

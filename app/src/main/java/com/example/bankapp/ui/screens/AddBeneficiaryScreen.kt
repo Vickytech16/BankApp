@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
 import com.example.bankapp.di.providers.HomeSessionHandlerProvider
+import com.example.bankapp.entities.types.ui.TextFieldType
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
@@ -45,9 +46,11 @@ import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
-import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.usecases.CurrentSessionIntent
+import com.example.bankapp.utilities.EmailFieldStrategy
+import com.example.bankapp.utilities.FieldTypeStrategy
 import com.example.bankapp.viewmodels.AddBeneficiaryViewModel
 
 
@@ -130,7 +133,7 @@ fun AddBeneficiaryScreen(
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.email,
                     onValueChange = viewModel::onEmailChange,
                     labelText = stringResource(R.string.email_field_name),
@@ -138,15 +141,13 @@ fun AddBeneficiaryScreen(
                     supportingText = {
                         ErrorTextBuilder(viewModel.emailError)
                     },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                    ),
-                    leadingIcon = Icons.Outlined.Email
+                    leadingIcon = Icons.Outlined.Email,
+                    strategy = EmailFieldStrategy
                 )
 
                 MediumSpacer()
 
-                GenericOutlinedTextField(
+              UnifiedOutlinedTextField(
                     value = viewModel.phoneNumber,
                     onValueChange = viewModel::onPhoneNumberChange,
                     labelText = stringResource(R.string.phone_number_field_name),
@@ -155,7 +156,7 @@ fun AddBeneficiaryScreen(
                         ErrorTextBuilder(viewModel.phoneNumberError)
                     },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
+                        keyboardType = KeyboardType.NumberPassword
                     ),
                     leadingIcon = Icons.Outlined.Phone
                 )

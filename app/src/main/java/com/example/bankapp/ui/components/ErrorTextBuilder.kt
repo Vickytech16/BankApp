@@ -9,78 +9,82 @@ import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.UiError
 
 @Composable
-fun ErrorTextBuilder(
-    error: FormError?){
+fun ErrorTextBuilder(error: FormError?) {
 
-    error?.let {
-        val message =
+        error?.let {
+            val message =
 
-            when(error){
+                when (error) {
 
-                is FormError.InvalidAmount ,
+                    is FormError.InvalidAmount,
 
-                is FormError.InvalidCredentials ,
+                    is FormError.InvalidCredentials,
 
-                is FormError.InvalidData ,
+                    is FormError.InvalidData,
 
-                is FormError.InvalidEmailFormat ,
-
-
-                is FormError.InvalidUsername ,
-
-                is FormError.NegativeAmount ,
-
-                is FormError.PasswordDoesntMatch ,
-
-                is FormError.AllFieldsAreRequired ,
-
-                is FormError.UnknownError,
-
-                is FormError.OtpDoesNotMatch,
-
-                is FormError.OtpExpired,
-
-                is FormError.InvalidAmountFormat,
-
-                is FormError.AlreadyYourFriendError
-                                         ->
-
-                    stringResource(error.message)
-
-                is FormError.TooLongData ->
-                    stringResource(
-                        error.message,
-                        stringResource(error.fieldNameRes),
-                        error.characterLimitRes
-                    )
-
-                is FormError.UserAlreadyExists ,
-                            ->
-                    stringResource(
-                        error.message,
-                        stringResource(error.fieldNameRes)
-                    )
-
-            is FormError.InvalidNumericalFIeld ->
-
-                stringResource(error.message,
-                    stringResource(error.fieldNameRes))
-
-                is FormError.EmptyData ,
-                    ->
-                    stringResource(
-                        error.message,
-                        stringResource(error.fieldNameRes)
-                    )
+                    is FormError.InvalidEmailFormat,
 
 
-                is FormError.YouAreTheUser ->
-                    stringResource(error.message, stringResource(error.fieldNameRes))
-            }
+                    is FormError.InvalidUsername,
 
-        Text(
-            message, color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodySmall)
+                    is FormError.NegativeAmount,
+
+                    is FormError.PasswordDoesntMatch,
+
+                    is FormError.AllFieldsAreRequired,
+
+                    is FormError.UnknownError,
+
+                    is FormError.OtpDoesNotMatch,
+
+                    is FormError.OtpExpired,
+
+                    is FormError.InvalidDepositAmountFormat,
+
+                    is FormError.InvalidCashTransferAmountFormat,
+
+                    is FormError.AlreadyYourFriendError
+                        ->
+
+                        stringResource(error.message)
+
+                    is FormError.TooLongData ->
+                        stringResource(
+                            error.message,
+                            stringResource(error.fieldNameRes),
+                            error.characterLimitRes
+                        )
+
+                    is FormError.UserAlreadyExists,
+                        ->
+                        stringResource(
+                            error.message,
+                            stringResource(error.fieldNameRes)
+                        )
+
+                    is FormError.InvalidNumericalFIeld ->
+
+                        stringResource(
+                            error.message,
+                            stringResource(error.fieldNameRes)
+                        )
+
+                    is FormError.EmptyData,
+                        ->
+                        stringResource(
+                            error.message,
+                            stringResource(error.fieldNameRes)
+                        )
+
+
+                    is FormError.YouAreTheUser ->
+                        stringResource(error.message, stringResource(error.fieldNameRes))
+                }
+
+            Text(
+                message, color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
     }
 }
 

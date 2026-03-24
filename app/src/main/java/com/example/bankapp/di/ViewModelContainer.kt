@@ -53,6 +53,9 @@ class ViewModelContainer(
             transactionRepository = transactionRepository
         )
 
+    val loggedInSessionViewModelFactory: LoggedInSessionViewModelFactory =
+        LoggedInSessionViewModelFactory(accountRepository = accountRepository, sessionUseCase = useCaseContainer.sessionUseCase)
+
     val filterViewModelFactory: FilterViewModelFactory =
         FilterViewModelFactory()
 

@@ -4,5 +4,6 @@ enum class AccountStatus {
     EXISTS,
     NOT_FOUND,
     ERROR,
-    SAME_ACCOUNT
+    SAME_ACCOUNT,
+    EMPTY
 }

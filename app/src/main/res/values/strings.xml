@@ -33,7 +33,8 @@
     <string name="something_wrong_happened">Something wrong happened</string>
     <string name="otp_doesnt_match">Incorrect OTP. Please try again.</string>
     <string name="otp_expired">Otp Expired</string>
-    <string name="invalid_amount_format_error">Amount must be less than 1000000 and only up to 2 decimal characters are allowed</string>
+    <string name="invalid_deposit_amount_format_error">Amount must be less than 1000000000 and only up to 2 decimal characters are allowed</string>
+    <string name="invalid_cash_transfer_amount_format_error">Amount must be less than 1000000 and only up to 2 decimal characters are allowed</string>
     <string name="your_own_details_error">This is your %1$s</string>
 
 <!-- Transaction Errors  -->

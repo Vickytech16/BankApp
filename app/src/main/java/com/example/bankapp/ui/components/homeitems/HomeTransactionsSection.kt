@@ -73,7 +73,7 @@ fun HomeTransactionSection(
 
         SmallSpacer()
 
-        transactions.take(5).forEach { transaction ->
+        transactions.take(3).forEach { transaction ->
             val displayName =
                 if (transaction.transactionType == TransactionType.DEPOSIT)
                     transaction.myUserName

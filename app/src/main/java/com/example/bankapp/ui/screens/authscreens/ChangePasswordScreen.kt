@@ -40,8 +40,10 @@ import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.components.textfields.TrialingIconBehaviour
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.components.textfields.passwordHide
 import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.utilities.PasswordFieldStrategy
 import com.example.bankapp.viewmodels.ChangePasswordViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,10 +116,9 @@ fun ChangePasswordScreen(
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.password,
                     onValueChange = viewModel::onPasswordChange,
-                    visualTransformation = passwordHide(viewModel.passwordVisible),
                     labelText = stringResource(R.string.password_field_name),
                     modifier = Modifier
                         .onFocusChanged {
@@ -132,18 +133,12 @@ fun ChangePasswordScreen(
                         if (viewModel.hasPasswordFieldEverUnFocused)
                             PasswordErrorTextBuilder(viewModel.passwordError)
                     },
-                    leadingIcon = Icons.Outlined.Password,
-                    trailingIcon = {
-                        TrialingIconBehaviour(
-                            onPasswordVisibleChange = viewModel::onPasswordVisibleChange,
-                            passwordVisible = viewModel.passwordVisible
-                        )
-                    }
+                    strategy = PasswordFieldStrategy(viewModel.passwordVisible, viewModel::onPasswordVisibleChange)
                 )
 
                 MediumSpacer()
 
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.confirmPassword,
                     onValueChange = viewModel::onConfirmPasswordChange,
                     labelText = stringResource(R.string.confirm_password_field_name),
@@ -151,14 +146,7 @@ fun ChangePasswordScreen(
                     supportingText = {
                         ErrorTextBuilder(viewModel.confirmPasswordError)
                     },
-                    leadingIcon = Icons.Outlined.Password,
-                    trailingIcon = {
-                        TrialingIconBehaviour(
-                            onPasswordVisibleChange = viewModel::onConfirmPasswordVisibleChange,
-                            passwordVisible = viewModel.confirmPasswordVisible
-                        )
-                    },
-                    visualTransformation = passwordHide(viewModel.confirmPasswordVisible)
+                    strategy = PasswordFieldStrategy(viewModel.passwordVisible, viewModel::onPasswordVisibleChange)
                 )
 
                 XLSpacer()

@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity() {
                     appContainer.accountRepository,
                     appContainer.beneficiaryRepository,
                     appContainer.userRepository,
-                    appContainer.sessionStateProvider
                 )
             }
         }

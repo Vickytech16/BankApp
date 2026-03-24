@@ -33,10 +33,10 @@ class RegisterViewModel(
         private set
 
     fun onUserNameChange(newUserName: String) {
-        if (newUserName.length <= USERNAME_MAX_SIZE)
+        if(newUserName.length <= USERNAME_MAX_SIZE)
             userName = newUserName
         userNameError =
-            newUserName.emptyTextFieldErrorMessageBuilder(R.string.username_field_name) ?:
+                    newUserName.emptyTextFieldErrorMessageBuilder(R.string.username_field_name) ?:
                     newUserName.maxAllowedCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MAX_SIZE) ?:
                     newUserName.invalidUserNameErrorMessageBuilder()
         submitErrorReset()
@@ -59,7 +59,7 @@ class RegisterViewModel(
         if (newEmail.length <= EMAIL_MAX_SIZE)
             email = newEmail.lowercase()
         emailError =
-            newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
+                    newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
                     newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE) ?:
                     newEmail.invalidEmailErrorMessageBuilder()
         submitErrorReset()

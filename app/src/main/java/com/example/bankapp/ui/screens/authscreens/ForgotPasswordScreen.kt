@@ -43,6 +43,9 @@ import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
+import com.example.bankapp.utilities.EmailFieldStrategy
+import com.example.bankapp.utilities.PhoneNumberFieldStrategy
 import com.example.bankapp.viewmodels.ForgotPasswordViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,7 +112,7 @@ fun ForgetPasswordScreen(
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.email,
                     onValueChange = viewModel::onEmailChange,
                     labelText = stringResource(R.string.email_field_name),
@@ -117,15 +120,12 @@ fun ForgetPasswordScreen(
                     supportingText = {
                         ErrorTextBuilder(viewModel.emailError)
                     },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                    ),
-                    leadingIcon = Icons.Outlined.Email
+                    strategy = EmailFieldStrategy
                 )
 
                 MediumSpacer()
 
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.phoneNumber,
                     onValueChange = viewModel::onPhoneNumberChange,
                     labelText = stringResource(R.string.phone_number_field_name),
@@ -133,10 +133,7 @@ fun ForgetPasswordScreen(
                     supportingText = {
                         ErrorTextBuilder(viewModel.phoneNumberError)
                     },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    ),
-                    leadingIcon = Icons.Outlined.Phone
+                    strategy = PhoneNumberFieldStrategy
                 )
 
                 XLSpacer()

@@ -1,0 +1,145 @@
+package com.example.bankapp.utilities
+
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.outlined.AccountBox
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Money
+import androidx.compose.material.icons.outlined.Password
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import com.example.bankapp.R
+import com.example.bankapp.entities.types.transaction.TransactionType
+import com.example.bankapp.ui.theme.AppSpacing
+
+interface FieldTypeStrategy {
+    fun getKeyboardOptions(): KeyboardOptions? = null
+
+    fun getVisualTransformation(): VisualTransformation? = null
+
+    fun validateValue(value: String): String? = null
+
+    @Composable
+    fun buildTrailingIcon(): @Composable (() -> Unit)? = null
+
+    fun getLetterSpacing(): Int? = null
+
+    fun getMaxLength(): Int = 250
+
+    fun getLeadingIcon(): ImageVector? = null
+}
+
+object GenericFieldStrategy : FieldTypeStrategy
+
+object UserNameFieldStrategy: FieldTypeStrategy {
+    override fun getMaxLength(): Int = USERNAME_MAX_SIZE
+
+    override fun getLeadingIcon(): ImageVector = Icons.Outlined.Person
+  }
+
+    object EmailFieldStrategy : FieldTypeStrategy {
+        override fun getKeyboardOptions(): KeyboardOptions =
+            KeyboardOptions(keyboardType = KeyboardType.Email)
+
+        override fun getMaxLength(): Int = EMAIL_MAX_SIZE
+
+        override fun getLeadingIcon(): ImageVector = Icons.Outlined.Email
+    }
+
+    object PhoneNumberFieldStrategy : FieldTypeStrategy {
+        override fun getKeyboardOptions(): KeyboardOptions =
+            KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+
+        override fun getLetterSpacing(): Int = 2
+
+        override fun getMaxLength(): Int = PHONE_NUMBER_MAX_SIZE
+
+        override fun getLeadingIcon(): ImageVector = Icons.Outlined.Phone
+    }
+
+    data class PasswordFieldStrategy(
+        val passwordVisible: Boolean,
+        val onPasswordVisibleChange: () -> Unit
+    ) : FieldTypeStrategy {
+
+        override fun getKeyboardOptions(): KeyboardOptions =
+            KeyboardOptions(keyboardType = KeyboardType.Password)
+
+        override fun getVisualTransformation(): VisualTransformation =
+            if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
+
+        @Composable
+        override fun buildTrailingIcon(): @Composable (() -> Unit) = {
+            IconButton(onClick = onPasswordVisibleChange) {
+                Icon(
+                    if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                    contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                )
+            }
+        }
+
+        override fun getMaxLength(): Int = PASSWORD_MAX_SIZE
+
+        override fun getLeadingIcon(): ImageVector = Icons.Outlined.Password
+    }
+
+
+
+
+    data class AmountFieldStrategy(
+        val transactionType: TransactionType
+    ) : FieldTypeStrategy {
+
+        override fun getKeyboardOptions(): KeyboardOptions =
+            KeyboardOptions(keyboardType = KeyboardType.Decimal)
+
+        @Composable
+        override fun buildTrailingIcon(): @Composable (() -> Unit) = {
+            Text(
+                text = stringResource(R.string.rupee_symbol),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = AppSpacing.md)
+            )
+        }
+
+
+        override fun getLeadingIcon(): ImageVector = Icons.Outlined.Money
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

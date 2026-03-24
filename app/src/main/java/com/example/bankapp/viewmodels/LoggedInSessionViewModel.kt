@@ -23,7 +23,7 @@ class LoggedInSessionViewModel(
     private val _sessionState = MutableStateFlow<SessionState>(SessionState.Loading)
     val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
 
-   var currentUser by mutableStateOf<User?>(null)
+    var currentUser by mutableStateOf<User?>(null)
         private set
 
     fun restoreSession(){
