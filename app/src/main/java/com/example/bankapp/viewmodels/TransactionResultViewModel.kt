@@ -10,7 +10,7 @@ import com.example.bankapp.entities.errors.TransactionResult
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
 
-import com.example.bankapp.di.HomeSessionHandlerProvider
+import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.usecases.ActionState
 import com.example.bankapp.usecases.HomeSessionHandler
 import kotlinx.coroutines.launch

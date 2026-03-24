@@ -25,6 +25,5 @@ abstract class BankDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
     abstract fun ledgerDao(): LedgerDao
     abstract fun transactionDao(): TransactionDao
-
     abstract fun beneficiaryDao(): BeneficiaryDao
 }

@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.bankapp.entities.dbtables.Beneficiary
-import com.example.bankapp.entities.dtos.FriendDto
+import com.example.bankapp.entities.dtos.BeneficiaryDto
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -43,7 +43,7 @@ interface BeneficiaryDao {
     WHERE b.userId = :userId
     ORDER BY b.addedDate DESC
 """)
-    suspend fun getAllFriends(userId: Long): List<FriendDto>
+    suspend fun getAllFriends(userId: Long): List<BeneficiaryDto>
 
     @Query("""
     SELECT 
@@ -59,5 +59,6 @@ interface BeneficiaryDao {
     WHERE b.beneficiaryId = :beneficiaryId
     LIMIT 1
 """)
-    suspend fun getFriendById(beneficiaryId: Long): FriendDto?
+    suspend fun getFriendById(beneficiaryId: Long): BeneficiaryDto?
+
 }

@@ -40,7 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.CashTransferViewModelFactory
-import com.example.bankapp.entities.types.AccountStatus
+import com.example.bankapp.entities.types.accounttypes.AccountStatus
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.MediumSpacer

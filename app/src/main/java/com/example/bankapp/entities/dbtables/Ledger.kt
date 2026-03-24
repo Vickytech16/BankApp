@@ -4,8 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.bankapp.entities.dbtables.Transaction
-import com.example.bankapp.entities.types.LedgerDirection
+import com.example.bankapp.entities.types.transaction.LedgerDirection
 import java.math.BigDecimal
 
 @Entity(tableName = "ledger_entries",
@@ -14,13 +13,13 @@ import java.math.BigDecimal
             entity = Transaction::class,
             parentColumns = ["transactionId"],
             childColumns = ["transactionId"],
-            onDelete = ForeignKey.Companion.RESTRICT
+            onDelete = ForeignKey.RESTRICT
         ),
         ForeignKey(
             entity = Account::class,
             parentColumns = ["accNo"],
             childColumns = ["accNo"],
-            onDelete = ForeignKey.Companion.RESTRICT
+            onDelete = ForeignKey.RESTRICT
         )
     ],
     indices = [

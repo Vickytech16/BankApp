@@ -1,14 +1,11 @@
 package com.example.bankapp.ui.components.transactionitems
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,11 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
-import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
-import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.SmallSpacer
-import com.example.bankapp.ui.components.navigators.TransactionScreen
+import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_ROUTE
 import com.example.bankapp.ui.screens.uiAmountDisplay
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
@@ -87,17 +83,17 @@ fun TransactionLazyList(
                     if (transaction.transactionType == TransactionType.DEPOSIT)
                         transaction.myPfpUrl
                     else
-                        transaction.counterpartyPfp
+                        transaction.counterpartyPfpUrl
 
                 TransactionListItem(
                     counterPartyName = counterPartyName ?: "?",
-                    transactionDirection = transaction.direction,
+                    transactionDirection = transaction.ledgerDirection,
                     amount = transaction.amount.uiAmountDisplay(),
                     transactionDate = transaction.transactionDate,
                     pfpURL = counterPartyPfp,
                     onClickAction = {
                         navController.navigate(
-                            TransactionScreen.CashTransferDetailScreen.createRoute(transaction.transactionId)
+                            "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/${transaction.transactionId}"
                         )
                     },
                     deviceSpec = deviceSpec

@@ -2,6 +2,7 @@ package com.example.bankapp.di
 
 import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ChangePasswordViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.FilterViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoggedInSessionViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoginViewModelFactory
@@ -9,6 +10,7 @@ import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpVerificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.TransactionDetailsViewModelFactory
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
@@ -19,7 +21,7 @@ class ViewModelContainer(
     useCaseContainer: UseCaseContainer,
     private val accountRepository: AccountRepository,
     private val transactionRepository: TransactionRepository
-    ) {
+) {
     val loginViewModelFactory: LoginViewModelFactory = LoginViewModelFactory(
         userRepository,
         useCaseContainer.sessionUseCase,
@@ -34,8 +36,7 @@ class ViewModelContainer(
             useCaseContainer.changePasswordUseCase
         )
 
-    val forgotPasswordViewModelFactory: ForgotPasswordViewModelFactory =
-        ForgotPasswordViewModelFactory(
+    val forgotPasswordViewModelFactory: ForgotPasswordViewModelFactory = ForgotPasswordViewModelFactory(
             userRepository,
             useCaseContainer.changePasswordUseCase
         )
@@ -46,18 +47,17 @@ class ViewModelContainer(
     val notificationViewModelFactory: NotificationViewModelFactory =
         NotificationViewModelFactory()
 
-    val loggedInSessionViewModelFactory: LoggedInSessionViewModelFactory =
-        LoggedInSessionViewModelFactory(
-            useCaseContainer.sessionUseCase,
-            accountRepository
-        )
-    val accountCreationViewModelFactory: AccountCreationViewModelFactory =
-        AccountCreationViewModelFactory(
+    val accountCreationViewModelFactory: AccountCreationViewModelFactory = AccountCreationViewModelFactory(
             accountRepository = accountRepository,
             sessionUseCase = useCaseContainer.sessionUseCase,
             transactionRepository = transactionRepository
         )
 
-    val otpVerificationViewModelFactory: OtpVerificationViewModelFactory =
-        OtpVerificationViewModelFactory()
+    val filterViewModelFactory: FilterViewModelFactory =
+        FilterViewModelFactory()
+
+    val transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory =
+        TransactionDetailsViewModelFactory(transactionRepository)
+
+
 }

@@ -14,7 +14,7 @@ import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.utilities.uiUserId
 import kotlinx.coroutines.launch
-import com.example.bankapp.entities.types.LoginType
+import com.example.bankapp.entities.types.ui.LoginType
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE

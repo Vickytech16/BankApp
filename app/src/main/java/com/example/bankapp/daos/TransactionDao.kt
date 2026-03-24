@@ -87,8 +87,6 @@ interface TransactionDao {
     ORDER BY 
         CASE WHEN :sortOrder = 'NEWEST' THEN t.createdAt END DESC,
         CASE WHEN :sortOrder = 'OLDEST' THEN t.createdAt END ASC,
-        CASE WHEN :sortOrder = 'HIGH_AMOUNT' THEN CAST(te.amount AS REAL) END DESC,
-        CASE WHEN :sortOrder = 'LOW_AMOUNT' THEN CAST(te.amount AS REAL) END ASC,
         CASE WHEN :searchQuery != '' THEN INSTR(LOWER(COALESCE(u2.userName, u1.userName)), LOWER(:searchQuery)) END ASC, COALESCE(u2.userName, u1.userName) ASC
         
 """)
@@ -108,7 +106,6 @@ interface TransactionDao {
     SELECT
         t.transactionType AS transaction_type,
         t.createdAt AS transaction_date,
-        te.direction AS direction,
         te.amount AS amount,
         COALESCE(u2.userName, 'Bank') AS counterpartyName,
         u2.pfpURL AS counterpartyPfp,
@@ -153,8 +150,9 @@ interface TransactionDao {
         ON a2.userId = u2.userId
 
     WHERE t.transactionId = :transactionId
+    AND te.accNo = :accNo 
     AND NOT (t.transactionStatus = 'FAILED' AND te.direction = 'CREDIT')
 """)
-    suspend fun getTransactionHistoryItemById(transactionId: String): TransactionHistoryItemDto?
+    suspend fun getTransactionHistoryItemById(transactionId: String, accNo: Long): TransactionHistoryItemDto?
 
-    }
+}

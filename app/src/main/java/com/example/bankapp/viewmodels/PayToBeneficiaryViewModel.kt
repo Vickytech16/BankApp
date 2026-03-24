@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.entities.SessionState
-import com.example.bankapp.entities.dtos.FriendDto
+import com.example.bankapp.entities.dtos.BeneficiaryDto
 import com.example.bankapp.repositories.BeneficiaryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +19,8 @@ class PayToBeneficiaryViewModel(
 ) : ViewModel() {
     private val user = sessionState.user
 
-    private val _friends = MutableStateFlow<List<FriendDto>>(emptyList())
-    val friends: StateFlow<List<FriendDto>> = _friends
+    private val _friends = MutableStateFlow<List<BeneficiaryDto>>(emptyList())
+    val friends: StateFlow<List<BeneficiaryDto>> = _friends
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query

@@ -11,7 +11,7 @@ import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.TransactionResult
-import com.example.bankapp.entities.types.AccountType
+import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.services.PasswordHashingService
@@ -25,7 +25,6 @@ import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
 

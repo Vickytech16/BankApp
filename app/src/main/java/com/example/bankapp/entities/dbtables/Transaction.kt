@@ -5,9 +5,9 @@ import androidx.annotation.RequiresApi
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.bankapp.entities.types.TransactionFailureType
-import com.example.bankapp.entities.types.TransactionStatus
-import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.entities.types.transaction.TransactionFailureType
+import com.example.bankapp.entities.types.transaction.TransactionStatus
+import com.example.bankapp.entities.types.transaction.TransactionType
 import java.time.LocalDateTime
 
 @Entity(tableName = "transactions",
@@ -16,7 +16,7 @@ import java.time.LocalDateTime
         Index(value = ["idempotencyKey"], unique = true)
     ]
 )
-data class Transaction @RequiresApi(Build.VERSION_CODES.O) constructor(
+data class Transaction(
     @PrimaryKey
     val transactionId: String,
     val referenceNumber: String,
@@ -26,4 +26,4 @@ data class Transaction @RequiresApi(Build.VERSION_CODES.O) constructor(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val failureType: TransactionFailureType? = null
-    )
+)

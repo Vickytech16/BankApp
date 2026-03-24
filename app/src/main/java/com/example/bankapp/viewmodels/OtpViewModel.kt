@@ -145,7 +145,7 @@ class OtpViewModel: ViewModel(){
             isOtpValid = false
             userEnteredOtp = ""
             resetOtpInputs()
-            submitError = FormError.OtpDoesntMatch
+            submitError = FormError.OtpDoesNotMatch
         }
     }
 }

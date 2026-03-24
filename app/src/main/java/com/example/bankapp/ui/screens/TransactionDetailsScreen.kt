@@ -26,7 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.bankapp.R
-import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.entities.SessionState
+import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.transactionitems.CashTransferDetailBody
 import com.example.bankapp.ui.components.transactionitems.DepositDetailBody
@@ -37,12 +38,13 @@ fun TransactionDetailsScreen(
     navController: NavController,
     transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory,
     transactionId: String,
-    windowSizeClass: WindowSizeClass
+    accNo: Long,
+    windowSizeClass: WindowSizeClass,
 ){
     val viewModel: TransactionDetailsViewModel = viewModel(factory = transactionDetailsViewModelFactory)
 
     LaunchedEffect(transactionId) {
-        viewModel.loadTransaction(transactionId)
+        viewModel.loadTransaction(transactionId, accNo)
     }
 
     val detailItem = viewModel.transaction.collectAsState(null).value
@@ -77,7 +79,7 @@ fun TransactionDetailsScreen(
                 when (detailItem.transactionType) {
 
                     TransactionType.CASH_TRANSFER -> {
-                        print(detailItem.direction +"ghjhg")
+                        print(detailItem.ledgerDirection)
                         CashTransferDetailBody(
                             transactionItem = detailItem,
                             paddingValues = paddingValues,

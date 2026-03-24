@@ -1,6 +1,7 @@
 package com.example.bankapp.services
 
 import android.content.Context
+import androidx.core.content.edit
 
 class SessionManagementService(context: Context) {
     private val prefs = context.getSharedPreferences(
@@ -13,7 +14,7 @@ class SessionManagementService(context: Context) {
     }
 
     fun saveUserId(userId: String) {
-        prefs.edit().putString(KEY_USER_ID, userId).apply()
+        prefs.edit { putString(KEY_USER_ID, userId) }
     }
 
     fun getUserId(): String? {
@@ -21,6 +22,6 @@ class SessionManagementService(context: Context) {
     }
 
     fun clearSession() {
-        prefs.edit().remove(KEY_USER_ID).apply()
+        prefs.edit { remove(KEY_USER_ID) }
     }
 }

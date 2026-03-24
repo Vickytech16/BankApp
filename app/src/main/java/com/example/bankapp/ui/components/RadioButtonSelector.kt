@@ -1,4 +1,4 @@
-package com.example.bankapp.ui.components.filters
+package com.example.bankapp.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,14 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
-import com.example.bankapp.ui.components.LargeSpacer
+
 
 @Composable
-fun <T> FilterSortRadioButton(
+fun <T> RadioButtonSelector(
     title: String,
     options: List<T>,
     selected: T,
-    onClick: (T) -> Unit,
+    onSelectionChange: (T) -> Unit,
     labelFor: @Composable (T) -> String,
     modifier: Modifier = Modifier
 ) {
@@ -40,21 +40,21 @@ fun <T> FilterSortRadioButton(
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing))
         ) {
-            options.forEach { option ->
+            options.forEach {
+                option ->
                 Row(
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onClick(option)
+                            onSelectionChange(option)
                         }
                         .padding(dimensionResource(R.dimen.radio_padding))
                 ) {
                     RadioButton(
-                        selected =
-                            option == selected,
+                        selected = option == selected,
                         onClick = {
-                            onClick(option)
+                            onSelectionChange(option)
                         }
                     )
                     Text(

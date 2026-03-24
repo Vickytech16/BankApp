@@ -1,4 +1,4 @@
-package com.example.bankapp.entities.types
+package com.example.bankapp.entities.types.transaction
 
 enum class TransactionStatus {
     COMPLETED,

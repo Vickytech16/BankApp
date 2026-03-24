@@ -10,10 +10,10 @@ import com.example.bankapp.entities.dbtables.Ledger
 import com.example.bankapp.entities.dbtables.Transaction
 import com.example.bankapp.entities.errors.TransactionResult
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
-import com.example.bankapp.entities.types.LedgerDirection
-import com.example.bankapp.entities.types.TransactionFailureType
-import com.example.bankapp.entities.types.TransactionStatus
-import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.entities.types.transaction.LedgerDirection
+import com.example.bankapp.entities.types.transaction.TransactionFailureType
+import com.example.bankapp.entities.types.transaction.TransactionStatus
+import com.example.bankapp.entities.types.transaction.TransactionType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -53,9 +53,9 @@ class TransactionRepository(
         )
     }
 
-    suspend fun getTransactionHistoryByTransactionId(transactionId: String): TransactionHistoryItemDto?{
+    suspend fun getTransactionHistoryByTransactionId(transactionId: String, accNo: Long): TransactionHistoryItemDto?{
         return withContext(Dispatchers.IO){
-            transactionDao.getTransactionHistoryItemById(transactionId)
+            transactionDao.getTransactionHistoryItemById(transactionId, accNo)
         }
     }
 
@@ -64,8 +64,6 @@ class TransactionRepository(
             accountDao.getAccountAsFlowByAccNo(accNo).firstOrNull() != null
         }
     }
-
-
 
    suspend fun cashTransfer(
         fromAccountNo: Long,
@@ -79,10 +77,10 @@ class TransactionRepository(
             if (amount <= BigDecimal.ZERO) {
                 return@withTransaction TransactionResult.Error.InvalidAmount
             }
-
             if (fromAccountNo == toAccountNo) {
                 return@withTransaction TransactionResult.Error.SameAccountTransfer
             }
+
             val fromAccount: Account? =
                 accountDao.getAccountAsFlowByAccNo(fromAccountNo).firstOrNull()
             val toAccount: Account? =
@@ -95,7 +93,6 @@ class TransactionRepository(
             val transaction =
                 createTransaction(TransactionType.CASH_TRANSFER, TransactionStatus.PENDING, idempotencyKey)
                     ?: return@withTransaction TransactionResult.Error.RepeatedTransaction
-
             var updatedTransaction =
                 getUpdatedTransaction(transaction, TransactionStatus.COMPLETED)
 
@@ -124,7 +121,6 @@ class TransactionRepository(
                 )
 
                 ledgerDao.insertAll(listOf(fromLedger, toLedger))
-
 
                 return@withTransaction TransactionResult.Error.InsufficientBalance
             }
@@ -191,9 +187,9 @@ class TransactionRepository(
             var updatedTransaction =
                 getUpdatedTransaction(transaction, TransactionStatus.COMPLETED)
 
-
             val isDepositSuccessful =
                 accountDao.deposit(amount, LocalDateTime.now(), account.accNo)
+
             if (isDepositSuccessful == 0){
                 updatedTransaction = getUpdatedTransaction(transaction, TransactionStatus.FAILED,
                     TransactionFailureType.UNKNOWN_ERROR)
@@ -210,7 +206,6 @@ class TransactionRepository(
             )
 
             ledgerDao.insertAll(listOf(ledger))
-
 
             transactionDao.update(updatedTransaction)
 

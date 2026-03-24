@@ -26,7 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
-import com.example.bankapp.entities.types.TransactionStatus
+import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec

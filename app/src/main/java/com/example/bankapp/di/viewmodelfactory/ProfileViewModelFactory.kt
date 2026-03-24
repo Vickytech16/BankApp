@@ -7,6 +7,7 @@ import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.viewmodels.ProfileViewModel
 
+@Suppress("UNCHECKED_CAST")
 class ProfileViewModelFactory(
     private val userRepository: UserRepository,
     private val accountRepository: AccountRepository,

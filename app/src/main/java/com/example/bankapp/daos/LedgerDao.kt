@@ -7,6 +7,7 @@ import com.example.bankapp.entities.dbtables.Ledger
 
 @Dao
 interface LedgerDao {
+
     @Insert
     suspend fun insertAll(entries: List<Ledger>): List<Long>
 
@@ -15,4 +16,5 @@ interface LedgerDao {
 
     @Query("SELECT * FROM ledger_entries WHERE transactionId = :transactionId")
     suspend fun getByTransactionId(transactionId: String): List<Ledger>
+
 }

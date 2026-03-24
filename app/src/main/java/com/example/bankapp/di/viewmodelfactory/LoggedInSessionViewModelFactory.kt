@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.usecases.SessionUseCase
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
-import com.example.bankapp.viewmodels.OtpViewModel
 
 class LoggedInSessionViewModelFactory(
     private val sessionUseCase: SessionUseCase,

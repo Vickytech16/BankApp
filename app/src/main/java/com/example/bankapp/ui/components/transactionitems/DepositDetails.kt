@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
+import com.example.bankapp.entities.types.transaction.LedgerDirection
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.UserAvatar
@@ -72,8 +73,8 @@ fun DepositDetailBody(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            println(transactionItem.direction)
-            val isCredit = transactionItem.direction.uppercase().equals("CREDIT", true)
+            println(transactionItem.ledgerDirection)
+            val isCredit = transactionItem.ledgerDirection == LedgerDirection.CREDIT
             val amountColor = if (isCredit) amountGreenColor else MaterialTheme.colorScheme.error
             val amountPrefix = if (isCredit) "+" else "-"
 

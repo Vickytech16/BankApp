@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Sort
+import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -35,12 +38,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.FilterViewModelFactory
-import com.example.bankapp.entities.types.UiLedgerDirection
+import com.example.bankapp.entities.types.ui.UiLedgerDirection
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.transactionitems.TransactionLazyList
-import com.example.bankapp.ui.components.filters.FilterButton
+import com.example.bankapp.ui.components.filters.FilterSortChip
 import com.example.bankapp.ui.components.filters.FilterSection
-import com.example.bankapp.ui.components.filters.SortButton
+import com.example.bankapp.ui.components.filters.SortSection
 import com.example.bankapp.ui.components.transactionitems.TransactionSearchBar
 import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.viewmodels.FilterViewModel
@@ -118,14 +121,14 @@ fun TransactionsScreen(
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing))
             ) {
 
-                FilterButton(
-                    labelText = stringResource(R.string.filter_label),
-                    activeCount = filterViewModel.filterState.selectedStatus.size +
+                FilterSortChip(
+                    label = stringResource(R.string.filter_label),
+                    icon = Icons.Outlined.FilterList,
+                    badgeCount = filterViewModel.filterState.selectedStatus.size +
                             filterViewModel.filterState.selectedTypes.size +
-                            if (filterViewModel.filterState.selectedDirection != UiLedgerDirection.BOTH)
-                                1
-                            else
-                                0,
+                            if (filterViewModel.filterState.selectedDirection != UiLedgerDirection.BOTH) 1 else 0,
+                    showSheet = filterViewModel.filterShowSheet,
+                    onShowSheetChange = filterViewModel::onFilterShowSheetChange,
                     sheetContent = {
                         FilterSection(
                             pendingState = filterViewModel.pendingState,
@@ -136,19 +139,24 @@ fun TransactionsScreen(
                                 filterViewModel.onFilterShowSheetChange(false)
                             }
                         )
-                    },
-                    showSheet = filterViewModel.filterShowSheet,
-                    onShowSheetChange = filterViewModel::onFilterShowSheetChange,
+                    }
                 )
 
-                SortButton(
-                    selectedSort = filterViewModel.pendingSortState,
-                    onSortChange = filterViewModel::onSortChange,
-                    labelText = stringResource(R.string.sort_label),
+
+                FilterSortChip(
+                    label = stringResource(R.string.sort_label),
+                    icon = Icons.AutoMirrored.Outlined.Sort,
+                    badgeCount = 0,
                     showSheet = filterViewModel.sortShowSheet,
                     onShowSheetChange = filterViewModel::onSortShowSheetChange,
-                    onReset = { filterViewModel.onSortReset() },
-                    onApply = { filterViewModel.onSortApply()}
+                    sheetContent = {
+                        SortSection(
+                            selectedSort = filterViewModel.pendingSortState,
+                            onSortChange = filterViewModel::onSortChange,
+                            onReset = { filterViewModel.onSortReset() },
+                            onApply = { filterViewModel.onSortApply() }
+                        )
+                    }
                 )
             }
 

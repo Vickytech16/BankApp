@@ -31,7 +31,6 @@ object PasswordHashingService {
            return@withContext "$ITERATIONS:${Base64.encodeToString(salt, Base64.NO_WRAP)}:${
                Base64.encodeToString(hash, Base64.NO_WRAP)
            }"
-
         }
 
         suspend fun matches(

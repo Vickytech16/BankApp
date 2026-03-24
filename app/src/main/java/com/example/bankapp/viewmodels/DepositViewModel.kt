@@ -17,7 +17,7 @@ import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_R
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.di.HomeSessionHandlerProvider
+import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.amountFieldValidator

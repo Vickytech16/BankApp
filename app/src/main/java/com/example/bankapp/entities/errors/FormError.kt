@@ -50,7 +50,7 @@ sealed class FormError(override val message: Int): UiError {
     object UnknownError:
             FormError(R.string.something_wrong_happened)
 
-    object OtpDoesntMatch:
+    object OtpDoesNotMatch:
             FormError(R.string.otp_doesnt_match)
 
     object OtpExpired:

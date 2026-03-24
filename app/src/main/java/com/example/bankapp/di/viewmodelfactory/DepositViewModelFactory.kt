@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.viewmodels.CashTransferViewModel
 import com.example.bankapp.viewmodels.DepositViewModel
 
 class DepositViewModelFactory(

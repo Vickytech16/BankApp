@@ -17,27 +17,25 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import com.example.bankapp.ui.theme.DeviceSpec
 
-
-
-
 @Composable
-fun QuickActionsButton(
+fun ActionButton(
     onClickAction: () -> Unit,
     icon: ImageVector,
     label: String,
-    modifier: Modifier = Modifier,
-    deviceSpec: DeviceSpec
+    dimensions: ButtonDimensions,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(deviceSpec.qabButtonSpacing)
+        verticalArrangement = Arrangement.spacedBy(dimensions.spacing)
     ) {
         FilledIconButton(
             onClick = onClickAction,
-            modifier = Modifier.size(dimensionResource(deviceSpec.qabButtonSize)),
+            modifier = Modifier.size(dimensionResource(dimensions.buttonSize)),
             shape = CircleShape,
             colors = IconButtonDefaults.filledIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.tertiary,
@@ -47,15 +45,22 @@ fun QuickActionsButton(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                modifier = Modifier.size(dimensionResource(deviceSpec.qabButtonIconSize)),
+                modifier = Modifier.size(dimensionResource(dimensions.iconSize)),
             )
         }
         Text(
             text = label,
-            style = deviceSpec.qabButtonLabelSize(),
+            style = dimensions.labelStyle,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
     }
 }
+
+data class ButtonDimensions(
+    val buttonSize: Int,
+    val iconSize: Int,
+    val spacing: Dp,
+    val labelStyle: TextStyle
+)

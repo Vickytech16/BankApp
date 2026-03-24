@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import com.example.bankapp.R
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 
@@ -40,7 +39,8 @@ fun BottomNavigationBar(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BottomNavItem.entries.forEach { item ->
+        BottomNavItem.entries.forEach {
+            item ->
             val isSelected = currentRoute == item.route
 
             BottomNavItemButton(

@@ -9,6 +9,7 @@ const val LOGIN_ROUTE = "login"
 const val REGISTER_ROUTE = "register"
 const val REGISTER_SUCCESS_ROUTE = "success-register"
 const val LOGIN_SUCCESS_ROUTE = "success-login"
+
 const val HOME_ROUTE = "home"
 
 const val PAY_ROUTE = "pay"
@@ -27,7 +28,7 @@ const val CHANGE_PASSWORD_SUCCESS_ROUTE = "success-change-password"
 
 const val HOME_OTP = "home-otp"
 
-const val AUTH_OTP = "auth_otp"
+const val AUTH_OTP = "auth-otp"
 
 const val ACCOUNT_CREATION_ROUTE = "account-creation"
 
@@ -39,13 +40,13 @@ const val INDIVIDUAL_TRANSACTION_LOG_ROUTE ="individual-transaction"
 
 const val DEPOSIT_ROUTE = "deposit"
 
-const val PASSWORD_CONFIRMATION_ROUTE = "password_confirmation_route"
+const val PASSWORD_CONFIRMATION_ROUTE = "password-confirmation-route"
 
-const val TRANSACTION_RESULT_ROUTE = "transaction_result"
+const val TRANSACTION_RESULT_ROUTE = "transaction-result"
 
-const val ADD_BENEFICIARY_ROUTE = "add_beneficiary"
+const val ADD_BENEFICIARY_ROUTE = "add-beneficiary"
 
-const val PAY_TO_BENEFICIARY_ROUTE = "pay_to_beneficiary"
+const val PAY_TO_BENEFICIARY_ROUTE = "pay-to-beneficiary"
 
 
 

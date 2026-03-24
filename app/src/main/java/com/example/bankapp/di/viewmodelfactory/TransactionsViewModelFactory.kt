@@ -3,10 +3,7 @@ package com.example.bankapp.di.viewmodelfactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.entities.SessionState
-import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.usecases.SessionUseCase
-import com.example.bankapp.viewmodels.AccountCreationViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
 

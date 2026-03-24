@@ -6,11 +6,12 @@ import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.viewmodels.LoginViewModel
 import com.example.bankapp.viewmodels.RegisterViewModel
 
+@Suppress("UNCHECKED_CAST")
 class RegisterViewModelFactory(
     private val userRepository: UserRepository
 ) : ViewModelProvider.Factory{
 
-    @Suppress("UNCHECKED_CAST")
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
             return RegisterViewModel(

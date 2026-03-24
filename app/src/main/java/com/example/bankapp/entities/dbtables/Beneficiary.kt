@@ -1,6 +1,5 @@
 package com.example.bankapp.entities.dbtables
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -33,16 +32,9 @@ import androidx.room.PrimaryKey
 data class Beneficiary(
     @PrimaryKey(autoGenerate = true)
     val beneficiaryId: Long = 0,
-
-    @ColumnInfo(name = "userId")
     val userId: Long,
-
-    @ColumnInfo(name = "beneficiaryUserId")
     val beneficiaryUserId: Long,
-
     val nickname: String = "",
-
     val isFavorite: Boolean = false,
-
     val addedDate: String
 )

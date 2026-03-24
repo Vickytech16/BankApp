@@ -39,7 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.CashTransferViewModelFactory
-import com.example.bankapp.entities.types.AccountStatus
+import com.example.bankapp.entities.types.account.AccountStatus
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.MediumSpacer
@@ -53,7 +53,7 @@ import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_R
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.di.HomeSessionHandlerProvider
+import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.ui.components.textfields.AccountNumberOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.AppSpacing
@@ -175,10 +175,10 @@ fun CashTransferScreen(
         topBar = {
             Appbar(
                 stringResource(R.string.transfer_to_account_label),
-                {
+                navBehaviour = {
                     navController.popBackStack()
                 },
-                null
+                scrollBehavior = null
             )
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)

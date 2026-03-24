@@ -4,13 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.usecases.ChangePasswordUseCase
-import com.example.bankapp.usecases.SessionUseCase
 import com.example.bankapp.viewmodels.ChangePasswordViewModel
-import com.example.bankapp.viewmodels.LoginViewModel
 
 
-
-    class ChangePasswordViewModelFactory(
+class ChangePasswordViewModelFactory(
         private val userRepository: UserRepository,
         private val changePasswordUseCase: ChangePasswordUseCase
     ) : ViewModelProvider.Factory {

@@ -3,6 +3,7 @@ package com.example.bankapp.services
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import com.example.bankapp.R
 import com.example.bankapp.entities.Notification
 
 object SendNotificationService {
@@ -13,7 +14,7 @@ object SendNotificationService {
         isOtp: Boolean = true
     ) {
         val notification = NotificationCompat.Builder(context, "notifications")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.bank_logo)
             .setContentTitle(notification.title)
             .setContentText(notification.message)
             .setAutoCancel(true)

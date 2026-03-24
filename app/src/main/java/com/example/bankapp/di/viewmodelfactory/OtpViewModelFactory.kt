@@ -2,9 +2,6 @@ package com.example.bankapp.di.viewmodelfactory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.usecases.ChangePasswordUseCase
-import com.example.bankapp.viewmodels.ChangePasswordViewModel
 import com.example.bankapp.viewmodels.OtpViewModel
 
 

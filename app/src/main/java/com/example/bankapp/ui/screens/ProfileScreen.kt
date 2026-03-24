@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.automirrored.outlined.Help
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.Help
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Phone
@@ -53,20 +51,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.ui.components.UserAvatar
-import com.example.bankapp.ui.components.appbar.NameOnlyAppBar
 import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
-import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpecProvider
-import com.example.bankapp.utilities.uiAccNo
 import com.example.bankapp.viewmodels.ProfileViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.example.bankapp.di.viewmodelfactory.ProfileViewModelFactory
+import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
-import com.example.bankapp.ui.components.navigators.PAY_ROUTE
 import com.example.bankapp.ui.components.navigators.PROFILE_ROUTE
 import com.example.bankapp.ui.theme.DeviceSpec
 
@@ -88,7 +83,7 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            NameOnlyAppBar(stringResource(R.string.profile_screen_title), scrollBehavior = scrollBehavior)
+            Appbar(stringResource(R.string.profile_screen_title), scrollBehavior = scrollBehavior)
         },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {

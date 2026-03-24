@@ -95,7 +95,7 @@
     <string name="logout_button">Logout</string>
     <string name="more">More</string>
     <string name="transaction_history_label">Transaction History</string>
-    <string name="see_all_label">See all →</string>
+    <string name="see_all_label">See all</string>
 
 <!--   Filters -->
     <string name="filter_label">Filter</string>

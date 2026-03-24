@@ -38,7 +38,7 @@ import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
-import com.example.bankapp.di.HomeSessionHandlerProvider
+import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.theme.AppPadding

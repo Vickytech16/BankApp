@@ -3,9 +3,7 @@ package com.example.bankapp.di.viewmodelfactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.entities.SessionState
-import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
-import com.example.bankapp.viewmodels.HomeViewModel
 import com.example.bankapp.viewmodels.PayToBeneficiaryViewModel
 
 class PayToBeneficiaryViewModelFactory(

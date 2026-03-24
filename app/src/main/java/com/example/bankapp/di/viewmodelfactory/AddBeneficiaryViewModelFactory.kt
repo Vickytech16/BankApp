@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.viewmodels.AddBeneficiaryViewModel
 
 class AddBeneficiaryViewModelFactory(

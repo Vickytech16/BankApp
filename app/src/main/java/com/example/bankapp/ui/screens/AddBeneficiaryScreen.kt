@@ -33,7 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
-import com.example.bankapp.di.HomeSessionHandlerProvider
+import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder

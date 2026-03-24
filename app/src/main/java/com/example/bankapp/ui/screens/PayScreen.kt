@@ -1,10 +1,8 @@
 package com.example.bankapp.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,39 +12,30 @@ import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bankapp.R
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
-import com.example.bankapp.ui.components.buttons.QuickActionsButton
+import com.example.bankapp.ui.components.buttons.ActionButton
+import com.example.bankapp.ui.components.buttons.ButtonDimensions
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
-import com.example.bankapp.ui.components.XLSpacer
-import com.example.bankapp.ui.components.appbar.NameOnlyAppBar
-import com.example.bankapp.ui.components.buttons.PayScreenButton
 import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_TO_BENEFICIARY_ROUTE
-import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.DeviceSpecProvider
-import com.example.bankapp.ui.theme.screenPadding
-import com.example.bankapp.usecases.HomeSessionHandler
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,9 +51,16 @@ fun PayScreen(
     val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
+    val actionButtonDimensions = ButtonDimensions(
+        buttonSize = deviceSpec.qabButtonSize,
+        iconSize = deviceSpec.qabButtonIconSize,
+        spacing = deviceSpec.qabButtonSpacing,
+        labelStyle =deviceSpec.qabButtonLabelSize(),
+    )
+
     Scaffold(
         topBar = {
-            NameOnlyAppBar(stringResource(R.string.pay_screen_title), scrollBehavior = scrollBehavior)
+            Appbar(stringResource(R.string.pay_screen_title), scrollBehavior = scrollBehavior)
         },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
@@ -88,8 +84,7 @@ fun PayScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(contentPadding)
-                .padding(top = 24.dp),
+                .padding(contentPadding),
             contentAlignment = Alignment.TopCenter
         ) {
 
@@ -108,26 +103,26 @@ fun PayScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        PayScreenButton(
+                        ActionButton(
                             onClickAction = { navController.navigate(PAY_TO_BENEFICIARY_ROUTE) },
                             icon = Icons.Outlined.AccountBalance,
                             label = stringResource(R.string.pay_to_friend),
-                            deviceSpec = deviceSpec,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            dimensions = actionButtonDimensions
                         )
-                        PayScreenButton(
+                        ActionButton(
                             onClickAction = { navController.navigate(CASH_TRANSFER_ROUTE) },
                             icon = Icons.Outlined.SwapHoriz,
                             label = stringResource(R.string.pay_anyone),
-                            deviceSpec = deviceSpec,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            dimensions = actionButtonDimensions,
                         )
-                        PayScreenButton(
+                        ActionButton(
                             onClickAction = { navController.navigate(DEPOSIT_ROUTE) },
                             icon = Icons.Outlined.AccountBalanceWallet,
                             label = stringResource(R.string.deposit_button),
-                            deviceSpec = deviceSpec,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            dimensions = actionButtonDimensions,
                         )
                     }
                 }
@@ -142,19 +137,20 @@ fun PayScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        PayScreenButton(
+                        ActionButton(
                             onClickAction = { navController.navigate(ADD_BENEFICIARY_ROUTE) },
                             icon = Icons.Outlined.AccountBalance,
                             label = stringResource(R.string.add_beneficiary),
-                            deviceSpec = deviceSpec,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            dimensions = actionButtonDimensions,
+
                         )
-                        PayScreenButton(
+                        ActionButton(
                             onClickAction = { navController.navigate(HOME_ROUTE) },
                             icon = Icons.AutoMirrored.Outlined.More,
                             label = stringResource(R.string.manage_beneficiary),
-                            deviceSpec = deviceSpec,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            dimensions = actionButtonDimensions,
                         )
                         Spacer(modifier = Modifier.weight(1f))
                     }
@@ -170,19 +166,19 @@ fun PayScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        PayScreenButton(
+                        ActionButton(
                             onClickAction = { navController.navigate(HOME_ROUTE) },
                             icon = Icons.Outlined.AccountBalance,
                             label = stringResource(R.string.schedule_pay),
-                            deviceSpec = deviceSpec,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            dimensions = actionButtonDimensions,
                         )
-                        PayScreenButton(
+                        ActionButton(
                             onClickAction = { navController.navigate(HOME_ROUTE) },
                             icon = Icons.AutoMirrored.Outlined.More,
                             label = stringResource(R.string.manage_schedule),
-                            deviceSpec = deviceSpec,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            dimensions = actionButtonDimensions,
                         )
                         Spacer(modifier = Modifier.weight(1f))
                     }

@@ -13,7 +13,7 @@ import com.example.bankapp.entities.errors.FormError
 
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
-import com.example.bankapp.di.HomeSessionHandlerProvider
+import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE

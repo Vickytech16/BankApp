@@ -1,10 +1,8 @@
-package com.example.bankapp.core.notifications
+package com.example.bankapp.core
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
-
 object NotificationInitializer {
 
     const val TRANSACTION_CHANNEL = "notifications"

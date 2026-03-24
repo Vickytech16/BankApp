@@ -5,9 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.viewmodels.TransactionResultViewModel
-import com.example.bankapp.viewmodels.TransactionsViewModel
 
 class TransactionResultViewModelFactory(
     private val sessionState: SessionState.Authenticated.AccountRegistered,

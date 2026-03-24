@@ -28,4 +28,5 @@ interface AccountDao {
 
     @Query("select userId from accounts where accNo = :accNo")
     fun getUserIdByAccNo(accNo: Long): Long
+
 }

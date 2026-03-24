@@ -1,3 +1,4 @@
+
 package com.example.bankapp.ui.components.appbar
 
 import androidx.compose.material.icons.Icons
@@ -11,37 +12,45 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 
-
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun Appbar(
     title: String,
-    navBehaviour: () -> Unit,
+    navBehaviour: (() -> Unit)? = null,
     scrollBehavior: TopAppBarScrollBehavior?,
-    actions: @Composable () -> Unit = {}
-    )
-    {
-     val scrollBehavior = scrollBehavior
-     TopAppBar(
-            scrollBehavior = scrollBehavior,
-            title = {
-                Text(title)
-            },
-            navigationIcon = {
-                IconButton(onClick = {
-                    navBehaviour()
-                }){
+    actions: @Composable () -> Unit = {},
+    titleStyle: TextStyle = MaterialTheme.typography.headlineSmall,
+    showNavIcon: Boolean = true
+) {
+    TopAppBar(
+        scrollBehavior = scrollBehavior,
+        title = {
+            Text(
+                text = title,
+                style = titleStyle,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        navigationIcon = if (showNavIcon && navBehaviour != null) {
+            {
+                IconButton(onClick = navBehaviour) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back_button_icon),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-            },
-         actions = {
-             actions()
-         }
-        )
-    }
+            }
+        } else {
+            {}
+        },
+        actions = {
+            actions()
+        }
+    )
+}

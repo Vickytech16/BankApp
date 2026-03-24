@@ -36,7 +36,7 @@ fun ErrorTextBuilder(
 
                 is FormError.UnknownError,
 
-                is FormError.OtpDoesntMatch,
+                is FormError.OtpDoesNotMatch,
 
                 is FormError.OtpExpired,
 
@@ -112,7 +112,7 @@ fun PasswordErrorTextBuilder(errors: List<UiError>){
                     else -> stringResource(error.message)
                 }
 
-            Text("$bulletInCharacter$message", color = MaterialTheme.colorScheme.error)
+            Text("$bulletInCharacter$message", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

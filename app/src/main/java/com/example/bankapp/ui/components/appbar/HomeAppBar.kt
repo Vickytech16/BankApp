@@ -39,8 +39,8 @@ fun HomeAppBar(
         title = {
             Column(
                 modifier = Modifier.padding(
-                    horizontal = deviceSpec.homeAppBarHorizontalPadding,
-                    vertical = deviceSpec.homeAppBarSpacingVertical
+                   // horizontal = deviceSpec.homeAppBarHorizontalPadding,
+                  //  vertical = deviceSpec.homeAppBarSpacingVertical
                 )
             ) {
                 Text(
@@ -62,10 +62,9 @@ fun HomeAppBar(
                         drawerState.open()
                     }
                 },
-                modifier = Modifier.padding(horizontal = deviceSpec.homeAppBarHorizontalPadding).size(
-                    dimensionResource(deviceSpec.homeAppBarMenuButtonSize)
-                )
-            ) {
+                modifier = Modifier.padding(horizontal = deviceSpec.homeAppBarHorizontalPadding)
+                                   .size(dimensionResource(deviceSpec.homeAppBarMenuButtonSize))
+                 ) {
                 Icon(
                     Icons.Outlined.Menu,
                     contentDescription = stringResource(R.string.open_menu_content_description),
@@ -75,8 +74,8 @@ fun HomeAppBar(
         },
         scrollBehavior = scrollBehavior,
         modifier = Modifier.padding(
-            top = deviceSpec.homeAppBarTopPadding,
-            bottom = deviceSpec.homeAppBarBottomPadding
+           // top = deviceSpec.homeAppBarTopPadding,
+          //  bottom = deviceSpec.homeAppBarBottomPadding
         )
     )
 }

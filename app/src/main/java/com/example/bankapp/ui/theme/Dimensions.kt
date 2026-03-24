@@ -24,8 +24,5 @@ object AppSpacing {
 }
 
 val textFieldFontSize = 18.sp
-
 val AppPadding = Modifier.safeContentPadding()
-
-
 val screenPadding = PaddingValues(horizontal = 24.dp)

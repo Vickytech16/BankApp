@@ -42,21 +42,20 @@ import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.REGISTER_ROUTE
 
-import com.example.bankapp.entities.types.LoginType
+import com.example.bankapp.entities.types.ui.LoginType
+import com.example.bankapp.entities.types.ui.TextFieldType
 import com.example.bankapp.ui.components.MediumHorizontalSpacer
 import com.example.bankapp.viewmodels.LoginViewModel
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
-
-import com.example.bankapp.viewmodels.LoggedInSessionViewModel
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 
 
 @Composable
 fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
-                 loginViewModelFactory: LoginViewModelFactory,
-                 loggedInSessionViewModel: LoggedInSessionViewModel)
+                 loginViewModelFactory: LoginViewModelFactory, )
 {
     val loginViewModel: LoginViewModel = viewModel(factory = loginViewModelFactory)
 
@@ -75,11 +74,11 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
             else -> 0.8f
         }
 
-    LaunchedEffect(loginViewModel.isLoginSuccessful) {
-        if (loginViewModel.isLoginSuccessful) {
-            navController.navigate(LOGIN_SUCCESS_ROUTE)
-        }
-    }
+//    LaunchedEffect(loginViewModel.isLoginSuccessful) {
+//        if (loginViewModel.isLoginSuccessful) {
+//            navController.navigate(LOGIN_SUCCESS_ROUTE)
+//        }
+//    }
 
     Scaffold {
         contentPadding ->
@@ -123,22 +122,23 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
 
                 when (loginViewModel.loginType) {
                     LoginType.EMAIL ->
-                        GenericOutlinedTextField(
-                            value = loginViewModel.email,
-                            onValueChange = loginViewModel::onEmailChange,
-                            labelText = stringResource(R.string.email_field_name),
-                            isError = loginViewModel.emailError != null,
-                            supportingText = {
-                                ErrorTextBuilder(loginViewModel.emailError)
-                            },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Email,
-                            ),
-                            leadingIcon = Icons.Outlined.Email
-                        )
+                        UnifiedOutlinedTextField(
+                             value = loginViewModel.email,
+                             onValueChange = loginViewModel::onEmailChange,
+                             labelText = stringResource(R.string.email_field_name),
+                             isError = loginViewModel.emailError != null,
+                             supportingText = {
+                                 ErrorTextBuilder(loginViewModel.emailError)
+                             },
+                             fieldType = TextFieldType.EMAIL,
+                             keyboardOptions = KeyboardOptions(
+                                 keyboardType = KeyboardType.Email,
+                             ),
+                             leadingIcon = Icons.Outlined.Email
+                         )
 
                     LoginType.PHONE_NUMBER ->
-                        GenericOutlinedTextField(
+                        UnifiedOutlinedTextField(
                             value = loginViewModel.phoneNumber,
                             onValueChange = loginViewModel::onPhoneNumberChange,
                             labelText = stringResource(R.string.phone_number_field_name),
@@ -147,7 +147,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                                 ErrorTextBuilder(loginViewModel.phoneNumberError)
                             },
                             keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number
+                                keyboardType = KeyboardType.NumberPassword
                             ),
                             leadingIcon = Icons.Outlined.Phone
                         )

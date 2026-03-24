@@ -4,8 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.bankapp.entities.FilterState
-import com.example.bankapp.entities.types.SortOptions
+import com.example.bankapp.entities.types.ui.FilterState
+import com.example.bankapp.entities.types.ui.SortOptions
 
 class FilterViewModel: ViewModel() {
     var filterState by mutableStateOf(FilterState())

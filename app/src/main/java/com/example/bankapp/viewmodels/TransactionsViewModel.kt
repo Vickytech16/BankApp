@@ -2,10 +2,10 @@ package com.example.bankapp.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bankapp.entities.FilterState
+import com.example.bankapp.entities.types.ui.FilterState
 import com.example.bankapp.entities.SessionState
-import com.example.bankapp.entities.types.SortOptions
-import com.example.bankapp.entities.types.UiLedgerDirection
+import com.example.bankapp.entities.types.ui.SortOptions
+import com.example.bankapp.entities.types.ui.UiLedgerDirection
 import com.example.bankapp.repositories.TransactionRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -93,7 +93,6 @@ class TransactionsViewModel(
         return when(this){
             SortOptions.NEWEST_FIRST -> "NEWEST"
             SortOptions.OLDEST_FIRST -> "OLDEST"
-            SortOptions.EXPENSIVE_FIRST -> "HIGH_AMOUNT"
         }
     }
 }

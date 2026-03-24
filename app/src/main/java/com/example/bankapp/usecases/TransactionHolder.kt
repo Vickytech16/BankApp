@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.bankapp.entities.dbtables.User
-import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.entities.types.transaction.TransactionType
 import java.math.BigDecimal
 
 

@@ -1,10 +1,7 @@
 package com.example.bankapp.ui.components.navigators
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
@@ -12,11 +9,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.bankapp.R
+import com.example.bankapp.di.providers.SessionStateProvider
 import com.example.bankapp.di.viewmodelfactory.ChangePasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoginViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.OtpVerificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
 import com.example.bankapp.ui.screens.authscreens.ChangePasswordScreen
@@ -25,8 +22,7 @@ import com.example.bankapp.ui.screens.authscreens.LoginScreen
 import com.example.bankapp.ui.screens.authscreens.OtpScreen
 import com.example.bankapp.ui.screens.authscreens.RegisterScreen
 import com.example.bankapp.ui.screens.SuccessConfirmation
-import com.example.bankapp.viewmodels.LoggedInSessionViewModel
-import com.example.bankapp.viewmodels.OtpVerificationViewModel
+
 
 fun NavGraphBuilder.authNavGraph(
     navController: NavController,
@@ -35,21 +31,20 @@ fun NavGraphBuilder.authNavGraph(
     registerViewModelFactory: RegisterViewModelFactory,
     forgotPasswordViewModelFactory: ForgotPasswordViewModelFactory,
     changePasswordViewModelFactory: ChangePasswordViewModelFactory,
-    loggedInSessionViewModel: LoggedInSessionViewModel,
     otpViewModelFactory: OtpViewModelFactory,
     notificationViewModelFactory: NotificationViewModelFactory,
-
+    restoreSession: () -> Unit
 ) {
     navigation(
         startDestination = LOGIN_ROUTE,
         route = AUTH_ROUTE,
     ) {
+
         composable(LOGIN_ROUTE) {
             LoginScreen(
                 windowSizeClass = windowSizeClass,
                 navController = navController,
-                loginViewModelFactory = loginViewModelFactory,
-                loggedInSessionViewModel = loggedInSessionViewModel
+                loginViewModelFactory = loginViewModelFactory
             )
         }
 
@@ -62,7 +57,6 @@ fun NavGraphBuilder.authNavGraph(
         }
 
         composable(FORGOT_PASSWORD_ROUTE) {
-
             ForgetPasswordScreen(
                 windowSizeClass = windowSizeClass,
                 navController = navController,
@@ -94,11 +88,9 @@ fun NavGraphBuilder.authNavGraph(
 
         composable(LOGIN_SUCCESS_ROUTE) {
             SuccessConfirmation(
-                stringResource(R.string.login_succcessful),
-                stringResource(R.string.loading_your_account),
-                {
-                    loggedInSessionViewModel.restoreSession()
-                }
+                 title =stringResource(R.string.login_succcessful),
+                 subtitle = stringResource(R.string.loading_your_account),
+                 onDone = restoreSession
             )
         }
 
@@ -126,7 +118,6 @@ fun NavGraphBuilder.authNavGraph(
             )
         ) { backStackEntry ->
             val backRoute = backStackEntry.arguments?.getString("backRoute") ?: FORGOT_PASSWORD_ROUTE
-
             OtpScreen(
                 navController = navController,
                 notificationViewModelFactory = notificationViewModelFactory,

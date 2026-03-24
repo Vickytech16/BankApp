@@ -1,22 +1,25 @@
 package com.example.bankapp.entities.dtos
 
 import androidx.room.ColumnInfo
-import com.example.bankapp.entities.types.TransactionFailureType
-import com.example.bankapp.entities.types.TransactionStatus
-import com.example.bankapp.entities.types.TransactionType
-import com.example.bankapp.entities.types.LedgerDirection
+import com.example.bankapp.entities.types.transaction.TransactionFailureType
+import com.example.bankapp.entities.types.transaction.TransactionStatus
+import com.example.bankapp.entities.types.transaction.TransactionType
+import com.example.bankapp.entities.types.transaction.LedgerDirection
 
 data class TransactionHistoryItemDto(
+
     @ColumnInfo(name = "transaction_type")
     val transactionType: TransactionType,
 
     @ColumnInfo(name = "transaction_date")
     val transactionDate: String,
 
-    val direction: String,
     val amount: String,
+
     val counterpartyName: String?,
-    val counterpartyPfp: String?,
+
+    @ColumnInfo(name = "counterparty_pfp")
+    val counterpartyPfpUrl: String?,
 
     @ColumnInfo(name = "transaction_id")
     val transactionId: String = "",

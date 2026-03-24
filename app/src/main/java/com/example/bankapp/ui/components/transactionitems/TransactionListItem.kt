@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
+import com.example.bankapp.entities.types.transaction.LedgerDirection
 import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.screens.toMonthAndDayOnlyDate
 import com.example.bankapp.ui.theme.AppSpacing
@@ -30,7 +31,7 @@ import com.example.bankapp.utilities.RUPEE_SYMBOL
 @Composable
 fun TransactionListItem(
     counterPartyName: String,
-    transactionDirection: String,
+    transactionDirection: LedgerDirection?,
     amount: String,
     transactionDate: String,
     pfpURL: String? = null,
@@ -38,7 +39,7 @@ fun TransactionListItem(
     deviceSpec: DeviceSpec
 ) {
     val formattedDate = transactionDate.toMonthAndDayOnlyDate()
-    val isCredit = transactionDirection.equals("CREDIT", true)
+    val isCredit = transactionDirection == LedgerDirection.CREDIT
     val avatarSize = dimensionResource(deviceSpec.transactionListItemAvatarSize)
 
     val amountColor = if (isCredit) amountGreenColor else MaterialTheme.colorScheme.error

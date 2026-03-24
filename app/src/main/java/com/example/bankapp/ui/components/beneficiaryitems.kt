@@ -20,15 +20,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.bankapp.R
 
-import com.example.bankapp.entities.dtos.FriendDto
-import com.example.bankapp.ui.components.UserAvatar
+import com.example.bankapp.entities.dtos.BeneficiaryDto
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.utilities.uiAccNo
 
 @Composable
 fun FriendLazyList(
-    friends: List<FriendDto>,
+    friends: List<BeneficiaryDto>,
     state: LazyListState,
     modifier: Modifier = Modifier,
     contentPadding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),

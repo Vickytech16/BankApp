@@ -16,16 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
 
 @SuppressLint("UnusedContentLambdaTargetStateParameter")
 @Composable
 fun SubmitButton(
     onClick: ()->Unit,
-    modifier: Modifier = Modifier.
-                         widthIn(max = dimensionResource(R.dimen.submit_button_max_width)).
-                         fillMaxWidth(),
+    modifier: Modifier = Modifier,
     text: String = stringResource(R.string.submit_button),
     enabled: Boolean = true,
     isLoading: Boolean = false,
@@ -33,15 +30,16 @@ fun SubmitButton(
 ){
     Button(
             onClick = { onClick() },
-            modifier = modifier,
-            enabled = enabled && !isLoading)
-    {
+            modifier = modifier
+                       .widthIn(max = dimensionResource(R.dimen.submit_button_max_width))
+                       .fillMaxWidth(),
+            enabled = enabled && !isLoading
+    ) {
         AnimatedContent(
             targetState = isLoading,
             transitionSpec = {
                 fadeIn() togetherWith fadeOut()
             },
-            label = "submit_button_animation"
         ) {
             if (!isLoading)
                 Text(text)

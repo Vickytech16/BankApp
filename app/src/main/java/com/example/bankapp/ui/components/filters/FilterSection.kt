@@ -2,10 +2,12 @@ package com.example.bankapp.ui.components.filters
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -15,12 +17,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
-import com.example.bankapp.entities.FilterState
-import com.example.bankapp.entities.types.LedgerDirection
-import com.example.bankapp.entities.types.TransactionStatus
-import com.example.bankapp.entities.types.TransactionType
-import com.example.bankapp.entities.types.UiLedgerDirection
+import com.example.bankapp.entities.types.ui.FilterState
+import com.example.bankapp.entities.types.transaction.LedgerDirection
+import com.example.bankapp.entities.types.transaction.TransactionStatus
+import com.example.bankapp.entities.types.transaction.TransactionType
+import com.example.bankapp.entities.types.ui.UiLedgerDirection
 import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.RadioButtonSelector
 
 
 @Composable
@@ -92,11 +95,11 @@ fun FilterSection(
 
         LargeSpacer()
 
-        FilterSortRadioButton(
+        RadioButtonSelector(
             title = stringResource(R.string.direction_label),
             options = UiLedgerDirection.entries,
             selected = pendingState.selectedDirection,
-            onClick = {
+            onSelectionChange = {
                 uiLedgerDirection ->
                 var currentSelected = pendingState.selectedDirection
                 if(uiLedgerDirection != currentSelected)
@@ -139,4 +142,44 @@ fun FilterSection(
         LargeSpacer()
     }
 
+}
+
+@Composable
+fun <T> FilterItem(
+    title: String,
+    options: Set<T>,
+    selected: Set<T>,
+    onClick: (T) -> Unit,
+    labelFor: @Composable (T) -> String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        LargeSpacer()
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing))
+        ) {
+            options.forEach { option ->
+                FilterChip(
+                    selected = option in selected,
+                    onClick = {
+                        onClick(option)
+                    },
+                    label = {
+                        Text(labelFor(option))
+                    }
+                )
+            }
+        }
+    }
 }

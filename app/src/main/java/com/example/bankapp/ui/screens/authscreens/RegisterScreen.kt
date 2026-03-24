@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
+import com.example.bankapp.entities.types.ui.TextFieldType
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
@@ -54,6 +55,7 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
 import com.example.bankapp.ui.components.textfields.TrialingIconBehaviour
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.components.textfields.passwordHide
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.screenPadding
@@ -124,98 +126,88 @@ fun RegisterScreen(
 
             ) {
 
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.userName,
                     onValueChange = viewModel::onUserNameChange,
                     labelText = stringResource(R.string.username_field_name),
-                    isError = viewModel.userNameError!=null,
-                    supportingText = { ErrorTextBuilder(viewModel.userNameError) },
-                    leadingIcon = Icons.Outlined.Person
+                    isError = viewModel.userNameError != null,
+                    fieldType = TextFieldType.GENERIC,
+                    leadingIcon = Icons.Outlined.Person,
+                    supportingText = { ErrorTextBuilder(viewModel.userNameError) }
                 )
-
                 MediumSpacer()
 
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.email,
                     onValueChange = viewModel::onEmailChange,
-                   labelText = stringResource(R.string.email_field_name),
+                    labelText = stringResource(R.string.email_field_name),
+                    isError = viewModel.emailError != null && !viewModel.emailFieldSelected,
+                    fieldType = TextFieldType.EMAIL,
+                    leadingIcon = Icons.Outlined.Email,
+                    supportingText = {
+                        if (!viewModel.emailFieldSelected)
+                            ErrorTextBuilder(viewModel.emailError)
+                    },
                     modifier = Modifier.onFocusChanged {
                         if (it.isFocused)
                             viewModel.onEmailFieldSelectedChange(true)
                         else
                             viewModel.onEmailFieldSelectedChange(false)
-                    }.fillMaxWidth(),
-                    isError = viewModel.emailError != null && !viewModel.emailFieldSelected,
-                    supportingText = {
-                        if (!viewModel.emailFieldSelected)
-                            ErrorTextBuilder(viewModel.emailError)
-                    },
-                    leadingIcon = Icons.Outlined.Email,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email
-                    )
+                    }.fillMaxWidth()
                 )
 
                 MediumSpacer()
 
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.phoneNumber,
                     onValueChange = viewModel::onPhoneNumberChange,
                     labelText = stringResource(R.string.phone_number_field_name),
                     isError = viewModel.phoneNumberError != null,
+                    fieldType = TextFieldType.GENERIC,
+                    leadingIcon = Icons.Outlined.Phone,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     supportingText = {
                         ErrorTextBuilder(viewModel.phoneNumberError)
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    ),
-                    leadingIcon = Icons.Outlined.Phone
+                    }
                 )
 
                 MediumSpacer()
 
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.password,
                     onValueChange = viewModel::onPasswordChange,
-                    visualTransformation = passwordHide(viewModel.passwordVisible),
                     labelText = stringResource(R.string.password_field_name),
+                    isError = viewModel.passwordError.isNotEmpty() && viewModel.hasPasswordFieldEverUnFocused,
+                    fieldType = TextFieldType.PASSWORD,
+                    leadingIcon = Icons.Outlined.Password,
+                    passwordVisible = viewModel.passwordVisible,
+                    onPasswordVisibleChange = viewModel::onPasswordVisibleChange,
+                    supportingText = {
+                        if (viewModel.hasPasswordFieldEverUnFocused)
+                            PasswordErrorTextBuilder(viewModel.passwordError)
+                    },
                     modifier = Modifier.onFocusChanged {
                         if (it.isFocused)
                             viewModel.onHasPasswordFieldEverFocusedChange(true)
                         else if (viewModel.hasPasswordFieldEverFocused)
                             viewModel.onHasPasswordFieldEverUnFocusedChange(true)
-                    }.fillMaxWidth(),
-                    isError = viewModel.passwordError.isNotEmpty() && viewModel.hasPasswordFieldEverUnFocused,
-                    supportingText = {
-                        if (viewModel.hasPasswordFieldEverUnFocused)
-                            PasswordErrorTextBuilder(viewModel.passwordError)
-                    },
-                    leadingIcon = Icons.Outlined.Password,
-                    trailingIcon = {
-                        TrialingIconBehaviour(
-                            onPasswordVisibleChange = viewModel::onPasswordVisibleChange,
-                            passwordVisible = viewModel.passwordVisible
-                        )
-                    },
+                    }.fillMaxWidth()
                 )
+
                 MediumSpacer()
 
-                GenericOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = viewModel.confirmPassword,
                     onValueChange = viewModel::onConfirmPasswordChange,
                     labelText = stringResource(R.string.confirm_password_field_name),
                     isError = viewModel.confirmPasswordError != null,
+                    fieldType = TextFieldType.PASSWORD,
+                    leadingIcon = Icons.Outlined.Password,
+                    passwordVisible = viewModel.confirmPasswordVisible,
+                    onPasswordVisibleChange = viewModel::onConfirmPasswordVisibleChange,
                     supportingText = {
                         ErrorTextBuilder(viewModel.confirmPasswordError)
-                    },
-                    leadingIcon = Icons.Outlined.Password,
-                    trailingIcon = {
-                        TrialingIconBehaviour(
-                            onPasswordVisibleChange = viewModel::onConfirmPasswordVisibleChange,
-                            passwordVisible = viewModel.confirmPasswordVisible
-                        )
-                    },
-                    visualTransformation = passwordHide(viewModel.confirmPasswordVisible)
+                    }
                 )
 
                 MediumSpacer()

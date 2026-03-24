@@ -3,7 +3,6 @@ package com.example.bankapp.di.viewmodelfactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.viewmodels.OtpVerificationViewModel
-import com.example.bankapp.viewmodels.NotificationViewmodel
 
 class OtpVerificationViewModelFactory() : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")

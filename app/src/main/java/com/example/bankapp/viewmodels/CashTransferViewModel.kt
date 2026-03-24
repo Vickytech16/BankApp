@@ -8,11 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.FormError
-import com.example.bankapp.entities.types.AccountStatus
+import com.example.bankapp.entities.types.account.AccountStatus
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.di.HomeSessionHandlerProvider
+import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.ACCOUNT_NUMBER_SIZE

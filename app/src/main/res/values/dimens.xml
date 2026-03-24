@@ -144,6 +144,9 @@
     <dimen name="amount_textfield_height">56dp</dimen>
     <dimen name="amount_textfield_corner_radius">12dp</dimen>
 
+    <dimen name="text_field_height">56dp</dimen>
+    <dimen name="text_field_corner_radius">12dp</dimen>
+
     <dimen name="scheduled_pay_list_height">320dp</dimen>
 
     <dimen name="bottom_nav_item_width">120dp</dimen>
@@ -162,5 +165,9 @@
     <dimen name="profile_icon_wrap_size">40dp</dimen>
     <dimen name="profile_icon_size">20dp</dimen>
     <dimen name="balance_after_card_rounded_shape">12dp</dimen>
+    <dimen name="home_screen_see_all_spacing">8dp</dimen>
+    <dimen name="home_screen_see_all_icon_size">18dp</dimen>
+    <dimen name="account_number_text_spacing">2dp</dimen>
+    <dimen name="zero_dp">0dp</dimen>
 
 </resources>

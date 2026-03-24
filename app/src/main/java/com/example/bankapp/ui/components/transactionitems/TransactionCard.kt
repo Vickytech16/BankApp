@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
-import com.example.bankapp.entities.types.TransactionType
+import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.theme.AppSpacing

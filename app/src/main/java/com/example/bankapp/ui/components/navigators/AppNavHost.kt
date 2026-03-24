@@ -5,10 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.bankapp.di.ViewModelContainer
+import com.example.bankapp.di.providers.SessionStateProvider
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
@@ -24,73 +26,103 @@ fun AppNavHost(
     transactionRepository: TransactionRepository,
     accountRepository: AccountRepository,
     beneficiaryRepository: BeneficiaryRepository,
-    userRepository: UserRepository
+    userRepository: UserRepository,
+    sessionStateProvider: SessionStateProvider
 ) {
     val navController = rememberNavController()
-
-    val sessionViewModel: LoggedInSessionViewModel =
-        viewModel(factory = viewModelContainer.loggedInSessionViewModelFactory)
+    
+    val sessionState by sessionStateProvider.sessionState.collectAsState()
 
     LaunchedEffect(Unit) {
-        sessionViewModel.restoreSession()
+            sessionStateProvider.restoreSession()
     }
 
-    val sessionState by sessionViewModel.sessionState.collectAsState()
+    val startDestination = {
+        when (sessionState) {
+            is SessionState.Loading ->
+                LOADING_ROUTE
 
-    val startDestination = when(sessionState) {
+            is SessionState.UnAuthenticated ->
+                AUTH_ROUTE
 
-        is SessionState.Loading ->
-            LOADING_ROUTE
+            is SessionState.Authenticated.AccountNotRegistered ->
+                ACCOUNT_ROUTE
 
-        is SessionState.UnAuthenticated ->
-            AUTH_ROUTE
-
-        is SessionState.Authenticated.AccountNotRegistered ->
-            ACCOUNT_ROUTE
-
-        is SessionState.Authenticated.AccountRegistered ->
-            MAIN_ROUTE
+            is SessionState.Authenticated.AccountRegistered ->
+                MAIN_ROUTE
+        }
     }
+
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = LOADING_ROUTE
     )  {
-            authNavGraph(
-                navController = navController,
-                windowSizeClass = windowSizeClass,
-                loginViewModelFactory = viewModelContainer.loginViewModelFactory,
-                registerViewModelFactory = viewModelContainer.registerViewModelFactory,
-                forgotPasswordViewModelFactory = viewModelContainer.forgotPasswordViewModelFactory,
-                changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
-                loggedInSessionViewModel = sessionViewModel,
-                otpViewModelFactory = viewModelContainer.otpViewModelFactory,
-                notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
-            )
+        authNavGraph(
+            navController = navController,
+            windowSizeClass = windowSizeClass,
+            loginViewModelFactory = viewModelContainer.loginViewModelFactory,
+            registerViewModelFactory = viewModelContainer.registerViewModelFactory,
+            forgotPasswordViewModelFactory = viewModelContainer.forgotPasswordViewModelFactory,
+            changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
+            otpViewModelFactory = viewModelContainer.otpViewModelFactory,
+            notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
+            restoreSession = { sessionStateProvider.restoreSession() },
+        )
 
-            homeNavGraph(
-                navController = navController,
-                windowSizeClass = windowSizeClass,
-                sessionState = sessionState,
-                transactionRepository = transactionRepository,
-                accountRepository = accountRepository,
-                otpViewModelFactory = viewModelContainer.otpViewModelFactory,
-                notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
-                logoutAction = {
-                    sessionViewModel.logout()
-                },
-                beneficiaryRepository = beneficiaryRepository,
-                userRepository = userRepository
+        homeNavGraph(
+            navController = navController,
+            windowSizeClass = windowSizeClass,
+            sessionState = sessionState as SessionState.Authenticated.AccountRegistered,
+            transactionRepository = transactionRepository,
+            accountRepository = accountRepository,
+            otpViewModelFactory = viewModelContainer.otpViewModelFactory,
+            notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
+            logoutAction = { sessionStateProvider.restoreSession() },
+            beneficiaryRepository = beneficiaryRepository,
+            userRepository = userRepository,
+            filterViewModelFactory = viewModelContainer.filterViewModelFactory,
+            transactionDetailsViewModelFactory = viewModelContainer.transactionDetailsViewModelFactory
+        )
 
-            )
+        splashNavGraph()
 
-            splashNavGraph()
+        accountNavGraph(
+            accountCreationViewModelFactory = viewModelContainer.accountCreationViewModelFactory,
+            navController = navController,
+            windowSizeClass = windowSizeClass,
+            restoreSession = { sessionStateProvider.restoreSession() },
+        )
+    }
 
-            accountNavGraph(
-                accountCreationViewModelFactory = viewModelContainer.accountCreationViewModelFactory,
-                navController = navController,
-                windowSizeClass = windowSizeClass, loggedInSessionViewModel = sessionViewModel
-            )
+    LaunchedEffect(sessionState) {
+        when(sessionState) {
+
+            is SessionState.Loading -> {
+                // Do nothing
+            }
+
+            is SessionState.UnAuthenticated -> {
+                navController.navigate(AUTH_ROUTE) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+
+            is SessionState.Authenticated.AccountNotRegistered -> {
+                navController.navigate(ACCOUNT_ROUTE) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+
+            is SessionState.Authenticated.AccountRegistered -> {
+                navController.navigate(MAIN_ROUTE) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
     }
 
 //    LaunchedEffect(startDestination) {

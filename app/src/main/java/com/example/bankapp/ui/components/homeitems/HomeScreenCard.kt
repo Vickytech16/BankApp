@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.Account
-import com.example.bankapp.entities.types.AccountType
+import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
@@ -50,7 +50,6 @@ fun HomeScreenCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = dimensionResource(deviceSpec.homeScreenCardElevation)
         ),
-
         modifier = Modifier
             .fillMaxWidth(deviceSpec.homeScreenCardWidth)
             .padding(vertical = AppSpacing.md)
@@ -62,7 +61,6 @@ fun HomeScreenCard(
                 .background(MaterialTheme.colorScheme.primary)
                 .padding(AppSpacing.lg)
         ) {
-
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -71,14 +69,12 @@ fun HomeScreenCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Text(
                         text = stringResource(R.string.total_account_balance_label),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Medium
                     )
-
                     Image(
                         painter = painterResource(R.drawable.bank_logo),
                         contentDescription = stringResource(R.string.app_name),
@@ -91,7 +87,6 @@ fun HomeScreenCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Text(
                         text = RUPEE_SYMBOL,
                         style = MaterialTheme.typography.displayMedium,

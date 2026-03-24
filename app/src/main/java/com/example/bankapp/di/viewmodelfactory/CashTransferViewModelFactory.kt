@@ -6,8 +6,6 @@ import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.usecases.HomeSessionHandler
-import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.viewmodels.CashTransferViewModel
 
 class CashTransferViewModelFactory(

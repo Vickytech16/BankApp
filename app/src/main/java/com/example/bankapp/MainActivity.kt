@@ -13,10 +13,13 @@ import com.example.bankapp.ui.theme.BankAppTheme
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val appContainer: AppContainer = (application as BankApp).appContainer
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             BankAppTheme {
@@ -26,9 +29,9 @@ class MainActivity : ComponentActivity() {
                     viewModelContainer,
                     appContainer.transactionRepository,
                     appContainer.accountRepository,
-                    //appContainer.transactionHolder,
                     appContainer.beneficiaryRepository,
-                    appContainer.userRepository
+                    appContainer.userRepository,
+                    appContainer.sessionStateProvider
                 )
             }
         }

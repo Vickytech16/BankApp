@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 interface UserRepository{
+
     suspend fun getUserByEmail(email: String): User?
 
     suspend fun getUserByPhoneNumber(phoneNumber: String): User?
@@ -22,11 +23,13 @@ interface UserRepository{
     suspend fun getUserByEmailAndPhoneNumber(email: String, phoneNumber: String): User?
 
     suspend fun getUserByUserId(userId: String): User?
+
 }
 
 class UserRepositoryImpl(
     private val userDao: UserDao
 ): UserRepository{
+
     override suspend fun getUserByEmail(email: String): User? {
       return withContext(Dispatchers.IO) {
           userDao.getUserByEmail(email)
@@ -71,6 +74,7 @@ class UserRepositoryImpl(
             userDao.getUserById(formattedUserId)
         }
     }
+
 }
 
 

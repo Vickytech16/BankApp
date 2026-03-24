@@ -1,12 +1,13 @@
 package com.example.bankapp.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalance
@@ -14,7 +15,6 @@ import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -34,10 +34,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.HomeViewModelFactory
 import com.example.bankapp.ui.components.LargeSpacer
-import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.appbar.HomeAppBar
 import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
-import com.example.bankapp.ui.components.buttons.QuickActionsButton
+import com.example.bankapp.ui.components.buttons.ActionButton
+import com.example.bankapp.ui.components.buttons.ButtonDimensions
 import com.example.bankapp.ui.components.homeitems.HomeScreenCard
 import com.example.bankapp.ui.components.homeitems.HomeTransactionSection
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
@@ -77,6 +77,13 @@ fun HomeScreen(
     val isLandscape = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
+    val actionButtonDimensions = ButtonDimensions(
+        buttonSize = deviceSpec.qabButtonSize,
+        iconSize = deviceSpec.qabButtonIconSize,
+        spacing = deviceSpec.qabButtonSpacing,
+        labelStyle =deviceSpec.qabButtonLabelSize(),
+    )
+
     com.example.bankapp.ui.components.HomeDrawer(
         drawerState = drawerState,
         logoutAction = logoutAction,
@@ -91,8 +98,7 @@ fun HomeScreen(
                 else -> 0.75f
             }
         ),
-        content  =
-     {
+        content  = {
         Scaffold(
             topBar = {
                 HomeAppBar(homeViewModel.username, drawerState, scrollBehavior, deviceSpec)
@@ -112,11 +118,11 @@ fun HomeScreen(
                         }
                     }
                 )
-            }
+            },
+            contentWindowInsets = WindowInsets.systemBars
         ) { innerPadding ->
             Column(
-                modifier = getAppModifier(windowSizeClass, innerPadding, scrollState)
-                  ,
+                modifier = getAppModifier(windowSizeClass, innerPadding, scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -132,7 +138,7 @@ fun HomeScreen(
                     )
                 }
 
-                XLSpacer()
+
 
 //                Text(
 //                    text = stringResource(R.string.quick_actions_label),
@@ -153,26 +159,26 @@ fun HomeScreen(
                         .padding(horizontal = deviceSpec.HomeCardHorizontalPadding),
                     horizontalArrangement = Arrangement.spacedBy(deviceSpec.quickActionsSpacing)
                 ) {
-                    QuickActionsButton(
+                    ActionButton(
                         onClickAction = { navController.navigate(PAY_TO_BENEFICIARY_ROUTE) },
                         icon = Icons.Outlined.AccountBalance,
                         label = stringResource(R.string.pay_to_friend),
                         modifier = Modifier.weight(1f),
-                        deviceSpec = deviceSpec
+                        dimensions = actionButtonDimensions
                     )
-                    QuickActionsButton(
+                   ActionButton(
                         onClickAction = { navController.navigate(CASH_TRANSFER_ROUTE) },
                         icon = Icons.Outlined.SwapHoriz,
                         label = stringResource(R.string.pay_anyone),
                         modifier = Modifier.weight(1f),
-                        deviceSpec = deviceSpec
+                        dimensions = actionButtonDimensions
                     )
-                    QuickActionsButton(
+                   ActionButton(
                         onClickAction = { navController.navigate(DEPOSIT_ROUTE) },
                         icon = Icons.Outlined.AccountBalanceWallet,
                         label = stringResource(R.string.deposit_button),
                         modifier = Modifier.weight(1f),
-                        deviceSpec = deviceSpec
+                        dimensions = actionButtonDimensions
                     )
                 }
 

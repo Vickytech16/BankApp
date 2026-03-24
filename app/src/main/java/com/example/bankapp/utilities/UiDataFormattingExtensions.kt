@@ -16,7 +16,11 @@ fun formatTransactionDateTime(dateTimeString: String): String {
         val localDateTime = LocalDateTime.parse(dateTimeString)
         val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a")
         localDateTime.format(formatter)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         dateTimeString
     }
+}
+
+fun LocalDateTime.toDbFormat(): String {
+    return this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
 }

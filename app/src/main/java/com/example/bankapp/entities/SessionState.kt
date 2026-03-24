@@ -5,7 +5,9 @@ import com.example.bankapp.entities.dbtables.User
 
 
 sealed class SessionState {
+
     object Loading: SessionState()
+
     object UnAuthenticated: SessionState()
 
     sealed class Authenticated() : SessionState() {
@@ -15,6 +17,7 @@ sealed class SessionState {
         abstract val account: Account
 
         data class AccountRegistered(val user: User, val account: Account) : SessionState()
+
         data class AccountNotRegistered(val user: User): SessionState()
     }
 }

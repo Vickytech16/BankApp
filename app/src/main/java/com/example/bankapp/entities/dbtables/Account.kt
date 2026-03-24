@@ -1,14 +1,11 @@
 package com.example.bankapp.entities.dbtables
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.bankapp.entities.dbtables.User
-import com.example.bankapp.entities.types.AccountType
+import com.example.bankapp.entities.types.account.AccountType
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -24,7 +21,6 @@ import java.time.LocalDateTime
         )
     ],
     indices = [Index(value = ["userId"])])
-
 data class Account(
     @PrimaryKey(autoGenerate = true) val accNo: Long = 0,
     @ColumnInfo(name = "userId")

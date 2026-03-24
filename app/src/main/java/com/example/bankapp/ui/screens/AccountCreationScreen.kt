@@ -21,10 +21,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
-import com.example.bankapp.ui.components.textfields.AccountTypeRadioButton
+import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
+import com.example.bankapp.ui.components.RadioButtonSelector
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
 import com.example.bankapp.ui.screens.authscreens.getAppModifier
@@ -35,7 +36,6 @@ import com.example.bankapp.viewmodels.AccountCreationViewModel
 fun AccountCreationScreen(navController: NavController, accountCreationViewModelFactory: AccountCreationViewModelFactory, windowSizeClass: WindowSizeClass, restoreSession: ()-> Unit)
 {
     val accountCreationViewModel: AccountCreationViewModel = viewModel(factory = accountCreationViewModelFactory)
-
 
     val scrollState = rememberScrollState()
 
@@ -71,12 +71,15 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-
-                AccountTypeRadioButton(
-                    stringResource(R.string.select_your_account_type_label),
-                    accountCreationViewModel.accountType,
-                    accountCreationViewModel::onAccountTypeChange
-                    )
+                RadioButtonSelector(
+                    title = stringResource(R.string.select_your_account_type_label),
+                    options = AccountType.entries.toList(),
+                    selected = accountCreationViewModel.accountType,
+                    onSelectionChange = accountCreationViewModel::onAccountTypeChange,
+                    labelFor =  { accountType ->
+                        accountType.name.lowercase().replaceFirstChar { it.uppercase() }
+                    }
+                )
 
                 MediumSpacer()
 
@@ -106,8 +109,7 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
 
                 ErrorTextBuilder(accountCreationViewModel.submitError)
 
-//                if(accountCreationViewModel.isSubmitSuccessful)
-//                    Text("Submitted")
+                XLSpacer()
 
                 LaunchedEffect(accountCreationViewModel.isSubmitSuccessful) {
                     if(accountCreationViewModel.isSubmitSuccessful)
