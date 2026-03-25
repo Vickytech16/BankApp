@@ -11,13 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Password
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.material3.Scaffold
@@ -37,7 +31,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 
 import androidx.compose.ui.text.style.TextAlign
 import com.example.bankapp.viewmodels.RegisterViewModel
@@ -45,7 +38,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
-import com.example.bankapp.entities.types.ui.TextFieldType
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
@@ -53,10 +45,7 @@ import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.PasswordErrorTextBuilder
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
-import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
-import com.example.bankapp.ui.components.textfields.TrialingIconBehaviour
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.components.textfields.passwordHide
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.utilities.EmailFieldStrategy
@@ -140,6 +129,7 @@ fun RegisterScreen(
                     },
                     strategy = UserNameFieldStrategy
                 )
+
                 MediumSpacer()
 
                 UnifiedOutlinedTextField(

@@ -37,12 +37,7 @@ fun HomeAppBar(
 
     TopAppBar(
         title = {
-            Column(
-                modifier = Modifier.padding(
-                   // horizontal = deviceSpec.homeAppBarHorizontalPadding,
-                  //  vertical = deviceSpec.homeAppBarSpacingVertical
-                )
-            ) {
+            Column {
                 Text(
                     text = stringResource(R.string.welcome_back),
                     style = deviceSpec.homeUserGreetingStyle(),
@@ -73,9 +68,5 @@ fun HomeAppBar(
             }
         },
         scrollBehavior = scrollBehavior,
-        modifier = Modifier.padding(
-           // top = deviceSpec.homeAppBarTopPadding,
-          //  bottom = deviceSpec.homeAppBarBottomPadding
-        )
     )
 }

@@ -147,7 +147,6 @@ class ChangePasswordViewModel(
                 val updatedUser = user!!.copy(
                     passwordHashed = PasswordHashingService.hash(password)
                 )
-
                 userRepository.updateUser(updatedUser)
 
                 isSubmitSuccessful = true

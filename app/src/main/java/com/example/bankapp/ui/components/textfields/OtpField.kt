@@ -43,12 +43,8 @@ import com.example.bankapp.R
 import kotlinx.coroutines.delay
 
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 
-
-
-val otpFontSize = 20.sp
+private val otpFontSize = 20.sp
 
 @Composable
 fun OtpInputField(
@@ -130,7 +126,6 @@ private fun OtpBox(
         value.isNotEmpty() -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.outline
     }
-
 
     BasicTextField(
         value = value,

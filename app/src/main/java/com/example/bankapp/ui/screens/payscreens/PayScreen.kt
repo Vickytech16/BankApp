@@ -1,4 +1,4 @@
-package com.example.bankapp.ui.screens
+package com.example.bankapp.ui.screens.payscreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -32,6 +32,7 @@ import com.example.bankapp.ui.components.navigators.PAY_ROUTE
 import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
+import com.example.bankapp.ui.components.navigators.MANAGE_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_TO_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
@@ -146,7 +147,7 @@ fun PayScreen(
 
                         )
                         ActionButton(
-                            onClickAction = { navController.navigate(HOME_ROUTE) },
+                            onClickAction = { navController.navigate(MANAGE_BENEFICIARY_ROUTE) },
                             icon = Icons.AutoMirrored.Outlined.More,
                             label = stringResource(R.string.manage_beneficiary),
                             modifier = Modifier.weight(1f),

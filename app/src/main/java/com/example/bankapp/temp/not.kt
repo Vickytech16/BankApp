@@ -23,10 +23,10 @@ import com.example.bankapp.di.viewmodelfactory.TransactionsViewModelFactory
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.ui.screens.CashTransferScreen
-import com.example.bankapp.ui.screens.DepositScreen
+import com.example.bankapp.ui.screens.payscreens.CashTransferScreen
+import com.example.bankapp.ui.screens.payscreens.DepositScreen
 import com.example.bankapp.ui.screens.HomeScreen
-import com.example.bankapp.ui.screens.PayScreen
+import com.example.bankapp.ui.screens.payscreens.PayScreen
 import com.example.bankapp.ui.screens.ProfileScreen
 import com.example.bankapp.ui.screens.TransactionDetailsScreen
 import com.example.bankapp.ui.screens.TransactionsScreen

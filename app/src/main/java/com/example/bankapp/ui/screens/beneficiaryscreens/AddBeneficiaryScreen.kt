@@ -1,4 +1,4 @@
-package com.example.bankapp.ui.screens
+package com.example.bankapp.ui.screens.beneficiaryscreens
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -28,13 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
 import com.example.bankapp.di.providers.HomeSessionHandlerProvider
-import com.example.bankapp.entities.types.ui.TextFieldType
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
@@ -50,7 +48,6 @@ import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.utilities.EmailFieldStrategy
-import com.example.bankapp.utilities.FieldTypeStrategy
 import com.example.bankapp.viewmodels.AddBeneficiaryViewModel
 
 

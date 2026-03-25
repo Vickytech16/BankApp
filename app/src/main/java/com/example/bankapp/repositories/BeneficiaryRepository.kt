@@ -23,9 +23,7 @@ class BeneficiaryRepository(private val beneficiaryDao: BeneficiaryDao, private 
             val currentDate = LocalDateTime.now().toDbFormat()
 
             val currentNickName =
-                nickname ?: (userRepository.getUserByUserId(beneficiaryUserId.uiUserId)?.userName
-                    ?: "")
-
+                nickname  ?: ""
 
             val beneficiary = Beneficiary(
                 userId = userId,

@@ -6,10 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.example.bankapp.R
+import com.example.bankapp.entities.types.ActionState
 import java.math.BigDecimal
 
 sealed class HomeSessionHandler {
-
     var intent: CurrentSessionIntent? = null
 
     companion object {
@@ -37,6 +37,7 @@ sealed class HomeSessionHandler {
     var onOtpSuccess: (() -> Unit) = {}
     var onOtpDismiss: (() -> Unit) = {}
     var onPasswordSuccess: (() -> Unit) = {}
+
     var onPasswordFailure: (() -> Unit) = {}
 
     var resultContent by mutableStateOf<ResultContent?>(null)
@@ -49,19 +50,13 @@ sealed class HomeSessionHandler {
 
         var amount: BigDecimal = BigDecimal.ZERO
 
-        var onNavigate: (() -> Unit)? = null
-
         var navigationLocked: Boolean = false
 
         var isFriend: Boolean = false
 
         var onActionSuccessPrimaryAction: (() -> Unit)? = null
 
-        var onActionSuccessSecondaryAction: (() ->Unit)? = null
-
         var onActionFailurePrimaryAction: (() -> Unit)? = null
-
-        var onActionFailureSecondaryAction: (() -> Unit)? = null
 
         fun onInitialize(fromAccNo: Long, toAccNo: Long, amount: BigDecimal, isFriend: Boolean) {
             this.fromAccNo = fromAccNo
@@ -71,14 +66,6 @@ sealed class HomeSessionHandler {
             super.intent = CurrentSessionIntent.CASH_TRANSFER
 
         }
-
-//        fun onDispose() {
-//            onNavigate = null
-//            onOtpSuccess = {}
-//            onOtpDismiss = {}
-//            onPasswordSuccess = {}
-//            onPasswordFailure = {}
-//        }
 
         fun buildResultContent(
             isSuccess: Boolean,
@@ -125,11 +112,7 @@ sealed class HomeSessionHandler {
 
         var onActionSuccessPrimaryAction: (() -> Unit)? = null
 
-        var onTransactionSuccessSecondaryAction: (() ->Unit)? = null
-
         var onActionFailurePrimaryAction: (() -> Unit)? = null
-
-        var onTransactionFailureSecondaryAction: (() -> Unit)? = null
 
         fun onInitialize(userAccNo: Long, userId: Long, amount: BigDecimal){
             this.userAccNo = userAccNo
@@ -183,11 +166,7 @@ sealed class HomeSessionHandler {
 
         var onActionSuccessPrimaryAction: (() -> Unit)? = null
 
-        var onTransactionSuccessSecondaryAction: (() ->Unit)? = null
-
         var onActionFailurePrimaryAction: (() -> Unit)? = null
-
-        var onTransactionFailureSecondaryAction: (() -> Unit)? = null
 
         fun buildContent(isSuccess: Boolean){
             resultContent =
@@ -213,12 +192,6 @@ sealed class HomeSessionHandler {
                 }
         }
     }
-}
-
-enum class ActionState {
-    LOADING,
-    SUCCESS,
-    FAILURE
 }
 
 data class ResultContent(

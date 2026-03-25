@@ -23,7 +23,7 @@
     <string name="data_too_long_error">%1$s cannot contain more than %2$d characters.</string>
     <string name="invalid_email_format_error">Invalid email format.</string>
     <string name="invalid_numerical_field_error"> %1$s must contain only numerical data.</string>
-    <string name="invalid_username_error">Username must contain only alphabets or whitespaces.</string>
+    <string name="invalid_username_error">Name must contain only alphabets or whitespaces.</string>
     <string name="user_already_exists_error">User with this %1$s already exists.</string>
     <string name="invalid_credentials">Invalid credentials.</string>
     <string name="password_doesnt_match">Password doesn\'t match</string>
@@ -225,6 +225,20 @@
     <string name="dark_mode_label">Dark Mode</string>
     <string name="search_friend_hint">Search friends</string>
     <string name="close_button">Close</string>
+    <string name="user_avatar_edit_content_description">Edit profile picture</string>
+    <string name="select_theme">Select theme</string>
+    <string name="system_default_theme_label">system default</string>
+    <string name="light_theme_label">light</string>
+    <string name="dark_theme_label">dark</string>
+    <string name="edit_friend">Edit friend</string>
+    <string name="delete_friend">Delete</string>
+    <string name="manage_beneficiaries">Manage beneficiaries</string>
+    <string name="delete_beneficiary">Delete Beneficiary</string>
+    <string name="delete">Delete</string>
+    <string name="delete_beneficiary_confirmation">Are you sure you want to delete this beneficiary?</string>
+    <string name="edit_beneficiary">Set nickname</string>
+    <string name="save_button">Save</string>
+    <string name="nickname_field_name">Nickname</string>
 
 
 </resources>

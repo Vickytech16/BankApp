@@ -1,6 +1,5 @@
 package com.example.bankapp.ui.screens
 
-import AmountOutlinedTextField
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,10 +27,10 @@ import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.RadioButtonSelector
 import com.example.bankapp.ui.components.buttons.SubmitButton
-import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.screens.authscreens.getAppModifier
 import com.example.bankapp.utilities.AmountFieldStrategy
+import com.example.bankapp.utilities.PasswordFieldStrategy
 import com.example.bankapp.viewmodels.AccountCreationViewModel
 
 
@@ -99,12 +98,15 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
 
                 MediumSpacer()
 
-                PasswordVerificationOutlinedTextField(
-                    password = accountCreationViewModel.password,
-                    onPasswordChange = accountCreationViewModel::onPasswordChange,
-                    passwordVisible = accountCreationViewModel.passwordVisible,
-                    passwordError = accountCreationViewModel.passwordError,
-                    onPasswordVisibleChange = accountCreationViewModel::onPasswordVisibleChange
+               UnifiedOutlinedTextField(
+                    value = accountCreationViewModel.password,
+                    onValueChange  = accountCreationViewModel::onPasswordChange,
+                    labelText = stringResource(R.string.password_field_name),
+                    isError = accountCreationViewModel.passwordError != null,
+                    supportingText = {
+                       ErrorTextBuilder(accountCreationViewModel.passwordError)
+                   },
+                   strategy = PasswordFieldStrategy(accountCreationViewModel.passwordVisible, accountCreationViewModel::onPasswordVisibleChange)
                 )
 
                 XLSpacer()

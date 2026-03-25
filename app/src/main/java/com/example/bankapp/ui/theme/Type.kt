@@ -33,23 +33,3 @@ val Typography = Typography(
     */
 )
 
-val Typography.homeUserGreeting: TextStyle
-    get() = TextStyle(
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Medium,
-        letterSpacing = 0.sp
-)
-
-val Typography.homeUserName: TextStyle
-    get() = TextStyle(
-        fontSize = 28.sp,
-        fontWeight = FontWeight.Bold,
-        letterSpacing = (-0.5).sp
-    )
-
-val Typography.homeUserNameTablet: TextStyle
-    get() = TextStyle(
-        fontSize = 36.sp,
-        fontWeight = FontWeight.Bold,
-        letterSpacing = (-0.5).sp
-    )

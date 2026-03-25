@@ -4,6 +4,7 @@ import com.example.bankapp.daos.UserDao
 import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.utilities.toDbUserId
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 interface UserRepository{
@@ -23,6 +24,8 @@ interface UserRepository{
     suspend fun getUserByEmailAndPhoneNumber(email: String, phoneNumber: String): User?
 
     suspend fun getUserByUserId(userId: String): User?
+
+    fun getUserAsFlowByUserId(userId: Long): Flow<User?>
 
 }
 
@@ -75,6 +78,9 @@ class UserRepositoryImpl(
         }
     }
 
+    override fun getUserAsFlowByUserId(userId: Long): Flow<User?> {
+        return userDao.getUserAsFlowByUserId(userId)
+    }
 }
 
 

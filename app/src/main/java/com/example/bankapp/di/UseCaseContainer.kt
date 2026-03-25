@@ -2,17 +2,15 @@ package com.example.bankapp.di
 
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.usecases.ChangePasswordUseCase
-import com.example.bankapp.usecases.SessionUseCase
-import com.example.bankapp.services.SessionManagementService
-import com.example.bankapp.usecases.TransactionSessionHolder
-import com.example.bankapp.viewmodels.OtpVerificationViewModel
+import com.example.bankapp.usecases.SharedPreferenceHelper
+import com.example.bankapp.services.SharedPreferenceService
 
 class UseCaseContainer(
-    sessionManagementService: SessionManagementService,
+    sharedPreferenceService: SharedPreferenceService,
     userRepository: UserRepository
     ) {
 
-    val sessionUseCase: SessionUseCase = SessionUseCase(sessionManagementService, userRepository)
+    val sharedPreferenceHelper: SharedPreferenceHelper = SharedPreferenceHelper(sharedPreferenceService, userRepository)
 
     val changePasswordUseCase: ChangePasswordUseCase = ChangePasswordUseCase()
 

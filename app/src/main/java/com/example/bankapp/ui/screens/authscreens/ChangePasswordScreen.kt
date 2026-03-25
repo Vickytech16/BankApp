@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,10 +36,7 @@ import com.example.bankapp.ui.components.PasswordErrorTextBuilder
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
-import com.example.bankapp.ui.components.textfields.GenericOutlinedTextField
-import com.example.bankapp.ui.components.textfields.TrialingIconBehaviour
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.components.textfields.passwordHide
 import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.utilities.PasswordFieldStrategy
 import com.example.bankapp.viewmodels.ChangePasswordViewModel

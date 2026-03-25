@@ -16,7 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,11 +25,15 @@ import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.PasswordConfirmationViewModelFactory
 import com.example.bankapp.entities.errors.FormError
+import com.example.bankapp.ui.components.AlertButtonConfig
+import com.example.bankapp.ui.components.AlertDialogBox
+import com.example.bankapp.ui.components.ButtonStyle
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.ui.components.textfields.PasswordVerificationOutlinedTextField
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.utilities.PasswordFieldStrategy
 import com.example.bankapp.viewmodels.PasswordConfirmationViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -57,17 +60,6 @@ fun PasswordConfirmationScreen(
         }
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.resetScreenState()
-        }
-    }
-
-    DisposableEffect(Unit) {
-        viewModel.onShowPasswordDialogChange(true)
-        onDispose {}
-    }
-
     LaunchedEffect(viewModel.isPasswordVerified) {
         if(viewModel.isPasswordVerified) {
             onPasswordVerificationSuccess()
@@ -88,7 +80,6 @@ fun PasswordConfirmationScreen(
             onSubmit = { password ->
                 viewModel.onSubmit(password)
             },
-            isLoading = viewModel.isLoading,
             password = viewModel.password,
             onPasswordChange = viewModel::onPasswordChange,
             passwordVisible = viewModel.passwordVisible,
@@ -106,7 +97,6 @@ fun PasswordConfirmationScreen(
             },
             onConfirm = {
                 viewModel.onShowCancelDialogChange(false)
-                viewModel.resetSession()
                 navController.navigate(onDismissRoute) {
                     popUpTo(onDismissRoute) {
                         inclusive = false
@@ -148,25 +138,25 @@ fun PasswordConfirmationScreen(
 }
 
 @Composable
+
 private fun ConfirmCancellationDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-    AlertDialog(
+   AlertDialogBox(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.cancel_transaction)) },
-        text = { Text(stringResource(R.string.dismissing_Cancel_transaction_message)) },
-        confirmButton = {
-            Button(
-                onClick = onConfirm
-            ) {
-                Text(stringResource(R.string.yes_cancel_confirmation))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.continue_label))
-            }
+        title = stringResource(R.string.cancel_transaction),
+        confirmButton = AlertButtonConfig(
+            label = stringResource(R.string.yes_cancel_confirmation),
+            onClick = onConfirm,
+            style = ButtonStyle.ERROR
+        ),
+        dismissButton = AlertButtonConfig(
+            label = stringResource(R.string.continue_label),
+            onClick = { }
+        ),
+        content = {
+            Text(stringResource(R.string.dismissing_Cancel_transaction_message))
         }
     )
 }
@@ -175,7 +165,6 @@ private fun ConfirmCancellationDialog(
 fun PasswordVerificationDialog(
     onDismiss:  () -> Unit,
     onSubmit: (password: String) -> Unit,
-    isLoading: Boolean = false,
     password: String,
     onPasswordChange: (String) -> Unit,
     passwordVisible: Boolean,
@@ -184,38 +173,38 @@ fun PasswordVerificationDialog(
     submitError: FormError? = null
 
 ) {
-    AlertDialog(
+    AlertDialogBox(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.verify_pass)) },
-        text = {
+        title = stringResource(R.string.verify_pass),
+        confirmButton = AlertButtonConfig(
+            label = stringResource(R.string.submit_button),
+            onClick = { onSubmit(password) },
+            style = ButtonStyle.PRIMARY
+        ),
+        dismissButton = AlertButtonConfig(
+            label = stringResource(R.string.cancel),
+            onClick = {
+                onDismiss()
+            }
+        ),
+        content = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
             ) {
-                PasswordVerificationOutlinedTextField(
-                    password = password,
-                    onPasswordChange = onPasswordChange,
-                    passwordVisible = passwordVisible,
-                    passwordError = passwordError,
-                    onPasswordVisibleChange = onPasswordVisibleChange
-                )
-
-                if (submitError != null) {
-                    ErrorTextBuilder(submitError)
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onSubmit(password) },
-                enabled = password.isNotEmpty() && !isLoading
-            ) {
-                Text(stringResource(R.string.submit_button))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
+            UnifiedOutlinedTextField(
+                value = password,
+                onValueChange = onPasswordChange,
+                labelText = stringResource(R.string.password_field_name),
+                isError = passwordError != null,
+                supportingText = {
+                    ErrorTextBuilder(passwordError)
+                },
+                strategy = PasswordFieldStrategy(passwordVisible, onPasswordVisibleChange),
+            )
+            if (submitError != null) {
+                ErrorTextBuilder(submitError)
             }
         }
+    }
     )
 }

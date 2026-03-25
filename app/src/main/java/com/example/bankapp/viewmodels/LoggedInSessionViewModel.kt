@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.repositories.AccountRepository
-import com.example.bankapp.usecases.SessionUseCase
+import com.example.bankapp.usecases.SharedPreferenceHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 
 class LoggedInSessionViewModel(
-    private val sessionUseCase: SessionUseCase,
+    private val sharedPreferenceHelper: SharedPreferenceHelper,
     private val accountRepository: AccountRepository
 ): ViewModel(){
 
@@ -29,7 +29,7 @@ class LoggedInSessionViewModel(
     fun restoreSession(){
         viewModelScope.launch {
 
-            val user = sessionUseCase.getUserFromSharedPreferences()
+            val user = sharedPreferenceHelper.getUserFromSharedPreferences()
             println("restoreSession user = $user")
 
             _sessionState.value = if(user == null) {
@@ -57,7 +57,7 @@ class LoggedInSessionViewModel(
     }
 
     fun logout(){
-        sessionUseCase.clearSession()
+        sharedPreferenceHelper.clearSession()
         _sessionState .value= SessionState.UnAuthenticated
         restoreSession()
     }

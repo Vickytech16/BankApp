@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.repositories.AccountRepository
-import com.example.bankapp.usecases.SessionUseCase
+import com.example.bankapp.usecases.SharedPreferenceHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SessionStateProvider(
-    private val sessionUseCase: SessionUseCase,
+    private val sharedPreferenceHelper: SharedPreferenceHelper,
     private val accountRepository: AccountRepository
 ) {
     private val _sessionState = MutableStateFlow<SessionState>(SessionState.Loading)
@@ -29,7 +29,7 @@ class SessionStateProvider(
     fun restoreSession() {
         scope.launch {
 
-            val user = sessionUseCase.getUserFromSharedPreferences()
+            val user = sharedPreferenceHelper.getUserFromSharedPreferences()
             println("restoreSession user = $user")
 
             _sessionState.value = if (user == null) {
@@ -55,7 +55,7 @@ class SessionStateProvider(
 
     fun logout() {
         scope.launch {
-            sessionUseCase.clearSession()
+            sharedPreferenceHelper.clearSession()
             _sessionState.value = SessionState.UnAuthenticated
             currentUser = null
         }

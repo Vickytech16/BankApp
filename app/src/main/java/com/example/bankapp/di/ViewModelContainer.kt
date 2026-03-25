@@ -7,9 +7,9 @@ import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoggedInSessionViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoginViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.OtpVerificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.ThemeViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.TransactionDetailsViewModelFactory
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.TransactionRepository
@@ -24,7 +24,7 @@ class ViewModelContainer(
 ) {
     val loginViewModelFactory: LoginViewModelFactory = LoginViewModelFactory(
         userRepository,
-        useCaseContainer.sessionUseCase,
+        useCaseContainer.sharedPreferenceHelper,
     )
 
     val registerViewModelFactory: RegisterViewModelFactory = RegisterViewModelFactory(
@@ -49,18 +49,21 @@ class ViewModelContainer(
 
     val accountCreationViewModelFactory: AccountCreationViewModelFactory = AccountCreationViewModelFactory(
             accountRepository = accountRepository,
-            sessionUseCase = useCaseContainer.sessionUseCase,
+            sharedPreferenceHelper = useCaseContainer.sharedPreferenceHelper,
             transactionRepository = transactionRepository
         )
 
     val loggedInSessionViewModelFactory: LoggedInSessionViewModelFactory =
-        LoggedInSessionViewModelFactory(accountRepository = accountRepository, sessionUseCase = useCaseContainer.sessionUseCase)
+        LoggedInSessionViewModelFactory(accountRepository = accountRepository, sharedPreferenceHelper = useCaseContainer.sharedPreferenceHelper)
 
     val filterViewModelFactory: FilterViewModelFactory =
         FilterViewModelFactory()
 
     val transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory =
         TransactionDetailsViewModelFactory(transactionRepository)
+
+    val themeViewModelFactory: ThemeViewModelFactory =
+        ThemeViewModelFactory(useCaseContainer.sharedPreferenceHelper)
 
 
 }

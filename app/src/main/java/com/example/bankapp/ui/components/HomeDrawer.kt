@@ -35,35 +35,26 @@ fun HomeDrawer(drawerState: DrawerState,
                logoutAction: () -> Unit,
                username: String,
                modifier: Modifier = Modifier,
+               userPfpUrl: String? = null,
                content: @Composable (() -> Unit),
                showLogoutDialog: Boolean,
                onShowLogOutDialogChange: (Boolean) -> Unit
 ) {
     if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                onShowLogOutDialogChange(true)
-            },
-            title = {
-                Text(stringResource(R.string.logout_confirmation_title))
-            },
-            text = {
+        AlertDialogBox(
+            onDismissRequest = { onShowLogOutDialogChange(false) },
+            title = stringResource(R.string.logout_confirmation_title),
+            confirmButton = AlertButtonConfig(
+                label = stringResource(R.string.logout_button),
+                onClick = logoutAction,
+                style = ButtonStyle.ERROR
+            ),
+            dismissButton = AlertButtonConfig(
+                label = stringResource(R.string.cancel_label),
+                onClick = { }
+            ),
+            content = {
                 Text(stringResource(R.string.logout_confirmation_message))
-            },
-            confirmButton = {
-                Button(onClick = {
-                    onShowLogOutDialogChange(false)
-                    logoutAction()
-                }) {
-                    Text(stringResource(R.string.logout_button))
-                }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = {
-                    onShowLogOutDialogChange(false)
-                }) {
-                    Text(stringResource(R.string.cancel_label))
-                }
             }
         )
     }
@@ -83,7 +74,7 @@ fun HomeDrawer(drawerState: DrawerState,
                         .padding(horizontal = AppSpacing.lg),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    UserAvatar(username)
+                    UserAvatar(username, userPfpUrl)
 
                     Spacer(Modifier.height(AppSpacing.md))
                     Text(

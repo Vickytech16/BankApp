@@ -169,5 +169,18 @@
     <dimen name="home_screen_see_all_icon_size">18dp</dimen>
     <dimen name="account_number_text_spacing">2dp</dimen>
     <dimen name="zero_dp">0dp</dimen>
+    <dimen name="user_avatar_edit_background">25dp</dimen>
+    <dimen name="user_avatar_edit_icon_size">12dp</dimen>
+    <dimen name="user_avatar_edit_offset">4dp</dimen>
+    <dimen name="profile_screen_card_rounded_corners">20dp</dimen>
+    <dimen name="profile_icon_roundedn_corner">12dp</dimen>
+    <dimen name="profile_screen_visibility_icon_size">20dp</dimen>
+    <dimen name="profile_screen_visibility_icon__button_size">36dp</dimen>
+    <dimen name="profile__screen_logout_button_height">56dp</dimen>
+    <dimen name="profile_screen_logout_icon_size">20dp</dimen>
+    <dimen name="beneficiary_avatar_size_mobile">60dp</dimen>
+    <dimen name="beneficiary_avatar_size_tab">90dp</dimen>
+    <dimen name="beneficiary_icon_button_area">40dp</dimen>
+    <dimen name="beneficiary_list_icon_size">20dp</dimen>
 
 </resources>

@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.User
-import com.example.bankapp.usecases.SessionUseCase
+import com.example.bankapp.usecases.SharedPreferenceHelper
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
@@ -23,7 +23,7 @@ import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 
 class LoginViewModel (
     private val userRepository: UserRepository,
-    private val sessionUseCase: SessionUseCase
+    private val sharedPreferenceHelper: SharedPreferenceHelper
 ): ViewModel(){
 
     init {
@@ -157,7 +157,7 @@ class LoginViewModel (
                         submitError = FormError.InvalidCredentials
                     } else {
                         if (PasswordHashingService.matches(password, user.passwordHashed)) {
-                            sessionUseCase.saveUserOnSharedPreferences(user.userId.uiUserId)
+                            sharedPreferenceHelper.saveUserOnSharedPreferences(user.userId.uiUserId)
                             isLoginSuccessful = true
 
                         } else

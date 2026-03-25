@@ -5,7 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.dbtables.User
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
@@ -32,4 +34,7 @@ interface UserDao {
 
     @Query("select * from users where userId = :userId limit 1")
     suspend fun getUserById(userId: Long) : User?
+
+    @Query("select * from users where userId = :userId limit 1")
+    fun getUserAsFlowByUserId(userId: Long): Flow<User?>
 }

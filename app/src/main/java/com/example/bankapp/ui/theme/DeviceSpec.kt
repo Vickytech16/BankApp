@@ -12,6 +12,7 @@ import com.example.bankapp.R
 sealed class DeviceSpec {
 
 
+    abstract val profileScreenWidthFaction: Float
     abstract val textFieldWidth: Float
 
     abstract val qabButtonSize: Int
@@ -106,6 +107,10 @@ sealed class DeviceSpec {
     @Composable
     abstract fun payScreenSectionTitleStyle(): TextStyle
 
+    abstract val beneficiaryGridColumnsSize: Int
+    abstract val beneficiaryAvatarSize: Int
+    abstract val beneficiaryItemSpacing: Dp
+
 
 
     data class MobilePortrait(
@@ -164,8 +169,11 @@ sealed class DeviceSpec {
         override val profileCardPadding: Dp = AppSpacing.md,
         override val profileSectionSpacing: Dp = AppSpacing.xl,
 
+        override val profileScreenWidthFaction: Float = 0.9f,
 
-
+        override val beneficiaryGridColumnsSize: Int = 3,
+        override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_mobile,
+        override val beneficiaryItemSpacing: Dp = AppSpacing.lg
         ) : DeviceSpec() {
 
         @Composable
@@ -260,6 +268,12 @@ sealed class DeviceSpec {
         override val profileAvatarSize: Int = R.dimen.profile_avatar_size_mobile,
         override val profileCardPadding: Dp = AppSpacing.md,
         override val profileSectionSpacing: Dp = AppSpacing.lg,
+
+        override val profileScreenWidthFaction: Float = 0.6f,
+
+        override val beneficiaryGridColumnsSize: Int = 4,
+        override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_mobile,
+        override val beneficiaryItemSpacing: Dp = AppSpacing.md
     ) : DeviceSpec() {
 
         @Composable
@@ -356,6 +370,12 @@ sealed class DeviceSpec {
         override val profileAvatarSize: Int = R.dimen.profile_avatar_size_tablet,
         override val profileCardPadding: Dp = AppSpacing.lg,
         override val profileSectionSpacing: Dp = AppSpacing.xl,
+
+        override val profileScreenWidthFaction: Float = 0.6f,
+
+        override val beneficiaryGridColumnsSize: Int = 4,
+        override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_tab,
+        override val beneficiaryItemSpacing: Dp = AppSpacing.lg
     ) : DeviceSpec() {
         @Composable
         override fun qabButtonLabelSize(): TextStyle = MaterialTheme.typography.titleMedium
@@ -450,6 +470,12 @@ sealed class DeviceSpec {
         override val profileAvatarSize: Int = R.dimen.profile_avatar_size_tablet,
         override val profileCardPadding: Dp = AppSpacing.lg,
         override val profileSectionSpacing: Dp = AppSpacing.lg,
+
+        override val profileScreenWidthFaction: Float = 0.5f,
+
+        override val beneficiaryGridColumnsSize: Int = 4,
+        override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_tab,
+        override val beneficiaryItemSpacing: Dp = AppSpacing.lg
     ) : DeviceSpec() {
         @Composable
         override fun qabButtonLabelSize(): TextStyle = MaterialTheme.typography.bodyLarge

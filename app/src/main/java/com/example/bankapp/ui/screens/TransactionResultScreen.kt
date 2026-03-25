@@ -36,7 +36,7 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.usecases.ActionState
+import com.example.bankapp.entities.types.ActionState
 import com.example.bankapp.usecases.HomeSessionHandler
 
 import com.example.bankapp.viewmodels.TransactionResultViewModel

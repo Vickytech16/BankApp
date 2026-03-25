@@ -13,7 +13,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,11 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.bankapp.R
-import com.example.bankapp.entities.SessionState
-import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.appbar.Appbar
-import com.example.bankapp.ui.components.transactionitems.CashTransferDetailBody
-import com.example.bankapp.ui.components.transactionitems.DepositDetailBody
+import com.example.bankapp.ui.components.transactionitems.TransactionDetailBody
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,8 +63,7 @@ fun TransactionDetailsScreen(
                     }
                 }
             )
-        },
-    ) {
+        },) {
         paddingValues ->
         if (detailItem != null) {
             Column(
@@ -76,33 +71,11 @@ fun TransactionDetailsScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                when (detailItem.transactionType) {
-
-                    TransactionType.CASH_TRANSFER -> {
-                        print(detailItem.ledgerDirection)
-                        CashTransferDetailBody(
-                            transactionItem = detailItem,
-                            paddingValues = paddingValues,
-                            windowSizeClass = windowSizeClass
-                        )
-                    }
-
-                    TransactionType.DEPOSIT -> {
-                        DepositDetailBody(
-                            transactionItem = detailItem,
-                            paddingValues = paddingValues,
-                            windowSizeClass = windowSizeClass
-                        )
-                    }
-
-                    TransactionType.SCHEDULED_TRANSFER -> {
-                        CashTransferDetailBody(
-                            transactionItem = detailItem,
-                            paddingValues = paddingValues,
-                            windowSizeClass = windowSizeClass
-                        )
-                    }
-                }
+                TransactionDetailBody(
+                    transactionItem = detailItem,
+                    paddingValues = paddingValues,
+                    windowSizeClass = windowSizeClass
+                )
             }
         } else {
             Box(

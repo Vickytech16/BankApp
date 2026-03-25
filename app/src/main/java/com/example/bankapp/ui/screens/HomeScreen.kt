@@ -138,20 +138,7 @@ fun HomeScreen(
                     )
                 }
 
-
-
-//                Text(
-//                    text = stringResource(R.string.quick_actions_label),
-//                    style = deviceSpec.quickActionsLabelStyle(),
-//                    fontWeight = FontWeight.SemiBold,
-//                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-//                    modifier = Modifier
-//                        .fillMaxWidth(deviceSpec.cardWidth)
-//                        .padding(
-//                            horizontal = deviceSpec.HomeCardHorizontalPadding,
-//                            vertical = deviceSpec.HomeCardVerticalPadding
-//                        )
-//                )
+                LargeSpacer()
 
                 Row(
                     modifier = Modifier

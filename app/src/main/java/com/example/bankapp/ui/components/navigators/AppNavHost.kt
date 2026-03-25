@@ -17,6 +17,7 @@ import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
+import com.example.bankapp.viewmodels.ThemeViewModel
 
 @Composable
 fun AppNavHost(
@@ -26,6 +27,7 @@ fun AppNavHost(
     accountRepository: AccountRepository,
     beneficiaryRepository: BeneficiaryRepository,
     userRepository: UserRepository,
+    themeViewModel: ThemeViewModel
 ) {
     val navController = rememberNavController()
 
@@ -83,7 +85,8 @@ fun AppNavHost(
             beneficiaryRepository = beneficiaryRepository,
             userRepository = userRepository,
             filterViewModelFactory = viewModelContainer.filterViewModelFactory,
-            transactionDetailsViewModelFactory = viewModelContainer.transactionDetailsViewModelFactory
+            transactionDetailsViewModelFactory = viewModelContainer.transactionDetailsViewModelFactory,
+            themeViewModel = themeViewModel
         )
 
         splashNavGraph()

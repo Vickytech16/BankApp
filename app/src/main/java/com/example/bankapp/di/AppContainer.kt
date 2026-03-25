@@ -10,7 +10,7 @@ import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.repositories.UserRepositoryImpl
-import com.example.bankapp.services.SessionManagementService
+import com.example.bankapp.services.SharedPreferenceService
 
 
 class AppContainer(applicationContext: Context) {
@@ -34,9 +34,9 @@ class AppContainer(applicationContext: Context) {
     val transactionRepository: TransactionRepository = TransactionRepository(transactionDao, ledgerDao, accountDao, database)
     val beneficiaryRepository: BeneficiaryRepository = BeneficiaryRepository(beneficiaryDao, userRepository)
 
-    private val sessionManagementService: SessionManagementService = SessionManagementService(applicationContext)
+    private val sharedPreferenceService: SharedPreferenceService = SharedPreferenceService(applicationContext)
 
-    private val useCaseContainer: UseCaseContainer = UseCaseContainer(sessionManagementService = sessionManagementService, userRepository = userRepository)
-    val sessionStateProvider: SessionStateProvider = SessionStateProvider(useCaseContainer.sessionUseCase, accountRepository)
+    private val useCaseContainer: UseCaseContainer = UseCaseContainer(sharedPreferenceService = sharedPreferenceService, userRepository = userRepository)
+    val sessionStateProvider: SessionStateProvider = SessionStateProvider(useCaseContainer.sharedPreferenceHelper, accountRepository)
     val viewModelContainer: ViewModelContainer = ViewModelContainer(userRepository, useCaseContainer, accountRepository, transactionRepository)
 }

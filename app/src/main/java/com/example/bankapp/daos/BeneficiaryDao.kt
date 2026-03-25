@@ -33,7 +33,10 @@ interface BeneficiaryDao {
     SELECT 
         b.beneficiaryId,
         b.userId,
-        u.userName as friendName,
+        CASE 
+            WHEN b.nickname != '' THEN b.nickname
+            ELSE u.userName
+        END as friendName,
         b.beneficiaryUserId as friendUserId,
         u.pfpURL as friendPfp,
         a.accNo as friendPrimaryAccNo
@@ -49,7 +52,10 @@ interface BeneficiaryDao {
     SELECT 
         b.beneficiaryId,
         b.userId,
-        u.userName as friendName,
+        CASE 
+            WHEN b.nickname != '' THEN b.nickname
+            ELSE u.userName
+        END as friendName,
         b.beneficiaryUserId as friendUserId,
         u.pfpURL as friendPfp,
         a.accNo as friendPrimaryAccNo

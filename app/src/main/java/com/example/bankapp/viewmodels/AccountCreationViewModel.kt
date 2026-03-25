@@ -16,10 +16,9 @@ import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.services.PasswordHashingService
 
-import com.example.bankapp.usecases.SessionUseCase
+import com.example.bankapp.usecases.SharedPreferenceHelper
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.amountFieldValidator
-import com.example.bankapp.utilities.cashTransferAmountRegex
 import com.example.bankapp.utilities.depositAmountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 
@@ -31,7 +30,7 @@ import java.util.UUID
 
 class AccountCreationViewModel(
     private val accountRepository: AccountRepository,
-    private val sessionUseCase: SessionUseCase,
+    private val sharedPreferenceHelper: SharedPreferenceHelper,
     private val transactionRepository: TransactionRepository
 ): ViewModel() {
 
@@ -124,7 +123,7 @@ class AccountCreationViewModel(
 
                 if (submitError == null) {
 
-                    val user = sessionUseCase.getUserFromSharedPreferences()
+                    val user = sharedPreferenceHelper.getUserFromSharedPreferences()
 
                     if (user == null) {
                         submitError = FormError.UnknownError

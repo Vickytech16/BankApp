@@ -48,5 +48,7 @@ const val ADD_BENEFICIARY_ROUTE = "add-beneficiary"
 
 const val PAY_TO_BENEFICIARY_ROUTE = "pay-to-beneficiary"
 
+const val MANAGE_BENEFICIARY_ROUTE = "manage_beneficiaries"
+
 
 

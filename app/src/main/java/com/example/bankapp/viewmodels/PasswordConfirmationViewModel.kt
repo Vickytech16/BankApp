@@ -40,7 +40,7 @@ class PasswordConfirmationViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
-    var showPasswordDialog by mutableStateOf(false)
+    var showPasswordDialog by mutableStateOf(true)
         private set
 
     fun onPasswordDialogDismiss() {
@@ -88,10 +88,10 @@ class PasswordConfirmationViewModel(
                     submitError = FormError.InvalidData
                     return@launch
                 }
-
                 if (PasswordHashingService.matches(password, user.passwordHashed)) {
-                   // transactionSessionHolder.onPasswordVerification?.invoke()
                     isPasswordVerified = true
+                    showPasswordDialog = false
+                    showCancelDialog = false
                 } else {
                     submitError = FormError.PasswordDoesntMatch
                 }
@@ -101,20 +101,5 @@ class PasswordConfirmationViewModel(
                 isLoading = false
             }
         }
-    }
-
-    fun resetSession(){
-        ///transactionSessionHolder.reset()
-    }
-
-    fun resetScreenState() {
-        password = ""
-        passwordError = null
-        passwordVisible = false
-        submitError = null
-        isLoading = false
-        showPasswordDialog = false
-        showCancelDialog = false
-        isPasswordVerified = false
     }
 }

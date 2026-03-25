@@ -101,7 +101,7 @@ fun TransactionsScreen(
         ) {
 
             TransactionSearchBar(
-                query,  // Use StateFlow value
+                query,
                 transactionsViewModel::onQueryChange,
                 {
                     keyboardController?.hide()

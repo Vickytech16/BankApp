@@ -1,5 +1,8 @@
 package com.example.bankapp.ui.screens
 
+import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,10 +25,12 @@ import androidx.compose.material.icons.automirrored.outlined.Help
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,6 +41,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -59,18 +65,33 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import com.example.bankapp.di.viewmodelfactory.ProfileViewModelFactory
+import com.example.bankapp.entities.dbtables.Account
+import com.example.bankapp.ui.components.AlertButtonConfig
+import com.example.bankapp.ui.components.AlertDialogBox
+import com.example.bankapp.ui.components.ButtonStyle
+import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.MediumSpacer
+import com.example.bankapp.ui.components.RadioButtonSelector
+import com.example.bankapp.ui.components.XLSpacer
+import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PROFILE_ROUTE
 import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.viewmodels.ThemeType
+import com.example.bankapp.viewmodels.ThemeViewModel
+import kotlin.math.log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     windowSizeClass: WindowSizeClass,
     navController: NavController,
-    profileViewModelFactory: ProfileViewModelFactory
+    profileViewModelFactory: ProfileViewModelFactory,
+    logoutAction: () -> Unit,
+    themeViewModel: ThemeViewModel
 ) {
 
     val viewModel: ProfileViewModel = viewModel(factory = profileViewModelFactory)
@@ -78,8 +99,26 @@ fun ProfileScreen(
     val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
     val account by viewModel.account.collectAsState()
     val currentRoute = remember { PROFILE_ROUTE }
+    val user by viewModel.user.collectAsState()
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    val context = LocalContext.current
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            try {
+                val inputStream = context.contentResolver.openInputStream(it)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                viewModel.updateProfileImage(bitmap, context)
+                inputStream?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -111,37 +150,41 @@ fun ProfileScreen(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
+                    .fillMaxWidth(deviceSpec.profileScreenWidthFaction)
                     .verticalScroll(scrollState)
                     .padding(top = AppSpacing.md, bottom = AppSpacing.xl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 UserAvatar(
-                    name = viewModel.user.userName,
-                    pfpUrl = viewModel.user.pfpURL,
-                    size = dimensionResource(deviceSpec.profileAvatarSize)
+                    name = user.userName,
+                    pfpUrl =user.pfpURL,
+                    size = dimensionResource(deviceSpec.profileAvatarSize),
+                    editable = true,
+                    editAction = {
+                            imagePickerLauncher.launch("image/*")
+                    },
+                    imageUpdateKey = viewModel.imageUpdateTrigger
                 )
 
-                Spacer(modifier = Modifier.height(AppSpacing.md))
+                MediumSpacer()
 
                 Text(
-                    text = viewModel.user.userName,
+                    text = user.userName,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                XLSpacer()
 
                 ProfileInfoCard(
                     title = stringResource(R.string.contact_info_label),
                     deviceSpec = deviceSpec
                 ) {
                     ProfileInfoRow(
-                        icon = Icons.Outlined.Mail,
+                        icon = Icons.Outlined.Email,
                         label = stringResource(R.string.email_label),
-                        value = viewModel.user.email,
-                        deviceSpec = deviceSpec
+                        value = user.email,
                     )
 
                     ProfileDivider()
@@ -149,12 +192,11 @@ fun ProfileScreen(
                     ProfileInfoRow(
                         icon = Icons.Outlined.Phone,
                         label = stringResource(R.string.phone_label),
-                        value = viewModel.user.phoneNumber,
-                        deviceSpec = deviceSpec
+                        value = user.phoneNumber,
                     )
                 }
 
-                Spacer(modifier = Modifier.height(deviceSpec.profileSectionSpacing))
+                LargeSpacer()
 
                 ProfileAccountCard(
                     title = stringResource(R.string.account_details_label),
@@ -163,45 +205,19 @@ fun ProfileScreen(
                     account = account
                 )
 
-                Spacer(modifier = Modifier.height(deviceSpec.profileSectionSpacing))
+                LargeSpacer()
 
                 ProfileSettingsCard(
                     title = stringResource(R.string.settings_support_label),
-                    deviceSpec = deviceSpec
+                    deviceSpec = deviceSpec,
+                    themeViewModel = themeViewModel
                 )
 
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                XLSpacer()
 
-                Button(
-                    onClick = { },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.Logout,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = stringResource(R.string.logout_button),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
+                LogoutButton(logoutAction = logoutAction, showLogoutAction = viewModel.showLogoutDialog, onShowLogoutActionChange = viewModel::onShowLogoutDialogChange)
 
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                XLSpacer()
             }
         }
     }
@@ -218,7 +234,7 @@ private fun ProfileInfoCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(dimensionResource(R.dimen.profile_screen_card_rounded_corners))
     ) {
         Column(
             modifier = Modifier.padding(deviceSpec.profileCardPadding)
@@ -240,7 +256,6 @@ private fun ProfileInfoRow(
     icon: ImageVector,
     label: String,
     value: String,
-    deviceSpec: DeviceSpec
 ) {
     Row(
         modifier = Modifier
@@ -259,7 +274,7 @@ private fun ProfileInfoRow(
                     .size(dimensionResource(R.dimen.profile_icon_wrap_size))
                     .background(
                         color = MaterialTheme.colorScheme.secondary,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.profile_icon_roundedn_corner))
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -290,14 +305,14 @@ private fun ProfileAccountCard(
     title: String,
     deviceSpec: DeviceSpec,
     viewModel: ProfileViewModel,
-    account: com.example.bankapp.entities.dbtables.Account
+    account: Account
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(dimensionResource(R.dimen.profile_screen_card_rounded_corners))
     ) {
         Column(
             modifier = Modifier.padding(deviceSpec.profileCardPadding)
@@ -357,7 +372,7 @@ private fun ProfileAccountRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            XSSpacer()
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)
@@ -371,13 +386,13 @@ private fun ProfileAccountRow(
                 if (showVisibilityToggle) {
                     IconButton(
                         onClick = onVisibilityChange,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.profile_screen_visibility_icon__button_size))
                     ) {
                         Icon(
                             imageVector = if (isVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(dimensionResource(R.dimen.profile_screen_visibility_icon_size))
                         )
                     }
                 }
@@ -389,17 +404,17 @@ private fun ProfileAccountRow(
 @Composable
 private fun ProfileSettingsCard(
     title: String,
-    deviceSpec: DeviceSpec
+    deviceSpec: DeviceSpec,
+    themeViewModel: ThemeViewModel
 ) {
-    val showThemeDialog = remember { mutableStateOf(false) }
-    val selectedTheme = remember { mutableStateOf("Dark") }
+    val currentTheme by themeViewModel.currentTheme.collectAsState()
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(dimensionResource(R.dimen.profile_screen_card_rounded_corners))
     ) {
         Column(
             modifier = Modifier.padding(deviceSpec.profileCardPadding)
@@ -414,16 +429,14 @@ private fun ProfileSettingsCard(
 
             ProfileActionRow(
                 icon = Icons.Outlined.Lock,
-                label = stringResource(R.string.change_password_label),
-                deviceSpec = deviceSpec
+                label = stringResource(R.string.change_password_label)
             )
 
             ProfileDivider()
 
             ProfileActionRow(
                 icon = Icons.AutoMirrored.Outlined.Help,
-                label = stringResource(R.string.forgot_password_label),
-                deviceSpec = deviceSpec
+                label = stringResource(R.string.forgot_password_label)
             )
 
             ProfileDivider()
@@ -431,35 +444,31 @@ private fun ProfileSettingsCard(
             ProfileActionRow(
                 icon = Icons.Outlined.Palette,
                 label = stringResource(R.string.appearance_theme_label),
-                value = selectedTheme.value,
-                deviceSpec = deviceSpec,
+                value = currentTheme.getDisplayName(),
                 isClickable = true,
-                onValueClick = { showThemeDialog.value = true }
+                onValueClick = { themeViewModel.onThemeDialogChange(true) }
             )
         }
     }
 
-    if (showThemeDialog.value) {
+    if (themeViewModel.showThemeDialog) {
         ThemeSelectionDialog(
-            currentTheme = selectedTheme.value,
-            onThemeSelected = { theme ->
-                selectedTheme.value = theme
-                showThemeDialog.value = false
-            },
-            onDismiss = { showThemeDialog.value = false }
+            currentTheme = currentTheme,
+            onThemeSelected = themeViewModel::onThemeSelected,
+            onDismiss = { themeViewModel.onThemeDialogChange(false)}
         )
     }
 }
 
 @Composable
 private fun ThemeSelectionDialog(
-    currentTheme: String,
-    onThemeSelected: (String) -> Unit,
+    currentTheme: ThemeType,
+    onThemeSelected: (ThemeType) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val themes = listOf("System Default", "Light", "Dark")
+    val themes = listOf(ThemeType.SYSTEM_DEFAULT, ThemeType.LIGHT, ThemeType.DARK)
 
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
@@ -470,42 +479,35 @@ private fun ThemeSelectionDialog(
         },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
             ) {
-                themes.forEach { theme ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onThemeSelected(theme) }
-                            .padding(vertical = AppSpacing.sm),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
-                    ) {
-                        androidx.compose.material3.RadioButton(
-                            selected = currentTheme == theme,
-                            onClick = { onThemeSelected(theme) }
-                        )
-                        Text(
-                            text = theme,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
+                RadioButtonSelector(
+                    title = stringResource(R.string.select_theme),
+                    options = themes,
+                    selected = currentTheme,
+                    onSelectionChange = { theme ->
+                        onThemeSelected(theme)
+                        onDismiss()
+                    },
+                    labelFor = { theme -> theme.getDisplayName() }
+                )
             }
         },
         confirmButton = {
-            androidx.compose.material3.TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.close_button))
             }
         }
     )
 }
+
 @Composable
 private fun ProfileActionRow(
     icon: ImageVector,
     label: String,
-    deviceSpec: DeviceSpec,
+
     value: String? = null,
     isClickable: Boolean = false,
     onValueClick: (() -> Unit)? = null
@@ -561,6 +563,60 @@ private fun ProfileActionRow(
         }
     }
 }
+
+@Composable
+private fun LogoutButton(showLogoutAction: Boolean, onShowLogoutActionChange: (Boolean) -> Unit, logoutAction: () -> Unit){
+    Button(
+        onClick = {
+                onShowLogoutActionChange(true)
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensionResource(R.dimen.profile__screen_logout_button_height)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.error,
+            contentColor = MaterialTheme.colorScheme.onError
+        ),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.profile_screen_card_rounded_corners))
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.Logout,
+                contentDescription = null,
+                modifier = Modifier.size(dimensionResource(R.dimen.profile_screen_logout_icon_size))
+            )
+            Text(
+                text = stringResource(R.string.logout_button),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+
+    if(showLogoutAction){
+        AlertDialogBox(
+            onDismissRequest = { onShowLogoutActionChange(false) },
+            title = stringResource(R.string.logout_confirmation_title),
+            confirmButton = AlertButtonConfig(
+                label = stringResource(R.string.logout_button),
+                onClick = logoutAction,
+                style = ButtonStyle.ERROR
+            ),
+            dismissButton = AlertButtonConfig(
+                label = stringResource(R.string.cancel_label),
+                onClick = { }
+            ),
+            content = {
+                Text(stringResource(R.string.logout_confirmation_message))
+            }
+        )
+    }
+}
+
 
 @Composable
 private fun ProfileDivider() {

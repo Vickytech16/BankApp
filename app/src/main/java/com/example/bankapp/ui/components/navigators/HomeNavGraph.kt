@@ -27,18 +27,21 @@ import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.di.providers.HomeSessionHandlerProvider
-import com.example.bankapp.ui.screens.AddBeneficiaryScreen
-import com.example.bankapp.ui.screens.CashTransferScreen
-import com.example.bankapp.ui.screens.DepositScreen
+import com.example.bankapp.di.viewmodelfactory.ManageBeneficiaryViewModelFactory
+import com.example.bankapp.ui.screens.beneficiaryscreens.AddBeneficiaryScreen
+import com.example.bankapp.ui.screens.payscreens.CashTransferScreen
+import com.example.bankapp.ui.screens.payscreens.DepositScreen
 import com.example.bankapp.ui.screens.HomeScreen
+import com.example.bankapp.ui.screens.beneficiaryscreens.ManageBeneficiaryScreen
 import com.example.bankapp.ui.screens.PasswordConfirmationScreen
-import com.example.bankapp.ui.screens.PayScreen
-import com.example.bankapp.ui.screens.PayToBeneficiaryScreen
+import com.example.bankapp.ui.screens.payscreens.PayScreen
+import com.example.bankapp.ui.screens.payscreens.PayToBeneficiaryScreen
 import com.example.bankapp.ui.screens.ProfileScreen
 import com.example.bankapp.ui.screens.TransactionDetailsScreen
 import com.example.bankapp.ui.screens.TransactionResultScreen
 import com.example.bankapp.ui.screens.TransactionsScreen
 import com.example.bankapp.ui.screens.authscreens.OtpScreen
+import com.example.bankapp.viewmodels.ThemeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
 sealed class TransactionScreen(val route: String) {
@@ -59,7 +62,8 @@ fun NavGraphBuilder.homeNavGraph(
     beneficiaryRepository: BeneficiaryRepository,
     userRepository: UserRepository,
     filterViewModelFactory: FilterViewModelFactory,
-    transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory
+    transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory,
+    themeViewModel: ThemeViewModel
 ) {
     navigation(
         startDestination = HOME_ROUTE,
@@ -85,6 +89,8 @@ fun NavGraphBuilder.homeNavGraph(
                 PayToBeneficiaryViewModelFactory(beneficiaryRepository = beneficiaryRepository, sessionState = sessionState)
             val profileViewModelFactory =
                 ProfileViewModelFactory(userRepository = userRepository, accountRepository = accountRepository, sessionState = sessionState)
+            val manageBeneficiaryViewModelFactory =
+                ManageBeneficiaryViewModelFactory(sessionState = sessionState, beneficiaryRepository = beneficiaryRepository)
 
 
             composable(HOME_ROUTE) {
@@ -100,11 +106,20 @@ fun NavGraphBuilder.homeNavGraph(
             }
 
             composable(PAY_ROUTE) {
-                PayScreen(navController = navController, windowSizeClass = windowSizeClass)
+                PayScreen(
+                    navController = navController,
+                    windowSizeClass = windowSizeClass
+                )
             }
 
             composable(PROFILE_ROUTE) {
-                ProfileScreen(navController = navController, windowSizeClass =  windowSizeClass, profileViewModelFactory = profileViewModelFactory)
+                ProfileScreen(
+                    navController = navController,
+                    windowSizeClass =  windowSizeClass,
+                    profileViewModelFactory = profileViewModelFactory,
+                    logoutAction = logoutAction,
+                    themeViewModel = themeViewModel
+                )
             }
 
             composable(TRANSACTIONS_LOG_ROUTE) {
@@ -203,10 +218,17 @@ fun NavGraphBuilder.homeNavGraph(
                 PayToBeneficiaryScreen(
                     payToBeneficiaryViewModelFactory = payToBeneficiaryViewModelFactory,
                     navController = navController,
+                    windowSizeClass = windowSizeClass
                 )
             }
 
-
+            composable(MANAGE_BENEFICIARY_ROUTE) {
+                ManageBeneficiaryScreen(
+                    manageBeneficiaryViewModelFactory,
+                    navController = navController,
+                    windowSizeClass = windowSizeClass,
+                )
+            }
 
             composable(
                 route = "$HOME_OTP/{backRoute}",

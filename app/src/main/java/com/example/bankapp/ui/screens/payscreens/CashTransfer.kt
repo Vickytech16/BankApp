@@ -1,6 +1,5 @@
-package com.example.bankapp.ui.screens
+package com.example.bankapp.ui.screens.payscreens
 
-import AmountOutlinedTextField
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,7 +53,6 @@ import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
 import com.example.bankapp.di.providers.HomeSessionHandlerProvider
-import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.textfields.AccountNumberOutlinedTextField
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
@@ -63,7 +61,6 @@ import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.AmountFieldStrategy
-import com.example.bankapp.utilities.FieldTypeStrategy
 import com.example.bankapp.utilities.toDbAccNo
 import com.example.bankapp.viewmodels.CashTransferViewModel
 

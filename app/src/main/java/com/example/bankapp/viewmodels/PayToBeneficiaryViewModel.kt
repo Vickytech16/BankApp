@@ -36,16 +36,12 @@ class PayToBeneficiaryViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 isLoading = true
-
                 val allFriends = beneficiaryRepository.getAllBeneficiariesForUser(user.userId)
-                println("DEBUG: Loaded ${allFriends.size} friends")  // ← Add this
                 _friends.value = allFriends
-
-
 
             } catch (e: Exception) {
                 println("Error: ${e.message}")
-                e.printStackTrace()  // ← Full stack trace
+                e.printStackTrace()
             } finally {
                 isLoading = false
             }

@@ -1,6 +1,5 @@
-package com.example.bankapp.ui.screens
+package com.example.bankapp.ui.screens.payscreens
 
-import AmountOutlinedTextField
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
