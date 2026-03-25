@@ -28,6 +28,6 @@ data class Account(
     val ifscCode: String="VANGI00001",
     val accountType: AccountType,
     val balance: BigDecimal = BigDecimal.ZERO,
-    val createdAt: Long,
-    var updatedAt: Long
-    )
+    val createdAt: LocalDateTime,
+    var updatedAt: LocalDateTime
+)

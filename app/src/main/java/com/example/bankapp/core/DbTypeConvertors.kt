@@ -10,40 +10,46 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 class DbTypeConvertors {
-        @TypeConverter
-        fun fromBigDecimal(value: BigDecimal): String = value.toPlainString()
+    @TypeConverter
+    fun fromBigDecimal(value: BigDecimal): String = value.toPlainString()
 
-        @TypeConverter
-        fun toBigDecimal(value: String): BigDecimal = BigDecimal(value)
+    @TypeConverter
+    fun toBigDecimal(value: String): BigDecimal = BigDecimal(value)
 
-        @TypeConverter
-        fun fromAccountType(type: AccountType): String = type.name
+    @TypeConverter
+    fun fromLocalDateTime(date: LocalDateTime): String = date.toString()
 
-        @TypeConverter
-        fun toAccountType(value: String): AccountType = AccountType.valueOf(value)
+    @TypeConverter
+    fun toLocalDateTime(value: String): LocalDateTime = LocalDateTime.parse(value)
 
-        @TypeConverter
-        fun fromLedgerDirection(direction: LedgerDirection): String = direction.name
+    @TypeConverter
+    fun fromAccountType(type: AccountType): String = type.name
 
-        @TypeConverter
-        fun toLedgerDirection(value: String): LedgerDirection =  LedgerDirection.valueOf(value)
+    @TypeConverter
+    fun toAccountType(value: String): AccountType = AccountType.valueOf(value)
 
-        @TypeConverter
-        fun fromTransactionType(type: TransactionType): String = type.name
+    @TypeConverter
+    fun fromLedgerDirection(direction: LedgerDirection): String = direction.name
 
-        @TypeConverter
-        fun toTransactionType(value: String): TransactionType = TransactionType.valueOf(value)
+    @TypeConverter
+    fun toLedgerDirection(value: String): LedgerDirection =  LedgerDirection.valueOf(value)
 
-        @TypeConverter
-        fun fromTransactionStatus(status: TransactionStatus): String = status.name
+    @TypeConverter
+    fun fromTransactionType(type: TransactionType): String = type.name
 
-        @TypeConverter
-        fun toTransactionStatus(value: String): TransactionStatus = TransactionStatus.valueOf(value)
+    @TypeConverter
+    fun toTransactionType(value: String): TransactionType = TransactionType.valueOf(value)
 
-        @TypeConverter
-        fun fromTransactionFailureType(value: TransactionFailureType?): String? = value?.name
+    @TypeConverter
+    fun fromTransactionStatus(status: TransactionStatus): String = status.name
 
-         @TypeConverter
-        fun toTransactionFailureType(value: String?): TransactionFailureType? = value?.let { TransactionFailureType.valueOf(it) }
+    @TypeConverter
+    fun toTransactionStatus(value: String): TransactionStatus = TransactionStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromTransactionFailureType(value: TransactionFailureType?): String? = value?.name
+
+    @TypeConverter
+    fun toTransactionFailureType(value: String?): TransactionFailureType? = value?.let { TransactionFailureType.valueOf(it) }
 
 }

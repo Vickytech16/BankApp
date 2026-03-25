@@ -18,10 +18,10 @@ interface AccountDao {
     suspend fun createAccount(account: Account) : Long
 
     @Query("update accounts set balance = balance - :amount, updatedAt = :updateAt where accNo =:accNo")
-    suspend fun withdraw(amount: BigDecimal, updateAt: Long, accNo: Long) : Int
+    suspend fun withdraw(amount: BigDecimal, updateAt: LocalDateTime, accNo: Long) : Int
 
     @Query("update accounts set balance = balance + :amount, updatedAt = :updateAt where accNo =:accNo")
-    suspend fun deposit(amount: BigDecimal, updateAt: Long, accNo: Long) : Int
+    suspend fun deposit(amount: BigDecimal, updateAt: LocalDateTime, accNo: Long) : Int
 
     @Query("select * from accounts where accNo = :accNo")
     fun getAccountAsFlowByAccNo(accNo: Long): Flow<Account?>

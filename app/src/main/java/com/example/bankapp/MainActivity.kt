@@ -39,8 +39,6 @@ class MainActivity : ComponentActivity() {
                 ThemeType.SYSTEM_DEFAULT -> isSystemInDarkTheme()
             }
 
-
-
             BankAppTheme (darkTheme = useDarkTheme){
                 AppNavHost(
                     windowSizeClass = windowSizeClass,

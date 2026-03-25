@@ -22,9 +22,6 @@ class SharedPreferenceService(context: Context) {
         private const val KEY_USER_ID = "logged_in_user_id"
         private const val THEME_KEY = "app_theme"
         private const val DEFAULT_THEME = "SYSTEM_DEFAULT"
-
-        private const val TIMEZONE_KEY = "user_timezone"
-        private const val DEFAULT_TIMEZONE = "Asia/Kolkata"
     }
 
     fun saveUserId(userId: String) {
@@ -46,20 +43,4 @@ class SharedPreferenceService(context: Context) {
             putString(THEME_KEY, theme)
         }
     }
-
-   private val _timezoneFlow = MutableStateFlow(prefs.getString(TIMEZONE_KEY, DEFAULT_TIMEZONE) ?: DEFAULT_TIMEZONE)
-   val timezoneFlow: StateFlow<String> = _timezoneFlow.asStateFlow()
-
-    fun getTimezone(): String {
-        return prefs.getString(TIMEZONE_KEY, DEFAULT_TIMEZONE) ?: DEFAULT_TIMEZONE
-    }
-
-    suspend fun saveTimezone(zoneId: String) = withContext(Dispatchers.IO) {
-        prefs.edit {
-            putString(TIMEZONE_KEY, zoneId)
-        }
-        _timezoneFlow.value = zoneId
-    }
-
-    fun getTimezoneFlow(): StateFlow<String> = timezoneFlow
 }
