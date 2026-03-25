@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +26,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -47,6 +51,8 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.utilities.EmailFieldStrategy
 import com.example.bankapp.utilities.PasswordFieldStrategy
@@ -82,11 +88,20 @@ fun RegisterScreen(
         }
     }
 
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(windowSizeClass.heightSizeClass) {
+        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
+
+    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+
     Scaffold {
         contentPadding ->
         Column(
-            modifier = getAppModifier(windowSizeClass, contentPadding, scrollState)
-                ,
+            modifier = Modifier.getAppModifier(windowSizeClass,contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         )
@@ -160,7 +175,8 @@ fun RegisterScreen(
                     supportingText = {
                         ErrorTextBuilder(viewModel.phoneNumberError)
                     },
-                    strategy = PhoneNumberFieldStrategy
+                    strategy = PhoneNumberFieldStrategy,
+                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
                 )
 
                 MediumSpacer()
@@ -198,15 +214,18 @@ fun RegisterScreen(
 
                 MediumSpacer()
 
+                XLSpacer()
+
                 SubmitButton(
                     onClick = { viewModel.onSubmit() },
                     isLoading = viewModel.isLoading,
-                    text = stringResource(R.string.register_button)
+                    text = stringResource(R.string.register_button),
                 )
 
                 ErrorTextBuilder(viewModel.submitError)
 
-                MediumSpacer()
+
+                XLSpacer()
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -241,6 +260,26 @@ fun getAppModifier(windowSizeClass: WindowSizeClass, contentPadding: PaddingValu
     }
     else{
         return AppPadding
+            .padding(contentPadding)
+            .padding(screenPadding)
+            .fillMaxHeight()
+            .verticalScroll(scrollState)
+
+    }
+}
+
+fun Modifier.getAppModifier(windowSizeClass: WindowSizeClass, contentPadding: PaddingValues, scrollState: ScrollState, ): Modifier{
+    if(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact || windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact){
+        return this
+            .safeContentPadding()
+            .verticalScroll(scrollState)
+            .padding(contentPadding)
+            .padding(screenPadding)
+            .fillMaxHeight()
+    }
+    else{
+        return this
+            .safeContentPadding()
             .padding(contentPadding)
             .padding(screenPadding)
             .fillMaxHeight()

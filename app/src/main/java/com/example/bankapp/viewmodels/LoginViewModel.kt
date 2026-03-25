@@ -32,48 +32,19 @@ class LoginViewModel (
         }
     }
 
-    var loginType by mutableStateOf(LoginType.EMAIL)
+    var userIdentifier by mutableStateOf("")
         private set
 
-    fun onLoginTypeChange(newLoginType: LoginType){
-        email = ""
-        password = ""
-        phoneNumber = ""
-        emailError = null
-        phoneNumberError = null
-        passwordError = null
-        passwordVisible = false
-        loginType = newLoginType
-        submitError = null
-    }
-
-    var email by mutableStateOf("")
-        private  set
-
-    var emailError by mutableStateOf<FormError?>(null)
+    var userIdentifierError by mutableStateOf<FormError?>(null)
         private set
 
-    fun onEmailChange(newEmail: String){
-        if(newEmail.length<= EMAIL_MAX_SIZE)
-            email = newEmail
-        emailError =
-            newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
-            newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE)
-        resetSubmitError()
-    }
+    fun onIdentifierChange(newIdentifier: String){
+        if(newIdentifier.length <= EMAIL_MAX_SIZE)
+            userIdentifier = newIdentifier
 
-    var phoneNumber by mutableStateOf("")
-        private set
-
-    var phoneNumberError by mutableStateOf<FormError?>(null)
-        private set
-
-    fun onPhoneNumberChange(newPhoneNumber: String){
-        if(newPhoneNumber.length <= PHONE_NUMBER_MAX_SIZE)
-            phoneNumber = newPhoneNumber
-        phoneNumberError =
-            newPhoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name) ?:
-            newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE)
+        userIdentifierError =
+            newIdentifier.emptyTextFieldErrorMessageBuilder(R.string.generic_field_name) ?:
+                    newIdentifier.maxAllowedCharacterErrorMessageBuilder(R.string.generic_field_name, EMAIL_MAX_SIZE)
         resetSubmitError()
     }
 
@@ -99,21 +70,13 @@ class LoginViewModel (
         passwordVisible = !passwordVisible
     }
 
+    fun resetSubmitError(){
+        if(userIdentifierError==null && passwordError==null)
+            submitError = null
+    }
+
     var submitError by mutableStateOf<FormError?>(null)
         private set
-
-    fun resetSubmitError(){
-        when(loginType){
-           LoginType.EMAIL -> {
-                if(emailError==null && passwordError==null)
-                    submitError = null
-            }
-           LoginType.PHONE_NUMBER -> {
-                if(phoneNumberError==null && passwordError==null)
-                    submitError = null
-            }
-        }
-    }
 
     var isLoginSuccessful by mutableStateOf(false)
         private  set
@@ -128,31 +91,20 @@ class LoginViewModel (
 
         isLoading = true
 
-        when (loginType) {
-            LoginType.EMAIL -> {
-                onEmailChange(email)
-            }
-
-            LoginType.PHONE_NUMBER -> {
-                onPhoneNumberChange(phoneNumber)
-            }
-        }
         onPasswordChange(password)
-
 
         viewModelScope.launch {
             try {
 
-                if (emailError != null || passwordError != null || phoneNumberError != null)
+                if ( userIdentifierError != null || passwordError != null)
                     submitError = FormError.AllFieldsAreRequired
                 else {
                     val user: User? =
-                        when (loginType) {
-                            LoginType.EMAIL -> userRepository.getUserByEmail(email)
-                            LoginType.PHONE_NUMBER -> userRepository.getUserByPhoneNumber(
-                                phoneNumber
-                            )
-                        }
+                        if(userIdentifier.all { it.isDigit() })
+                            userRepository.getUserByPhoneNumber(userIdentifier)
+                        else
+                            userRepository.getUserByEmail(userIdentifier)
+
                     if (user == null) {
                         submitError = FormError.InvalidCredentials
                     } else {

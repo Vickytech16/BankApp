@@ -81,7 +81,7 @@ fun ChangePasswordScreen(
         }
     ) { contentPadding ->
         Column(
-            modifier = getAppModifier(windowSizeClass,contentPadding, scrollState),
+            modifier = Modifier.getAppModifier(windowSizeClass,contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

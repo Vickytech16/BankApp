@@ -122,7 +122,7 @@ fun HomeScreen(
             contentWindowInsets = WindowInsets.systemBars
         ) { innerPadding ->
             Column(
-                modifier = getAppModifier(windowSizeClass, innerPadding, scrollState),
+                modifier = Modifier.getAppModifier(windowSizeClass, innerPadding, scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {

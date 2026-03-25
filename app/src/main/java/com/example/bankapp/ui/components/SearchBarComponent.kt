@@ -1,4 +1,4 @@
-package com.example.bankapp.ui.components.transactionitems
+package com.example.bankapp.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,19 +13,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.Placeholder
 import com.example.bankapp.R
 
-
 @Composable
-fun TransactionSearchBar(
+fun SearchBarComponent(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
     onCancel: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     placeholderText: String = stringResource(R.string.search_transactions_hint)
 ) {
 
@@ -33,8 +30,8 @@ fun TransactionSearchBar(
         value = query,
         onValueChange = onQueryChange,
         placeholder = {
-            Text( placeholderText )
-                      },
+            Text(placeholderText)
+        },
         singleLine = true,
         leadingIcon = {
             IconButton(

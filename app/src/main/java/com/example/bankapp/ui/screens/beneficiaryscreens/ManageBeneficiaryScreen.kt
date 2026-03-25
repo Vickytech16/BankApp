@@ -38,7 +38,7 @@ import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.FriendListItem
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.components.transactionitems.TransactionSearchBar
+import com.example.bankapp.ui.components.SearchBarComponent
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.utilities.UserNameFieldStrategy
 import com.example.bankapp.viewmodels.ManageBeneficiaryViewModel
@@ -142,7 +142,7 @@ fun ManageBeneficiaryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            TransactionSearchBar(
+            SearchBarComponent(
                 query,
                 viewModel::onQueryChange,
                 {

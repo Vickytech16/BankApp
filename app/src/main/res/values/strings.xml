@@ -239,6 +239,8 @@
     <string name="edit_beneficiary">Set nickname</string>
     <string name="save_button">Save</string>
     <string name="nickname_field_name">Nickname</string>
+    <string name="generic_field_name">Field cannot be empty</string>
+    <string name="login_heading">Login</string>
 
 
 </resources>

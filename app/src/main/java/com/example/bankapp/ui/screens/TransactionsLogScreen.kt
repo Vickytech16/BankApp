@@ -44,7 +44,7 @@ import com.example.bankapp.ui.components.transactionitems.TransactionLazyList
 import com.example.bankapp.ui.components.filters.FilterSortChip
 import com.example.bankapp.ui.components.filters.FilterSection
 import com.example.bankapp.ui.components.filters.SortSection
-import com.example.bankapp.ui.components.transactionitems.TransactionSearchBar
+import com.example.bankapp.ui.components.SearchBarComponent
 import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.viewmodels.FilterViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
@@ -100,7 +100,7 @@ fun TransactionsScreen(
                 .padding(paddingValues)
         ) {
 
-            TransactionSearchBar(
+            SearchBarComponent(
                 query,
                 transactionsViewModel::onQueryChange,
                 {

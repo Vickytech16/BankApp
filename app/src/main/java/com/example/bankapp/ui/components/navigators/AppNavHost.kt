@@ -93,7 +93,6 @@ fun AppNavHost(
 
         accountNavGraph(
             accountCreationViewModelFactory = viewModelContainer.accountCreationViewModelFactory,
-            navController = navController,
             windowSizeClass = windowSizeClass,
             restoreSession = { sessionViewModel.restoreSession() }
         )

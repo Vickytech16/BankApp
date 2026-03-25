@@ -11,7 +11,6 @@ import com.example.bankapp.ui.screens.AccountCreationScreen
 
     fun NavGraphBuilder.accountNavGraph(
         accountCreationViewModelFactory: AccountCreationViewModelFactory,
-        navController: NavController,
         windowSizeClass: WindowSizeClass,
         restoreSession: () -> Unit
     ){
@@ -22,7 +21,6 @@ import com.example.bankapp.ui.screens.AccountCreationScreen
             composable(ACCOUNT_CREATION_ROUTE){
                 AccountCreationScreen(
                     accountCreationViewModelFactory = accountCreationViewModelFactory,
-                    navController =  navController,
                     windowSizeClass = windowSizeClass,
                     restoreSession = restoreSession
                 )

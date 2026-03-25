@@ -7,9 +7,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -18,10 +22,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -53,16 +59,10 @@ import com.example.bankapp.utilities.PhoneNumberFieldStrategy
 
 @Composable
 fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
-                 loginViewModelFactory: LoginViewModelFactory, )
-{
+                 loginViewModelFactory: LoginViewModelFactory, ) {
     val loginViewModel: LoginViewModel = viewModel(factory = loginViewModelFactory)
 
     val scrollState = rememberScrollState()
-
-    val currentLoginTypeName = when(loginViewModel.loginType){
-        LoginType.PHONE_NUMBER -> stringResource(R.string.phone_number_field_name)
-        LoginType.EMAIL -> stringResource(R.string.email_field_name)
-    }
 
     val textFieldColumnWidth =
         when (windowSizeClass.widthSizeClass) {
@@ -78,11 +78,18 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
         }
     }
 
-    Scaffold {
-        contentPadding ->
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(windowSizeClass.heightSizeClass) {
+        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
+
+
+    Scaffold { contentPadding ->
         Column(
-            modifier = getAppModifier(windowSizeClass, contentPadding, scrollState)
-            ,
+            modifier = Modifier.getAppModifier(windowSizeClass, contentPadding, scrollState),
 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -101,10 +108,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
             MediumSpacer()
 
             Text(
-                text = when(loginViewModel.loginType){
-                    LoginType.PHONE_NUMBER -> stringResource(R.string.login_type_description, currentLoginTypeName)
-                    LoginType.EMAIL ->stringResource(R.string.login_type_description, currentLoginTypeName)
-                },
+                text = stringResource(R.string.login_heading),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
@@ -118,31 +122,19 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                when (loginViewModel.loginType) {
-                    LoginType.EMAIL ->
-                        UnifiedOutlinedTextField(
-                             value = loginViewModel.email,
-                             onValueChange = loginViewModel::onEmailChange,
-                             labelText = stringResource(R.string.email_field_name),
-                             isError = loginViewModel.emailError != null,
-                             supportingText = {
-                                 ErrorTextBuilder(loginViewModel.emailError)
-                             },
-                             strategy = EmailFieldStrategy,
-                         )
 
-                    LoginType.PHONE_NUMBER ->
-                        UnifiedOutlinedTextField(
-                            value = loginViewModel.phoneNumber,
-                            onValueChange = loginViewModel::onPhoneNumberChange,
-                            labelText = stringResource(R.string.phone_number_field_name),
-                            isError = loginViewModel.phoneNumberError != null,
-                            supportingText = {
-                                ErrorTextBuilder(loginViewModel.phoneNumberError)
-                            },
-                            strategy = PhoneNumberFieldStrategy
-                        )
-                }
+                UnifiedOutlinedTextField(
+                    value = loginViewModel.userIdentifier,
+                    onValueChange = loginViewModel::onIdentifierChange,
+                    labelText = stringResource(R.string.email_field_name),
+                    isError = loginViewModel.userIdentifierError != null,
+                    supportingText = {
+                        ErrorTextBuilder(loginViewModel.userIdentifierError)
+                    },
+                    strategy = EmailFieldStrategy,
+                    leadingIcon = Icons.AutoMirrored.Outlined.Login,
+                )
+
 
                 MediumSpacer()
 
@@ -154,7 +146,10 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                     supportingText = {
                         ErrorTextBuilder(loginViewModel.passwordError)
                     },
-                    strategy = PasswordFieldStrategy(loginViewModel.passwordVisible, loginViewModel::onPasswordVisibleChange)
+                    strategy = PasswordFieldStrategy(
+                        loginViewModel.passwordVisible,
+                        loginViewModel::onPasswordVisibleChange
+                    )
                 )
 
                 TextButton(
@@ -165,7 +160,6 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                     },
                     modifier = Modifier.align(alignment = Alignment.End),
                 ) {
-
                     Text(stringResource(R.string.forgot_password))
                 }
 
@@ -174,41 +168,13 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                 SubmitButton(
                     onClick = { loginViewModel.onSubmit() },
                     text = stringResource(R.string.login_button),
-                    isLoading = loginViewModel.isLoading
+                    isLoading = loginViewModel.isLoading,
+                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
                 )
 
-               ErrorTextBuilder(loginViewModel.submitError)
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    HorizontalDivider(
-                        modifier = Modifier.weight(1f),
-                        thickness = dimensionResource(R.dimen.divider_thickness),
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    )
-                    Text(" or ")
-                    HorizontalDivider(
-                        modifier = Modifier.weight(1f),
-                        thickness = dimensionResource(R.dimen.divider_thickness),
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    )
-                }
+                ErrorTextBuilder(loginViewModel.submitError)
 
                 XLSpacer()
-
-                when (loginViewModel.loginType) {
-                    LoginType.EMAIL -> {
-                        SwitchToPhoneNumberLoginButton(loginViewModel::onLoginTypeChange)
-                    }
-
-                    LoginType.PHONE_NUMBER -> {
-                        SwitchToEmailLoginButton(
-                            loginViewModel::onLoginTypeChange
-                        )
-                    }
-                }
 
                 MediumSpacer()
 
@@ -227,32 +193,4 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
     }
 }
 
-@Composable
-private fun SwitchToEmailLoginButton(onclickAction: (LoginType)->Unit){
-
-    OutlinedButton(
-        onClick = {
-            onclickAction(LoginType.EMAIL)
-        },
-        modifier = Modifier.fillMaxWidth()
-    ){
-        Icon(Icons.Outlined.Email, contentDescription = null)
-        MediumHorizontalSpacer()
-        Text(stringResource(R.string.login_type_description, stringResource(R.string.email_field_name)))
-    }
-}
-
-@Composable
-private fun SwitchToPhoneNumberLoginButton(onclickAction: (LoginType) -> Unit){
-    OutlinedButton(
-        onClick = {
-            onclickAction(LoginType.PHONE_NUMBER)
-        },
-        modifier = Modifier.fillMaxWidth()
-    ){
-        Icon(Icons.Outlined.Phone, contentDescription = null)
-        MediumHorizontalSpacer()
-        Text(stringResource(R.string.login_type_description, stringResource(R.string.phone_number_field_name)))
-    }
-}
 

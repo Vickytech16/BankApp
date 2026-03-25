@@ -35,7 +35,7 @@ import com.example.bankapp.viewmodels.AccountCreationViewModel
 
 
 @Composable
-fun AccountCreationScreen(navController: NavController, accountCreationViewModelFactory: AccountCreationViewModelFactory, windowSizeClass: WindowSizeClass, restoreSession: ()-> Unit)
+fun AccountCreationScreen( accountCreationViewModelFactory: AccountCreationViewModelFactory, windowSizeClass: WindowSizeClass, restoreSession: ()-> Unit)
 {
     val accountCreationViewModel: AccountCreationViewModel = viewModel(factory = accountCreationViewModelFactory)
 
@@ -52,7 +52,7 @@ fun AccountCreationScreen(navController: NavController, accountCreationViewModel
     Scaffold() {
         contentPadding ->
         Column(
-            modifier = getAppModifier(windowSizeClass, contentPadding, scrollState),
+            modifier = Modifier.getAppModifier(windowSizeClass, contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

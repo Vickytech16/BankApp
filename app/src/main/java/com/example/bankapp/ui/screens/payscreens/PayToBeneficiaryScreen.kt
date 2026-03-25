@@ -38,7 +38,7 @@ import com.example.bankapp.di.viewmodelfactory.PayToBeneficiaryViewModelFactory
 import com.example.bankapp.ui.components.BeneficiaryGridItem
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
-import com.example.bankapp.ui.components.transactionitems.TransactionSearchBar
+import com.example.bankapp.ui.components.SearchBarComponent
 import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.utilities.uiAccNo
 import com.example.bankapp.viewmodels.PayToBeneficiaryViewModel
@@ -81,7 +81,7 @@ fun PayToBeneficiaryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            TransactionSearchBar(
+            SearchBarComponent(
                 query,
                 viewModel::onQueryChange,
                 {

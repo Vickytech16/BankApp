@@ -36,6 +36,10 @@ fun HomeAppBar(
     val scope = rememberCoroutineScope()
 
     TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            scrolledContainerColor = MaterialTheme.colorScheme.background
+        ),
         title = {
             Column {
                 Text(
