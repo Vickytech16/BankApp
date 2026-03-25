@@ -23,7 +23,7 @@ data class Transaction(
     val transactionType: TransactionType,
     val transactionStatus: TransactionStatus,
     val idempotencyKey: String,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: Long,
+    val updatedAt: Long,
     val failureType: TransactionFailureType? = null
 )

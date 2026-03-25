@@ -17,12 +17,6 @@ class DbTypeConvertors {
         fun toBigDecimal(value: String): BigDecimal = BigDecimal(value)
 
         @TypeConverter
-        fun fromLocalDateTime(date: LocalDateTime): String = date.toString()
-
-        @TypeConverter
-        fun toLocalDateTime(value: String): LocalDateTime = LocalDateTime.parse(value)
-
-        @TypeConverter
         fun fromAccountType(type: AccountType): String = type.name
 
         @TypeConverter

@@ -28,7 +28,6 @@ class AppContainer(applicationContext: Context) {
     private val ledgerDao = database.ledgerDao()
     private val beneficiaryDao = database.beneficiaryDao()
 
-
     val userRepository: UserRepository = UserRepositoryImpl(userDao)
     val accountRepository: AccountRepository = AccountRepositoryImpl(accountDao)
     val transactionRepository: TransactionRepository = TransactionRepository(transactionDao, ledgerDao, accountDao, database)

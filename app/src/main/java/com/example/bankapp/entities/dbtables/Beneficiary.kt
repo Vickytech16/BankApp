@@ -36,5 +36,5 @@ data class Beneficiary(
     val beneficiaryUserId: Long,
     val nickname: String = "",
     val isFavorite: Boolean = false,
-    val addedDate: String
+    val addedDate: Long
 )
