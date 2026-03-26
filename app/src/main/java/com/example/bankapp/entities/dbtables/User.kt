@@ -16,5 +16,7 @@ data class User(
     val email: String,
     val phoneNumber: String,
     val passwordHashed: String,
-    val pfpURL: String? = null
+    val pfpURL: String? = null,
+    val countryCode: String,
+    val timeZone: String
 )
