@@ -42,5 +42,6 @@ class SharedPreferenceService(context: Context) {
         prefs.edit {
             putString(THEME_KEY, theme)
         }
+        _themeFlow.value = theme
     }
 }

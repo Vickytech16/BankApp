@@ -1,14 +1,18 @@
 package com.example.bankapp.ui.screens
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
@@ -33,7 +37,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.HomeViewModelFactory
+import com.example.bankapp.ui.components.HomeDrawer
 import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.appbar.HomeAppBar
 import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
 import com.example.bankapp.ui.components.buttons.ActionButton
@@ -45,8 +51,9 @@ import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_TO_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTIONS_LOG_ROUTE
-import com.example.bankapp.ui.screens.authscreens.getAppModifier
+import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.viewmodels.HomeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
@@ -73,8 +80,6 @@ fun HomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
-    val isTablet = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
-    val isLandscape = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val actionButtonDimensions = ButtonDimensions(
@@ -84,7 +89,7 @@ fun HomeScreen(
         labelStyle =deviceSpec.qabButtonLabelSize(),
     )
 
-    com.example.bankapp.ui.components.HomeDrawer(
+   HomeDrawer(
         drawerState = drawerState,
         logoutAction = logoutAction,
         username = homeViewModel.username,
@@ -119,10 +124,10 @@ fun HomeScreen(
                     }
                 )
             },
-            contentWindowInsets = WindowInsets.systemBars
+            contentWindowInsets = WindowInsets(0, 0, 0, 0)
         ) { innerPadding ->
             Column(
-                modifier = Modifier.getAppModifier(windowSizeClass, innerPadding, scrollState),
+                modifier = Modifier.screenModifier(windowSizeClass, contentPadding = innerPadding, scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -152,6 +157,7 @@ fun HomeScreen(
                         label = stringResource(R.string.pay_to_friend),
                         modifier = Modifier.weight(1f),
                         dimensions = actionButtonDimensions
+
                     )
                    ActionButton(
                         onClickAction = { navController.navigate(CASH_TRANSFER_ROUTE) },
@@ -186,4 +192,18 @@ fun HomeScreen(
         }
     }
     )
+}
+
+fun Modifier.homeModifier(
+    windowSizeClass: WindowSizeClass,
+    contentPadding: PaddingValues,
+    scrollState: ScrollState
+): Modifier {
+    val topPadding = contentPadding.calculateTopPadding()
+
+    return this
+        .padding(top = topPadding)
+        .padding(screenPadding)
+        .fillMaxHeight()
+        .verticalScroll(scrollState)
 }

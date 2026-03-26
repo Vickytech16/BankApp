@@ -1,5 +1,6 @@
 package com.example.bankapp.viewmodels
 
+import SharedTransactionViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,9 +13,6 @@ import com.example.bankapp.entities.types.account.AccountStatus
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.di.providers.HomeSessionHandlerProvider
-import com.example.bankapp.usecases.CurrentSessionIntent
-import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.ACCOUNT_NUMBER_SIZE
 import com.example.bankapp.utilities.amountFieldValidator
 import com.example.bankapp.utilities.cashTransferAmountRegex
@@ -28,17 +26,11 @@ class CashTransferViewModel(
     private val sessionState: SessionState.Authenticated.AccountRegistered,
     private val transactionRepository: TransactionRepository,
     private val beneficiaryRepository: BeneficiaryRepository,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val sharedSessionViewModel: SharedTransactionViewModel
 ) : ViewModel() {
 
     private val account = sessionState.account
-
-    private val homeSessionHandler: HomeSessionHandler
-        get() = HomeSessionHandlerProvider.currentHandler
-
-    private val cashTransfer: HomeSessionHandler.CashTransfer
-        get() = homeSessionHandler as HomeSessionHandler.CashTransfer
-
 
     var accountNumber by mutableStateOf("")
         private set
@@ -161,14 +153,21 @@ class CashTransferViewModel(
 
                     val isFriend = beneficiaryRepository.getBeneficiary(sessionState.user.userId, otherUserId) != null
 
-                    cashTransfer.onInitialize(
-                        sessionState.account.accNo,
-                        accountNumber.toDbAccNo(),
-                        convertedAmount,
-                        isFriend
-                    )
+//                    cashTransfer.onInitialize(
+//                        sessionState.account.accNo,
+//                        accountNumber.toDbAccNo(),
+//                        convertedAmount,
+//                        isFriend
+//                    )
+//
+//                    cashTransfer.intent = CurrentSessionIntent.CASH_TRANSFER
 
-                    cashTransfer.intent = CurrentSessionIntent.CASH_TRANSFER
+                    sharedSessionViewModel.initializeCashTransfer(
+                        fromAccNo = sessionState.account.accNo,
+                        toAccNo = accountNumber.toDbAccNo(),
+                        amount = amount.toBigDecimal(),
+                        friend = isFriend
+                    )
 
                     isVerifySuccessful = true
                 }

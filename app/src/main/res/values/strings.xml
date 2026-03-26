@@ -239,8 +239,12 @@
     <string name="edit_beneficiary">Set nickname</string>
     <string name="save_button">Save</string>
     <string name="nickname_field_name">Nickname</string>
-    <string name="generic_field_name">Field cannot be empty</string>
+    <string name="generic_field_name">Field</string>
     <string name="login_heading">Login</string>
+    <string name="action_failed">Action failed</string>
+    <string name="action_success">Action success</string>
+    <string name="user_doesnt_have_account_error">User doesn\'t have an account yet</string>
+    <string name="email_or_phone_number_label">Email / Phone number</string>
 
 
 </resources>

@@ -1,5 +1,6 @@
 package com.example.bankapp.viewmodels
 
+import SharedTransactionViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,18 +32,11 @@ import java.util.UUID
 
 class DepositViewModel(
     sessionState: SessionState.Authenticated.AccountRegistered,
-    private val transactionRepository: TransactionRepository
+    private val sharedTransactionViewModel: SharedTransactionViewModel
 ): ViewModel() {
     private val account = sessionState.account
-    private val user = sessionState.user
 
-    private val homeSessionHandler: HomeSessionHandler
-        get() = HomeSessionHandlerProvider.currentHandler
-
-    private val deposit: HomeSessionHandler.Deposit
-        get() = HomeSessionHandlerProvider.currentHandler as HomeSessionHandler.Deposit
-
-    var amount by mutableStateOf<String>("")
+    var amount by mutableStateOf("")
         private set
 
     var amountError by mutableStateOf<FormError?>(null)
@@ -60,12 +54,6 @@ class DepositViewModel(
     var submitError by mutableStateOf<FormError?>(null)
         private set
 
-    var transactionResult by mutableStateOf<TransactionResult?>(null)
-        private set
-
-
-    private var idempotencyKey = UUID.randomUUID().toString()
-
     fun onSubmitErrorReset() {
         if (amountError == null) {
             submitError = null
@@ -75,123 +63,42 @@ class DepositViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
-    fun resetUponSuccess() {
-        onAmountChange("")
-        amountError = null
-        submitError = null
-    }
-
     var isVerifySuccessful by mutableStateOf(false)
         private set
 
-    private var alreadySuceeded = false
-
-    fun onVerifySuccessful(navController: NavController) {
-        if(alreadySuceeded)
+    fun onSubmit() {
+        if (isLoading)
             return
 
-        alreadySuceeded = true
+        onAmountChange(amount)
+        onSubmitErrorReset()
 
-        deposit.onActionSuccessPrimaryAction = {
-            val transactionId = deposit.transactionId
+        viewModelScope.launch(Dispatchers.IO) {
 
-            if (transactionId != null) {
-                navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
-                    popUpTo(HOME_ROUTE) { inclusive = false }
+            try {
+                isLoading = true
+                if (amountError != null) {
+                    submitError = FormError.InvalidData
+                    return@launch
                 }
-            } else {
-                navController.navigate(HOME_ROUTE) {
-                    popUpTo(MAIN_ROUTE) {
-                        inclusive = true
-                    }
+
+                val convertedAmount = amount.toBigDecimalOrNull()
+                if (convertedAmount == null) {
+                    amountError = FormError.InvalidAmount
+                    submitError = FormError.InvalidData
+                    return@launch
                 }
+                if (submitError == null) {
+                    sharedTransactionViewModel.initializeDeposit(accNo = account.accNo, amount = convertedAmount)
+                    isVerifySuccessful = true
+                }
+            } catch (e: Exception) {
+                println("Deposit error: ${e.message}")
+                submitError = FormError.UnknownError
+            } finally {
+                isLoading = false
             }
-        }
 
-        deposit.onActionFailurePrimaryAction = {
-            navController.navigate(DEPOSIT_ROUTE){
-                popUpTo(HOME_ROUTE) {
-                    inclusive = false
-                }
-            }
-        }
-
-        homeSessionHandler.onOtpSuccess = {
-            navController.navigate("$PASSWORD_CONFIRMATION_ROUTE/$DEPOSIT_ROUTE")
-        }
-
-        homeSessionHandler.onPasswordSuccess = {
-            navController.navigate(TRANSACTION_RESULT_ROUTE)
         }
     }
-
-            fun onSubmit() {
-
-                if (isLoading)
-                    return
-
-                onAmountChange(amount)
-
-                onSubmitErrorReset()
-
-                viewModelScope.launch(Dispatchers.IO) {
-
-                    try {
-                        isLoading = true
-                        if (amountError != null) {
-                            submitError = FormError.InvalidData
-                            return@launch
-                        }
-
-                        val convertedAmount = amount.toBigDecimalOrNull()
-                        if (convertedAmount == null) {
-                            amountError = FormError.InvalidAmount
-                            submitError = FormError.InvalidData
-                            return@launch
-                        }
-
-                        if (submitError == null) {
-                            deposit.onInitialize(
-                                userAccNo = account.accNo,
-                                userId = account.userId,
-                                amount = convertedAmount
-                            )
-
-                            deposit.intent = CurrentSessionIntent.DEPOSIT
-
-                            isVerifySuccessful = true
-                        }
-                    } catch (e: Exception) {
-                        println("Deposit error: ${e.message}")
-                        submitError = FormError.UnknownError
-                    } finally {
-                        isLoading = false
-                    }
-
-                }
-            }
-        }
-
-
-
-/*
-if(submitError==null){
-                    if(PasswordHashingService.matches(password, user.passwordHashed))
-                    {
-                        transactionResult = transactionRepository.deposit(
-                            accountNo = account.accNo,
-                            amount = convertedAmount,
-                            idempotencyKey = idempotencyKey
-                        )
-                        if (transactionResult != TransactionResult.Error.RepeatedTransaction)
-                            idempotencyKey = UUID.randomUUID().toString()
-                        if(transactionResult is TransactionResult.Success)
-                            resetUponSuccess()
-
-                    }
-                    else{
-                        submitError = FormError.PasswordDoesntMatch
-                        return@launch
-                    }
-                }
- */
+}

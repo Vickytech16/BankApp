@@ -1,20 +1,15 @@
 package com.example.bankapp.ui.screens.authscreens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.material3.Scaffold
@@ -48,12 +43,10 @@ import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.PasswordErrorTextBuilder
 import com.example.bankapp.ui.components.buttons.SubmitButton
+import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.theme.AppPadding
-import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.DeviceSpecProvider
-import com.example.bankapp.ui.theme.screenPadding
 import com.example.bankapp.utilities.EmailFieldStrategy
 import com.example.bankapp.utilities.PasswordFieldStrategy
 import com.example.bankapp.utilities.PhoneNumberFieldStrategy
@@ -101,7 +94,7 @@ fun RegisterScreen(
     Scaffold {
         contentPadding ->
         Column(
-            modifier = Modifier.getAppModifier(windowSizeClass,contentPadding, scrollState),
+            modifier = Modifier.screenModifier(windowSizeClass,contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         )
@@ -248,44 +241,3 @@ fun RegisterScreen(
         }
     }
 }
-
-
-fun getAppModifier(windowSizeClass: WindowSizeClass, contentPadding: PaddingValues, scrollState: ScrollState, ): Modifier{
-    if(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact || windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact){
-        return AppPadding
-            .verticalScroll(scrollState)
-            .padding(contentPadding)
-            .padding(screenPadding)
-            .fillMaxHeight()
-    }
-    else{
-        return AppPadding
-            .padding(contentPadding)
-            .padding(screenPadding)
-            .fillMaxHeight()
-            .verticalScroll(scrollState)
-
-    }
-}
-
-fun Modifier.getAppModifier(windowSizeClass: WindowSizeClass, contentPadding: PaddingValues, scrollState: ScrollState, ): Modifier{
-    if(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact || windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact){
-        return this
-            .safeContentPadding()
-            .verticalScroll(scrollState)
-            .padding(contentPadding)
-            .padding(screenPadding)
-            .fillMaxHeight()
-    }
-    else{
-        return this
-            .safeContentPadding()
-            .padding(contentPadding)
-            .padding(screenPadding)
-            .fillMaxHeight()
-            .verticalScroll(scrollState)
-
-    }
-}
-
-

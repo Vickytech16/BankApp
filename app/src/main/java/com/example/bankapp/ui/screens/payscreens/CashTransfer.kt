@@ -94,63 +94,63 @@ fun CashTransferScreen(
 
 
     LaunchedEffect(viewModel.isVerifySuccessful) {
+// && !viewModel.isNavigationSet
+        if (viewModel.isVerifySuccessful ) {
 
-        if (viewModel.isVerifySuccessful && !viewModel.isNavigationSet) {
-
-            viewModel.isNavigationSet = true
-
-            val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
-            val cashTransfer = homeSessionHandler as HomeSessionHandler.CashTransfer
-
-            cashTransfer.navigationLocked = false
-
-            cashTransfer.onActionSuccessPrimaryAction = {
-                if (!cashTransfer.navigationLocked) {
-                    cashTransfer.navigationLocked = true
-                    val transactionId = cashTransfer.transactionId
-
-                    if (transactionId != null) {
-                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
-                            popUpTo(HOME_ROUTE) { inclusive = false }
-                        }
-                    } else {
-                        navController.navigate(HOME_ROUTE) {
-                            popUpTo(MAIN_ROUTE) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                }
-            }
-
-            cashTransfer.onActionFailurePrimaryAction = {
-                if (!cashTransfer.navigationLocked) {
-                    cashTransfer.navigationLocked= true
-                    navController.navigate(CASH_TRANSFER_ROUTE) {
-                        popUpTo(HOME_ROUTE) {
-                            inclusive = false
-                        }
-                    }
-                }
-            }
-
-            homeSessionHandler.onOtpSuccess = {
-                if (!cashTransfer.navigationLocked) {
+//            viewModel.isNavigationSet = true
+//
+//            val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
+//            val cashTransfer = homeSessionHandler as HomeSessionHandler.CashTransfer
+//
+//            cashTransfer.navigationLocked = false
+//
+//            cashTransfer.onActionSuccessPrimaryAction = {
+//                if (!cashTransfer.navigationLocked) {
 //                    cashTransfer.navigationLocked = true
-                    if(!cashTransfer.isFriend) {
-                        navController.navigate("$PASSWORD_CONFIRMATION_ROUTE/$CASH_TRANSFER_ROUTE")
-                    } else {
-                        homeSessionHandler.onPasswordSuccess.invoke()
-                    }
-                }
-            }
-
-            homeSessionHandler.onPasswordSuccess = {
-                if (!cashTransfer.navigationLocked) {
-//                    cashTransfer.navigationLocked = true
-                    navController.navigate(TRANSACTION_RESULT_ROUTE)
-                }
-            }
+//                    val transactionId = cashTransfer.transactionId
+//
+//                    if (transactionId != null) {
+//                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
+//                            popUpTo(HOME_ROUTE) { inclusive = false }
+//                        }
+//                    } else {
+//                        navController.navigate(HOME_ROUTE) {
+//                            popUpTo(MAIN_ROUTE) {
+//                                inclusive = true
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//            cashTransfer.onActionFailurePrimaryAction = {
+//                if (!cashTransfer.navigationLocked) {
+//                    cashTransfer.navigationLocked= true
+//                    navController.navigate(CASH_TRANSFER_ROUTE) {
+//                        popUpTo(HOME_ROUTE) {
+//                            inclusive = false
+//                        }
+//                    }
+//                }
+//            }
+//
+//            homeSessionHandler.onOtpSuccess = {
+//                if (!cashTransfer.navigationLocked) {
+////                    cashTransfer.navigationLocked = true
+//                    if(!cashTransfer.isFriend) {
+//                        navController.navigate("$PASSWORD_CONFIRMATION_ROUTE/$CASH_TRANSFER_ROUTE")
+//                    } else {
+//                        homeSessionHandler.onPasswordSuccess.invoke()
+//                    }
+//                }
+//            }
+//
+//            homeSessionHandler.onPasswordSuccess = {
+//                if (!cashTransfer.navigationLocked) {
+////                    cashTransfer.navigationLocked = true
+//                    navController.navigate(TRANSACTION_RESULT_ROUTE)
+//                }
+//            }
 
             navController.navigate("$HOME_OTP/$CASH_TRANSFER_ROUTE")
         }

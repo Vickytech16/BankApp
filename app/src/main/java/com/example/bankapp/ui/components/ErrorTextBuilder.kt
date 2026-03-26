@@ -43,7 +43,9 @@ fun ErrorTextBuilder(error: FormError?) {
 
                     is FormError.InvalidCashTransferAmountFormat,
 
-                    is FormError.AlreadyYourFriendError
+                    is FormError.AlreadyYourFriendError,
+
+                    is FormError.UserDoesNotHaveAccountError
                         ->
 
                         stringResource(error.message)

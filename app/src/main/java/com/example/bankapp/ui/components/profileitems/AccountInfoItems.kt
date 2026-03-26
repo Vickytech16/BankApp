@@ -28,6 +28,7 @@ import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.screens.ProfileDivider
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.utilities.RUPEE_SYMBOL
 import com.example.bankapp.viewmodels.ProfileViewModel
 
 @Composable
@@ -74,7 +75,7 @@ fun ProfileAccountCard(
 
             ProfileAccountRow(
                 label = stringResource(R.string.balance_label),
-                value = "$${account.balance}"
+                value = "$RUPEE_SYMBOL ${account.balance}"
             )
         }
     }
@@ -98,7 +99,7 @@ private fun ProfileAccountRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
             )

@@ -41,8 +41,10 @@ import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
+import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
+import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.utilities.AmountFieldStrategy
 import com.example.bankapp.viewmodels.DepositViewModel
@@ -53,14 +55,10 @@ fun DepositScreen(
     depositViewModelFactory: DepositViewModelFactory,
     windowSizeClass: WindowSizeClass,
     navController: NavController,
-){
-  val viewModel: DepositViewModel = viewModel(factory = depositViewModelFactory)
+) {
+    val viewModel: DepositViewModel = viewModel(factory = depositViewModelFactory)
 
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(Unit) {
-        HomeSessionHandlerProvider.setHandlerByIntent(CurrentSessionIntent.DEPOSIT)
-    }
 
     val illustrationHeight = dimensionResource(R.dimen.illustration_height).value.toInt()
 
@@ -70,29 +68,30 @@ fun DepositScreen(
         }
     }
 
+    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+
     val textFieldColumnWidth =
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> 0.8f
-            WindowWidthSizeClass.Medium -> 0.6f
-            WindowWidthSizeClass.Expanded -> 0.5f
-            else -> 0.8f
-        }
+        deviceSpec.textFieldWidth
 
     LaunchedEffect(viewModel.isVerifySuccessful) {
-        if(viewModel.isVerifySuccessful) {
-            viewModel.onVerifySuccessful(navController)
+        if (viewModel.isVerifySuccessful) {
             navController.navigate("$HOME_OTP/$DEPOSIT_ROUTE")
         }
     }
 
     Scaffold(
-        topBar = { Appbar(stringResource(R.string.deposit_label), { navController.popBackStack() }, null) },
-        contentWindowInsets = WindowInsets(0,0,0,0)
+        topBar = {
+            Appbar(
+                stringResource(R.string.deposit_label),
+                { navController.popBackStack() },
+                null
+            )
+        },
     )
     {
         contentPadding ->
         Column(
-            modifier = AppPadding.padding(contentPadding).fillMaxHeight().verticalScroll(scrollState),
+            modifier = Modifier.fillMaxHeight().screenModifier(windowSizeClass, contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -119,39 +118,33 @@ fun DepositScreen(
             LargeSpacer()
 
             Column(
-            modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
-            horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-             UnifiedOutlinedTextField(
-                 value = viewModel.amount,
-                 onValueChange = viewModel::onAmountChange,
-                 labelText = stringResource(R.string.amount_field_name),
-                 isError = viewModel.amountError != null,
-                 supportingText = {
-                     ErrorTextBuilder(viewModel.amountError)
+                UnifiedOutlinedTextField(
+                    value = viewModel.amount,
+                    onValueChange = viewModel::onAmountChange,
+                    labelText = stringResource(R.string.amount_field_name),
+                    isError = viewModel.amountError != null,
+                    supportingText = {
+                        ErrorTextBuilder(viewModel.amountError)
                     },
-                 strategy = AmountFieldStrategy(TransactionType.DEPOSIT),
+                    strategy = AmountFieldStrategy(TransactionType.DEPOSIT),
                 )
 
-            XLSpacer()
+                XLSpacer()
 
-            SubmitButton(
-                onClick = { viewModel.onSubmit() },
-                isLoading = viewModel.isLoading
+                SubmitButton(
+                    onClick = { viewModel.onSubmit() },
+                    isLoading = viewModel.isLoading
                 )
 
-            ErrorTextBuilder(viewModel.submitError)
+                ErrorTextBuilder(viewModel.submitError)
 
-            val transactionResult = viewModel.transactionResult
-
-            if(transactionResult!=null)
-                Text(stringResource(transactionResult.message))
-
+                XLSpacer()
             }
-
-            XLSpacer()
         }
-    }
 
+    }
 }

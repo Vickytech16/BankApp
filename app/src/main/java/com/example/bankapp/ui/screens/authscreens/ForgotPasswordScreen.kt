@@ -6,15 +6,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -33,6 +37,7 @@ import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
+import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.navigators.AUTH_OTP
 import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
@@ -68,6 +73,14 @@ fun ForgetPasswordScreen(
         }
     }
 
+//    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+//
+//    LaunchedEffect(windowSizeClass.heightSizeClass) {
+//        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
+//            bringIntoViewRequester.bringIntoView()
+//        }
+//    }
+
     Scaffold(
         topBar = {
             Appbar(stringResource(R.string.forgot_password),
@@ -76,7 +89,7 @@ fun ForgetPasswordScreen(
         }
     ) { contentPadding ->
         Column(
-            modifier = Modifier.getAppModifier(windowSizeClass,contentPadding,scrollState),
+            modifier = Modifier.screenModifier(windowSizeClass,contentPadding,scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -136,6 +149,7 @@ fun ForgetPasswordScreen(
                     onClick = { viewModel.onSubmit() },
                     text = stringResource(R.string.submit_button),
                     isLoading = viewModel.isLoading,
+                //    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
                 )
 
                 ErrorTextBuilder(viewModel.submitError)

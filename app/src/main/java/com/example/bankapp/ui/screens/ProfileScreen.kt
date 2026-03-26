@@ -141,7 +141,7 @@ fun ProfileScreen(
                 deviceSpec = deviceSpec
             )
         },
-        contentWindowInsets = WindowInsets.systemBars
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { contentPadding ->
         Box(
             modifier = Modifier

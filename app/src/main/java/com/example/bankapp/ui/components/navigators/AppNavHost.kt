@@ -1,5 +1,6 @@
 package com.example.bankapp.ui.components.navigators
 
+import SharedTransactionViewModel
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +56,8 @@ fun AppNavHost(
             MAIN_ROUTE
     }
 
+    val sharedTxVm: SharedTransactionViewModel = viewModel()
+
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -86,7 +89,8 @@ fun AppNavHost(
             userRepository = userRepository,
             filterViewModelFactory = viewModelContainer.filterViewModelFactory,
             transactionDetailsViewModelFactory = viewModelContainer.transactionDetailsViewModelFactory,
-            themeViewModel = themeViewModel
+            themeViewModel = themeViewModel,
+            sharedTransactionViewModel = sharedTxVm
         )
 
         splashNavGraph()

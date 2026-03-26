@@ -15,6 +15,7 @@ foundation = "1.10.3"
 runtime = "1.10.4"
 runtimeVersion = "1.10.5"
 foundationLayout = "1.10.5"
+foundationVersion = "1.10.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,7 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtimeVersion" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
+androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundationVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -12,19 +12,12 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Login
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Login
-import androidx.compose.material.icons.outlined.Phone
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -46,15 +39,14 @@ import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.REGISTER_ROUTE
 
-import com.example.bankapp.entities.types.ui.LoginType
-import com.example.bankapp.ui.components.MediumHorizontalSpacer
+import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.viewmodels.LoginViewModel
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
+import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.utilities.EmailFieldStrategy
 import com.example.bankapp.utilities.PasswordFieldStrategy
-import com.example.bankapp.utilities.PhoneNumberFieldStrategy
 
 
 @Composable
@@ -64,13 +56,10 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
 
     val scrollState = rememberScrollState()
 
+    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+
     val textFieldColumnWidth =
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> 0.9f
-            WindowWidthSizeClass.Medium -> 0.6f
-            WindowWidthSizeClass.Expanded -> 0.5f
-            else -> 0.8f
-        }
+        deviceSpec.textFieldWidth
 
     LaunchedEffect(loginViewModel.isLoginSuccessful) {
         if (loginViewModel.isLoginSuccessful) {
@@ -89,8 +78,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
 
     Scaffold { contentPadding ->
         Column(
-            modifier = Modifier.getAppModifier(windowSizeClass, contentPadding, scrollState),
-
+            modifier = Modifier.screenModifier(windowSizeClass, contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -126,7 +114,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                 UnifiedOutlinedTextField(
                     value = loginViewModel.userIdentifier,
                     onValueChange = loginViewModel::onIdentifierChange,
-                    labelText = stringResource(R.string.email_field_name),
+                    labelText = stringResource(R.string.email_or_phone_number_label),
                     isError = loginViewModel.userIdentifierError != null,
                     supportingText = {
                         ErrorTextBuilder(loginViewModel.userIdentifierError)

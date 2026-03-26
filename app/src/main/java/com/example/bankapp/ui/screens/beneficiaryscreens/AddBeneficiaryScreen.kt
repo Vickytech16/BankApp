@@ -46,6 +46,7 @@ import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
+import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.utilities.EmailFieldStrategy
 import com.example.bankapp.viewmodels.AddBeneficiaryViewModel
@@ -61,10 +62,6 @@ fun AddBeneficiaryScreen(
 
     val viewModel: AddBeneficiaryViewModel = viewModel(factory = beneficiaryViewModelFactory)
 
-    LaunchedEffect(Unit) {
-        HomeSessionHandlerProvider.setHandlerByIntent(CurrentSessionIntent.BENEFICIARY_ADDITION)
-    }
-
     val scrollState = rememberScrollState()
 
     LaunchedEffect(windowSizeClass.heightSizeClass) {
@@ -73,21 +70,16 @@ fun AddBeneficiaryScreen(
         }
     }
 
-
-
     LaunchedEffect(viewModel.isVerificationSuccessful) {
         if(viewModel.isVerificationSuccessful) {
-            viewModel.onVerificationSuccessful(navController)
             navController.navigate("$HOME_OTP/$ADD_BENEFICIARY_ROUTE")
         }
     }
 
-    val textFieldColumnWidth = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 0.9f
-        WindowWidthSizeClass.Medium -> 0.6f
-        WindowWidthSizeClass.Expanded -> 0.5f
-        else -> 0.8f
-    }
+    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+
+    val textFieldColumnWidth =
+        deviceSpec.textFieldWidth
 
     BackButtonHandler(navController, PAY_ROUTE)
 
@@ -169,15 +161,6 @@ fun AddBeneficiaryScreen(
                 ErrorTextBuilder(viewModel.submitError)
 
                 MediumSpacer()
-
-                LaunchedEffect(viewModel.isVerificationSuccessful) {
-                    if (viewModel.isVerificationSuccessful) {
-
-
-                                navController.navigate("$HOME_OTP/$ADD_BENEFICIARY_ROUTE")
-
-                    }
-                }
             }
         }
     }

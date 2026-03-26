@@ -34,6 +34,7 @@ import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.PasswordErrorTextBuilder
 import com.example.bankapp.ui.components.buttons.SubmitButton
+import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
@@ -81,7 +82,7 @@ fun ChangePasswordScreen(
         }
     ) { contentPadding ->
         Column(
-            modifier = Modifier.getAppModifier(windowSizeClass,contentPadding, scrollState),
+            modifier = Modifier.screenModifier(windowSizeClass,contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

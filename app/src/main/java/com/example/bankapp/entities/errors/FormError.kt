@@ -62,5 +62,8 @@ sealed class FormError(override val message: Int): UiError {
     object InvalidCashTransferAmountFormat:
             FormError(R.string.invalid_cash_transfer_amount_format_error)
 
+    object UserDoesNotHaveAccountError:
+            FormError(R.string.user_doesnt_have_account_error)
+
 
 }

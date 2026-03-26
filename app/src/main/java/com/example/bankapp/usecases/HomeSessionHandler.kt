@@ -20,7 +20,6 @@ sealed class HomeSessionHandler {
                 when (type) {
                     CurrentSessionIntent.CASH_TRANSFER -> CashTransfer()
                     CurrentSessionIntent.DEPOSIT -> Deposit()
-                    CurrentSessionIntent.BENEFICIARY_ADDITION -> AddBeneficiary()
                     else -> CashTransfer()
                 }
             }
@@ -151,47 +150,6 @@ sealed class HomeSessionHandler {
         }
     }
 
-    class AddBeneficiary: HomeSessionHandler(){
-        var currentUserId: Long = 0
-
-        var otherUserId: Long = 0
-
-        var nickname: String = ""
-
-        fun onInitialize(currentUserId: Long, otherUserId: Long, nickname: String){
-            this.currentUserId = currentUserId
-            this.otherUserId = otherUserId
-            this.nickname = nickname
-        }
-
-        var onActionSuccessPrimaryAction: (() -> Unit)? = null
-
-        var onActionFailurePrimaryAction: (() -> Unit)? = null
-
-        fun buildContent(isSuccess: Boolean){
-            resultContent =
-                if(isSuccess){
-                    ResultContent(
-                        text1 = UiText.StringResource(R.string.beneficiary_added_successfully),
-                        primaryButton = ResultButton(
-                            UiText.StringResource(R.string.done),
-                            {
-                                onActionSuccessPrimaryAction?.invoke()
-                            })
-                    )
-                 }
-                else{
-                    ResultContent(
-                        text1 = UiText.StringResource(R.string.failed_label),
-                        primaryButton = ResultButton(
-                            UiText.StringResource(R.string.try_again),
-                            {
-                                onActionFailurePrimaryAction?.invoke()
-                            })
-                    )
-                }
-        }
-    }
 }
 
 data class ResultContent(

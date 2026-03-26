@@ -92,6 +92,7 @@ class LoginViewModel (
         isLoading = true
 
         onPasswordChange(password)
+        onIdentifierChange(userIdentifier)
 
         viewModelScope.launch {
             try {

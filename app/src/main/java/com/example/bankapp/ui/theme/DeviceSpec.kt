@@ -216,7 +216,7 @@ sealed class DeviceSpec {
         override fun payScreenSectionTitleStyle(): TextStyle = MaterialTheme.typography.titleMedium
 
         @Composable
-        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelMedium
+        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelLarge
 
 
     }
@@ -318,7 +318,7 @@ sealed class DeviceSpec {
         override fun payScreenSectionTitleStyle(): TextStyle = MaterialTheme.typography.titleMedium
 
         @Composable
-        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelMedium
+        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelLarge
 
 
     }
@@ -380,7 +380,7 @@ sealed class DeviceSpec {
         override val profileCardPadding: Dp = AppSpacing.lg,
         override val profileSectionSpacing: Dp = AppSpacing.xl,
 
-        override val profileScreenWidthFaction: Float = 0.6f,
+        override val profileScreenWidthFaction: Float = 0.7f,
 
         override val beneficiaryGridColumnsSize: Int = 4,
         override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_tab,
@@ -420,7 +420,7 @@ sealed class DeviceSpec {
         override fun payScreenSectionTitleStyle(): TextStyle = MaterialTheme.typography.headlineSmall
 
         @Composable
-        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelMedium
+        override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelLarge
 
 
     }

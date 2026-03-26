@@ -1,5 +1,6 @@
 package com.example.bankapp.di.viewmodelfactory
 
+import SharedTransactionViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.entities.SessionState
@@ -12,7 +13,8 @@ class CashTransferViewModelFactory(
     private  val sessionState: SessionState.Authenticated.AccountRegistered,
     private val transactionRepository: TransactionRepository,
     private val beneficiaryRepository: BeneficiaryRepository,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val sharedTransactionViewModel: SharedTransactionViewModel
     ): ViewModelProvider.Factory {
 @Suppress("UNCHECKED_CAST")
 override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -21,7 +23,8 @@ override fun <T : ViewModel> create(modelClass: Class<T>): T {
             sessionState = sessionState,
             transactionRepository = transactionRepository,
             beneficiaryRepository = beneficiaryRepository,
-            accountRepository = accountRepository
+            accountRepository = accountRepository,
+            sharedTransactionViewModel
         ) as T
     }
     throw IllegalArgumentException("Unknown ViewModel class")

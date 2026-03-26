@@ -1,5 +1,7 @@
 package com.example.bankapp.ui.screens
 
+import FlowData
+import SharedTransactionViewModel
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +39,15 @@ import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.entities.types.ActionState
+import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
+import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
+import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
+import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_ROUTE
+import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
+import com.example.bankapp.ui.components.navigators.PAY_ROUTE
+import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.usecases.HomeSessionHandler
+import com.example.bankapp.usecases.ResultContent
 
 import com.example.bankapp.viewmodels.TransactionResultViewModel
 import kotlinx.coroutines.delay
@@ -46,13 +56,110 @@ import kotlinx.coroutines.delay
 @Composable
 fun TransactionResultScreen(
     transactionResultViewModelFactory: TransactionResultViewModelFactory,
-    navController: NavController
+    navController: NavController,
+    sharedTransactionViewModel: SharedTransactionViewModel
 ) {
     val viewModel: TransactionResultViewModel = viewModel(factory = transactionResultViewModelFactory)
-    val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
 
-    val actionState = homeSessionHandler.actionState
-    val resultContent = homeSessionHandler.resultContent
+    val actionState = sharedTransactionViewModel.actionState
+
+    LaunchedEffect(Unit) {
+        if(!viewModel.actionExecuted) {
+            viewModel.actionExecuted = true
+            when(sharedTransactionViewModel.flowData){
+                is FlowData.CashTransfer -> viewModel.cashTransfer(sharedTransactionViewModel.flowData as FlowData.CashTransfer)
+                is FlowData.AddBeneficiary -> viewModel.AddBeneficiary(sharedTransactionViewModel.flowData as FlowData.AddBeneficiary)
+                is FlowData.Deposit -> viewModel.Deposit(sharedTransactionViewModel.flowData as FlowData.Deposit)
+                else -> {}
+            }
+        }
+    }
+
+    val resultContent = when(sharedTransactionViewModel.flowData) {
+        is FlowData.CashTransfer -> {
+            val flowData = sharedTransactionViewModel.flowData as FlowData.CashTransfer
+            sharedTransactionViewModel.getResultContent(
+                onDone = {
+                    val transactionId = flowData.transactionId
+                    if (transactionId != null) {
+                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
+                            popUpTo(HOME_ROUTE) {
+                                inclusive = false
+                            }
+                        }
+                    } else {
+                        navController.navigate(HOME_ROUTE) {
+                            popUpTo(MAIN_ROUTE) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                },
+                onRetry = {
+                    navController.navigate(CASH_TRANSFER_ROUTE) {
+                        popUpTo(HOME_ROUTE) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+        is FlowData.AddBeneficiary -> {
+            sharedTransactionViewModel.getResultContent(
+                onDone = {
+                    navController.navigate(HOME_ROUTE) {
+                        popUpTo(HOME_ROUTE){
+                            inclusive = false
+                        }
+                    }
+                },
+                onRetry = {
+                    navController.navigate(ADD_BENEFICIARY_ROUTE) {
+                        popUpTo(PAY_ROUTE){
+                            inclusive = false
+                        }
+                    }
+                }
+            )
+        }
+        is FlowData.Deposit -> {
+            val flowData = sharedTransactionViewModel.flowData as FlowData.Deposit
+            sharedTransactionViewModel.getResultContent(
+                onDone = {
+                    val transactionId = flowData.transactionId
+                    if (transactionId != null) {
+                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
+                            popUpTo(HOME_ROUTE) {
+                                inclusive = false
+                            }
+                        }
+                    } else {
+                        navController.navigate(HOME_ROUTE) {
+                            popUpTo(MAIN_ROUTE) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                },
+                onRetry = {
+                    navController.navigate(DEPOSIT_ROUTE) {
+                        popUpTo(HOME_ROUTE) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+        else ->
+            sharedTransactionViewModel.getResultContent(
+                onDone = {
+                    navController.navigate(HOME_ROUTE)
+                },
+                onRetry = {
+                    navController.navigate(PAY_ROUTE)
+                }
+            )
+    }
 
     val showContent = remember { mutableStateOf(false) }
 
@@ -64,17 +171,6 @@ fun TransactionResultScreen(
     val failureComposition = rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.fail)
     )
-
-    LaunchedEffect(Unit) {
-        if(!viewModel.actionExecuted) {
-            viewModel.actionExecuted = true
-            when(homeSessionHandler){
-                is HomeSessionHandler.CashTransfer -> viewModel.cashTransfer()
-                is HomeSessionHandler.Deposit -> viewModel.Deposit()
-                is HomeSessionHandler.AddBeneficiary -> viewModel.AddBeneficiary()
-            }
-        }
-    }
 
     LaunchedEffect(actionState) {
         if (actionState == ActionState.SUCCESS || actionState == ActionState.FAILURE) {
@@ -100,11 +196,9 @@ fun TransactionResultScreen(
                 ActionState.LOADING -> {
                     CircularProgressIndicator()
                 }
-
                 ActionState.SUCCESS,
                 ActionState.FAILURE -> {
                     val isSuccess = actionState == ActionState.SUCCESS
-
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top,
@@ -138,11 +232,11 @@ fun TransactionResultScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 listOfNotNull(
-                                    resultContent?.text1,
-                                    resultContent?.text2,
-                                    resultContent?.text3,
-                                    resultContent?.text4,
-                                    resultContent?.text5
+                                    resultContent.text1,
+                                    resultContent.text2,
+                                    resultContent.text3,
+                                    resultContent.text4,
+                                    resultContent.text5
                                 ).forEachIndexed { index, text ->
                                     val (style, color) = when (index) {
                                         0 -> Pair(
@@ -171,7 +265,7 @@ fun TransactionResultScreen(
                                 XLSpacer()
                                 LargeSpacer()
 
-                                if (resultContent?.secondaryButton == null && resultContent?.primaryButton != null) {
+                                if (resultContent.secondaryButton == null && resultContent.primaryButton != null) {
                                     resultContent.primaryButton.let { button ->
                                         SubmitButton(
                                             onClick = button.onClick,
@@ -179,7 +273,7 @@ fun TransactionResultScreen(
                                             modifier = Modifier.fillMaxWidth(0.7f)
                                         )
                                     }
-                                } else if (resultContent?.primaryButton != null || resultContent?.secondaryButton != null) {
+                                } else if (resultContent.primaryButton != null || resultContent.secondaryButton != null) {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth(0.9f)
@@ -193,7 +287,6 @@ fun TransactionResultScreen(
                                                 modifier = Modifier.weight(1f)
                                             )
                                         }
-
                                         resultContent.primaryButton?.let { button ->
                                             SubmitButton(
                                                 onClick = button.onClick,
@@ -210,7 +303,6 @@ fun TransactionResultScreen(
                     }
                 }
             }
-
             Spacer(Modifier.weight(1f))
         }
     }

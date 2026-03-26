@@ -1,6 +1,8 @@
 package com.example.bankapp.ui.components.navigators
 
+import SharedTransactionViewModel
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -44,12 +46,6 @@ import com.example.bankapp.ui.screens.authscreens.OtpScreen
 import com.example.bankapp.viewmodels.ThemeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
-sealed class TransactionScreen(val route: String) {
-    object CashTransferDetailScreen : TransactionScreen("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/{transactionId}") {
-        fun createRoute(transactionId: String): String = "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId"
-    }
-}
-
 fun NavGraphBuilder.homeNavGraph(
     navController: NavController,
     windowSizeClass: WindowSizeClass,
@@ -63,7 +59,8 @@ fun NavGraphBuilder.homeNavGraph(
     userRepository: UserRepository,
     filterViewModelFactory: FilterViewModelFactory,
     transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory,
-    themeViewModel: ThemeViewModel
+    themeViewModel: ThemeViewModel,
+    sharedTransactionViewModel: SharedTransactionViewModel
 ) {
     navigation(
         startDestination = HOME_ROUTE,
@@ -76,22 +73,21 @@ fun NavGraphBuilder.homeNavGraph(
             val homeViewModelFactory =
                 HomeViewModelFactory(sessionState, accountRepository)
             val cashTransferViewModelFactory =
-                CashTransferViewModelFactory(sessionState, transactionRepository, beneficiaryRepository, accountRepository )
+                CashTransferViewModelFactory(sessionState, transactionRepository, beneficiaryRepository, accountRepository, sharedTransactionViewModel )
             val depositViewModelFactory =
-                DepositViewModelFactory(sessionState, transactionRepository)
+                DepositViewModelFactory(sessionState, sharedTransactionViewModel)
             val passwordConfirmationViewModelFactory =
                 PasswordConfirmationViewModelFactory(sessionState)
             val transactionResultViewModelFactory =
-                TransactionResultViewModelFactory(sessionState,transactionRepository, beneficiaryRepository)
+                TransactionResultViewModelFactory(transactionRepository, beneficiaryRepository, sharedTransactionViewModel)
             val beneficiaryViewModelFactory =
-                AddBeneficiaryViewModelFactory(userRepository = userRepository, beneficiaryRepository = beneficiaryRepository, sessionState = sessionState)
+                AddBeneficiaryViewModelFactory(userRepository = userRepository, beneficiaryRepository = beneficiaryRepository, sessionState = sessionState, sharedTransactionViewModel = sharedTransactionViewModel, accountRepository = accountRepository)
             val payToBeneficiaryViewModelFactory =
                 PayToBeneficiaryViewModelFactory(beneficiaryRepository = beneficiaryRepository, sessionState = sessionState)
             val profileViewModelFactory =
                 ProfileViewModelFactory(userRepository = userRepository, accountRepository = accountRepository, sessionState = sessionState)
             val manageBeneficiaryViewModelFactory =
                 ManageBeneficiaryViewModelFactory(sessionState = sessionState, beneficiaryRepository = beneficiaryRepository)
-
 
             composable(HOME_ROUTE) {
                 val transactionsViewModel: TransactionsViewModel =
@@ -193,8 +189,7 @@ fun NavGraphBuilder.homeNavGraph(
                     passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
                     onDismissRoute = backRoute,
                     onPasswordVerificationSuccess = {
-                        val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
-                        homeSessionHandler.onPasswordSuccess()
+                          sharedTransactionViewModel.proceedAfterPassword(navController)
                     }
                 )
             }
@@ -202,7 +197,8 @@ fun NavGraphBuilder.homeNavGraph(
             composable(TRANSACTION_RESULT_ROUTE) {
                 TransactionResultScreen(
                     transactionResultViewModelFactory,
-                    navController
+                    navController,
+                    sharedTransactionViewModel
                 )
             }
 
@@ -240,17 +236,16 @@ fun NavGraphBuilder.homeNavGraph(
                 )
             ) { backStackEntry ->
                 val backRoute = backStackEntry.arguments?.getString("backRoute") ?: MAIN_ROUTE
-                val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
                 OtpScreen(
                     navController = navController,
                     notificationViewModelFactory = notificationViewModelFactory,
                     otpViewModelFactory = otpViewModelFactory,
                     backRoute = backRoute,
                     onOtpSuccess = {
-                        homeSessionHandler.onOtpSuccess()
+                       sharedTransactionViewModel.proceedAfterOtp(navController)
                     },
                     onDismiss = {
-                        homeSessionHandler.onOtpDismiss()
+
                     }
                 )
             }

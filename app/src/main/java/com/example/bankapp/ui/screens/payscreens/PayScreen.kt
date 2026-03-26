@@ -2,6 +2,7 @@ package com.example.bankapp.ui.screens.payscreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bankapp.R
+import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
 import com.example.bankapp.ui.components.buttons.ActionButton
@@ -79,7 +81,7 @@ fun PayScreen(
                 deviceSpec = deviceSpec
             )
         },
-        contentWindowInsets = WindowInsets.systemBars
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { contentPadding ->
 
         Box(
@@ -89,6 +91,7 @@ fun PayScreen(
             contentAlignment = Alignment.TopCenter
         ) {
 
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
@@ -96,10 +99,16 @@ fun PayScreen(
                     .padding(top = AppSpacing.md, bottom = AppSpacing.xl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                XLSpacer()
+
+
+
                 PaySectionCard(
                     title = stringResource(R.string.pay_section_label),
                     deviceSpec = deviceSpec
                 ) {
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly

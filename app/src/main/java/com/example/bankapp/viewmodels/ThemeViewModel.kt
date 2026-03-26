@@ -24,7 +24,7 @@ class ThemeViewModel(
         ThemeType.fromStringToThemeType(themeString)
     }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(500),
             initialValue = ThemeType.SYSTEM_DEFAULT
         )
 

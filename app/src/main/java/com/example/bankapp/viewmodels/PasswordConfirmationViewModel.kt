@@ -19,8 +19,7 @@ import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 import kotlinx.coroutines.launch
 
 class PasswordConfirmationViewModel(
-    private val sessionState: SessionState.Authenticated.AccountRegistered,
-   // private val transactionSessionHolder: TransactionSessionHolder
+    sessionState: SessionState.Authenticated.AccountRegistered,
 ) : ViewModel() {
 
     private val user = sessionState.user
@@ -40,7 +39,7 @@ class PasswordConfirmationViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
-    var showPasswordDialog by mutableStateOf(true)
+    var showPasswordDialog by mutableStateOf(false)
         private set
 
     fun onPasswordDialogDismiss() {
@@ -88,10 +87,9 @@ class PasswordConfirmationViewModel(
                     submitError = FormError.InvalidData
                     return@launch
                 }
+
                 if (PasswordHashingService.matches(password, user.passwordHashed)) {
                     isPasswordVerified = true
-                    showPasswordDialog = false
-                    showCancelDialog = false
                 } else {
                     submitError = FormError.PasswordDoesntMatch
                 }
@@ -101,5 +99,13 @@ class PasswordConfirmationViewModel(
                 isLoading = false
             }
         }
+    }
+
+
+    fun resetScreenState() {
+
+        showPasswordDialog = false
+        showCancelDialog = false
+        isPasswordVerified = false
     }
 }

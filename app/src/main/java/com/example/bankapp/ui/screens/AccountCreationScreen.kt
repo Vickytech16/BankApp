@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.entities.types.account.AccountType
@@ -28,7 +27,7 @@ import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.RadioButtonSelector
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.screens.authscreens.getAppModifier
+import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.utilities.AmountFieldStrategy
 import com.example.bankapp.utilities.PasswordFieldStrategy
 import com.example.bankapp.viewmodels.AccountCreationViewModel
@@ -52,7 +51,7 @@ fun AccountCreationScreen( accountCreationViewModelFactory: AccountCreationViewM
     Scaffold() {
         contentPadding ->
         Column(
-            modifier = Modifier.getAppModifier(windowSizeClass, contentPadding, scrollState),
+            modifier = Modifier.screenModifier(windowSizeClass, contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
