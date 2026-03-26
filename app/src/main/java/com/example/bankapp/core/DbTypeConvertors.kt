@@ -1,13 +1,14 @@
 package com.example.bankapp.core
 
 import androidx.room.TypeConverter
+import com.example.bankapp.core.datecompatability.BankDateFactory
+import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.entities.types.transaction.LedgerDirection
 import com.example.bankapp.entities.types.transaction.TransactionFailureType
 import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.entities.types.transaction.TransactionType
 import java.math.BigDecimal
-import java.time.LocalDateTime
 
 class DbTypeConvertors {
     @TypeConverter
@@ -15,12 +16,6 @@ class DbTypeConvertors {
 
     @TypeConverter
     fun toBigDecimal(value: String): BigDecimal = BigDecimal(value)
-
-    @TypeConverter
-    fun fromLocalDateTime(date: LocalDateTime): String = date.toString()
-
-    @TypeConverter
-    fun toLocalDateTime(value: String): LocalDateTime = LocalDateTime.parse(value)
 
     @TypeConverter
     fun fromAccountType(type: AccountType): String = type.name
@@ -51,5 +46,15 @@ class DbTypeConvertors {
 
     @TypeConverter
     fun toTransactionFailureType(value: String?): TransactionFailureType? = value?.let { TransactionFailureType.valueOf(it) }
+
+    @TypeConverter
+    fun fromBankDate(date: BankDateTime?): Long? {
+        return date?.epochMillis
+    }
+
+    @TypeConverter
+    fun toBankDate(millis: Long?): BankDateTime? {
+        return millis?.let { BankDateFactory.fromMillis(it) }
+    }
 
 }

@@ -14,6 +14,7 @@ import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.entities.dbtables.Account
+import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
 import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
@@ -113,7 +114,7 @@ class AddBeneficiaryViewModel(
                     }
                     else {
                         if(beneficiaryRepository.getBeneficiary(sessionState.user.userId, friend.userId) == null){
-                            if(accountRepository.getAccountByUserId(friend.userId) == emptyList<Account>()){
+                            if(accountRepository.getAccountByUserId(friend.userId).isEmpty()){
                                 submitError = FormError.UserDoesNotHaveAccountError
                             }else {
                                 sharedTransactionViewModel.initializeAddBeneficiary(

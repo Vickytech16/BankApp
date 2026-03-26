@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.types.account.AccountType
+import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
@@ -37,7 +38,7 @@ import com.example.bankapp.utilities.uiAccNo
 
 @Composable
 fun HomeScreenCard(
-    account: Account,
+    account: AccountUiModel,
     isBalanceVisible: Boolean,
     onIsBalanceVisibleChange: () -> Unit,
     deviceSpec: DeviceSpec

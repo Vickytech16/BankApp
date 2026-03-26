@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.dbtables.Beneficiary
 import com.example.bankapp.entities.dtos.BeneficiaryDto
@@ -124,7 +125,7 @@ class ManageBeneficiaryViewModel(
                         beneficiaryUserId = friend.friendUserId,
                         nickname = nickname,
                         isFavorite = false,
-                        addedDate = ""
+                        addedDate = BankDateFactory.now().epochMillis
                     )
                     beneficiaryRepository.updateBeneficiary(beneficiary)
                     viewModelScope.launch {

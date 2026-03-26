@@ -8,7 +8,6 @@ import androidx.room.PrimaryKey
 import com.example.bankapp.entities.types.transaction.TransactionFailureType
 import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.entities.types.transaction.TransactionType
-import java.time.LocalDateTime
 
 @Entity(tableName = "transactions",
     indices = [
@@ -23,7 +22,7 @@ data class Transaction(
     val transactionType: TransactionType,
     val transactionStatus: TransactionStatus,
     val idempotencyKey: String,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: Long,
+    val updatedAt: Long,
     val failureType: TransactionFailureType? = null
 )

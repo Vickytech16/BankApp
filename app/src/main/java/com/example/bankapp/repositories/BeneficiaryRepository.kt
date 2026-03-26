@@ -1,16 +1,14 @@
 package com.example.bankapp.repositories
 
 
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.dbtables.Beneficiary
 import com.example.bankapp.daos.BeneficiaryDao
 import com.example.bankapp.entities.dtos.BeneficiaryDto
-import com.example.bankapp.utilities.toDbFormat
-import com.example.bankapp.utilities.uiUserId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+
 
 class BeneficiaryRepository(private val beneficiaryDao: BeneficiaryDao, private val userRepository: UserRepository) {
 
@@ -20,7 +18,7 @@ class BeneficiaryRepository(private val beneficiaryDao: BeneficiaryDao, private 
     suspend fun addBeneficiary(userId: Long, beneficiaryUserId: Long, nickname: String? = null): Long {
        return withContext(Dispatchers.IO) {
 
-            val currentDate = LocalDateTime.now().toDbFormat()
+            val currentDate = BankDateFactory.now().epochMillis
 
             val currentNickName =
                 nickname  ?: ""

@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
@@ -23,9 +24,8 @@ import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_R
 import com.example.bankapp.ui.screens.uiAmountDisplay
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import com.example.bankapp.utilities.isSameDay
+
 
 
 
@@ -39,17 +39,14 @@ fun TransactionLazyList(
     deviceSpec: DeviceSpec
 ) {
     val groupedTransactions = transactions.groupBy { transaction ->
-        val transactionDate = LocalDate.parse(
-            transaction.transactionDate.substringBefore("T"),
-            DateTimeFormatter.ISO_LOCAL_DATE
-        )
-        val today = LocalDate.now()
+        val transactionDate = transaction.transactionDate
+        val today = BankDateFactory.now()
         val yesterday = today.minusDays(1)
 
         when {
-            transactionDate == today -> stringResource(R.string.today)
-            transactionDate == yesterday -> stringResource(R.string.yesterday)
-            else -> transactionDate.format(DateTimeFormatter.ofPattern("dd MMMM", Locale.getDefault()))
+            transactionDate.isSameDay(today) -> stringResource(R.string.today)
+            transactionDate.isSameDay(yesterday) -> stringResource(R.string.yesterday)
+            else -> transactionDate.toMonthDayDisplay()
         }
     }
 

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.UserRepository
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +36,7 @@ class ProfileViewModel(
 ) : ViewModel() {
 
 
-    val account: StateFlow<Account> = accountRepository
+    val account: StateFlow<AccountUiModel> = accountRepository
         .getAccountAsFlowByAccountNumber(sessionState.account.accNo).map { it!! }
         .stateIn(
             scope = viewModelScope,

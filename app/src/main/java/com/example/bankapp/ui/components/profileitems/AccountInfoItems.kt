@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.Account
+import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.screens.ProfileDivider
 import com.example.bankapp.ui.theme.AppSpacing
@@ -36,7 +37,7 @@ fun ProfileAccountCard(
     title: String,
     deviceSpec: DeviceSpec,
     viewModel: ProfileViewModel,
-    account: Account
+    account: AccountUiModel
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),

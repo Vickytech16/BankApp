@@ -4,12 +4,22 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CountryDto(
-    val name: String,
-    val emoji: String,
-    val phone: List<String>,
+data class Country(
+    val countryCode: String,
+    val countryName: String,
+    val countryFlagEmoji: String,
+    val countryPhoneCode: List<String>,
     val timezones: Map<String, String>,
     val iso: IsoDetails
+)
+
+data class CountryDto(
+    val code: String,
+    val name: String,
+    val emoji: String,
+    val phonePrefix: String,
+    val timezones: List<String>,
+    val displayTimezone: String
 )
 
 @Serializable

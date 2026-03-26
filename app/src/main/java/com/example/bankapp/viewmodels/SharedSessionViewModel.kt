@@ -4,6 +4,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.types.ActionState
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
@@ -12,7 +13,6 @@ import com.example.bankapp.usecases.ResultButton
 import com.example.bankapp.usecases.ResultContent
 import com.example.bankapp.usecases.UiText
 import java.math.BigDecimal
-import java.time.LocalDateTime
 
 
 class SharedTransactionViewModel : ViewModel() {
@@ -90,14 +90,14 @@ class SharedTransactionViewModel : ViewModel() {
                 ResultContent(
                     text1 = UiText.StringResource(successMessage),
                     text2 = UiText.DynamicString((flowData as FlowData.CashTransfer).amount.toString()),
-                    text3 = UiText.DynamicString(LocalDateTime.now().toString()),
+                    text3 = UiText.DynamicString(BankDateFactory.now().toString()),
                     primaryButton = ResultButton(UiText.StringResource(R.string.done), onDone)
                 )
               }    else {
                 ResultContent(
                     text1 = UiText.StringResource(R.string.transaction_failed),
                     text2 = UiText.StringResource(failureReason),
-                    text3 = UiText.DynamicString(LocalDateTime.now().toString()),
+                    text3 = UiText.DynamicString(BankDateFactory.now().toString()),
                     primaryButton = ResultButton(UiText.StringResource(R.string.try_again), onRetry)
                 )
             }
@@ -122,7 +122,7 @@ class SharedTransactionViewModel : ViewModel() {
                     ResultContent(
                         text1 = UiText.StringResource(R.string.transaction_success),
                         text2 = UiText.DynamicString((flowData as FlowData.Deposit).amount.toString()),
-                        text3 = UiText.DynamicString(java.time.LocalDateTime.now().toString()),
+                        text3 = UiText.DynamicString(BankDateFactory.now().toString()),
                         primaryButton = ResultButton(text = UiText.StringResource(R.string.done), onDone),
                     )
                 }

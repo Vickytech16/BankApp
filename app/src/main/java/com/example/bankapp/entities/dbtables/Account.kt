@@ -7,7 +7,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.bankapp.entities.types.account.AccountType
 import java.math.BigDecimal
-import java.time.LocalDateTime
 
 @Entity(
     tableName = "accounts",
@@ -28,6 +27,6 @@ data class Account(
     val ifscCode: String="VANGI00001",
     val accountType: AccountType,
     val balance: BigDecimal = BigDecimal.ZERO,
-    val createdAt: LocalDateTime,
-    var updatedAt: LocalDateTime
+    val createdAt: Long,
+    var updatedAt: Long
 )

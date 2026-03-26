@@ -36,18 +36,15 @@ import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
-import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.entities.types.ActionState
+import com.example.bankapp.entities.types.ui.ResultContent
 import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_ROUTE
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
-import com.example.bankapp.usecases.CurrentSessionIntent
-import com.example.bankapp.usecases.HomeSessionHandler
-import com.example.bankapp.usecases.ResultContent
 
 import com.example.bankapp.viewmodels.TransactionResultViewModel
 import kotlinx.coroutines.delay
@@ -75,7 +72,7 @@ fun TransactionResultScreen(
         }
     }
 
-    val resultContent = when(sharedTransactionViewModel.flowData) {
+    val resultContent: ResultContent = when(sharedTransactionViewModel.flowData) {
         is FlowData.CashTransfer -> {
             val flowData = sharedTransactionViewModel.flowData as FlowData.CashTransfer
             sharedTransactionViewModel.getResultContent(

@@ -2,6 +2,7 @@ package com.example.bankapp.repositories
 
 import androidx.room.withTransaction
 import com.example.bankapp.core.BankDatabase
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.daos.AccountDao
 import com.example.bankapp.daos.LedgerDao
 import com.example.bankapp.daos.TransactionDao
@@ -19,7 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
-import java.time.LocalDateTime
+
 import java.util.UUID
 
 class TransactionRepository(
@@ -125,12 +126,12 @@ class TransactionRepository(
                 return@withTransaction TransactionResult.Error.InsufficientBalance
             }
 
-            accountDao.withdraw(amount, LocalDateTime.now(), fromAccountNo)
+            accountDao.withdraw(amount, BankDateFactory.now().epochMillis, fromAccountNo)
 
             transactionDao.update(updatedTransaction)
 
             val isDepositSuccessful =
-                accountDao.deposit(amount, LocalDateTime.now(), toAccountNo)
+                accountDao.deposit(amount, BankDateFactory.now().epochMillis, toAccountNo)
             if(isDepositSuccessful==0){
                 updatedTransaction = getUpdatedTransaction(transaction, TransactionStatus.FAILED,
                     TransactionFailureType.UNKNOWN_ERROR)
@@ -188,7 +189,7 @@ class TransactionRepository(
                 getUpdatedTransaction(transaction, TransactionStatus.COMPLETED)
 
             val isDepositSuccessful =
-                accountDao.deposit(amount, LocalDateTime.now(), account.accNo)
+                accountDao.deposit(amount, BankDateFactory.now().epochMillis, account.accNo)
 
             if (isDepositSuccessful == 0){
                 updatedTransaction = getUpdatedTransaction(transaction, TransactionStatus.FAILED,
@@ -223,7 +224,7 @@ class TransactionRepository(
            transactionType = transaction.transactionType,
            transactionStatus = transactionStatus,
            createdAt = transaction.createdAt,
-           updatedAt = LocalDateTime.now(),
+           updatedAt = BankDateFactory.now().epochMillis,
            failureType = failureType
        )
         return newTransaction
@@ -242,8 +243,8 @@ class TransactionRepository(
                 transactionType = transactionType,
                 transactionStatus = transactionStatus,
                 idempotencyKey = idempotencyKey,
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
+                createdAt = BankDateFactory.now().epochMillis,
+                updatedAt = BankDateFactory.now().epochMillis,
             )
 
             val isTransactionSuccessful = transactionDao.insert(transaction)

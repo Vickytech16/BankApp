@@ -5,17 +5,13 @@ import SharedTransactionViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.TransactionResult
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
 
-import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.entities.types.ActionState
-import com.example.bankapp.usecases.HomeSessionHandler
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -31,13 +27,12 @@ class TransactionResultViewModel(
 
     fun cashTransfer(cashTransferFlowData: FlowData.CashTransfer){
 
-        val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
 
         viewModelScope.launch {
             try{
                 if(cashTransferFlowData.toAccNo==0.toLong()){
                     transactionResult = TransactionResult.Error.UnKnown
-                    homeSessionHandler.onActionStateChange(ActionState.FAILURE)
+                    sharedTransactionViewModel.actionState = ActionState.FAILURE
                     return@launch
                 }
 
@@ -59,13 +54,11 @@ class TransactionResultViewModel(
                         sharedTransactionViewModel.actionState = ActionState.FAILURE
                         sharedTransactionViewModel.failureReason = reason
                     }
-                    else -> {
-                        homeSessionHandler.onActionStateChange(ActionState.FAILURE)
-                    }
+                    else -> {}
                 }
             }catch (e: Exception){
                 e.printStackTrace()
-                homeSessionHandler.onActionStateChange(ActionState.FAILURE)
+                sharedTransactionViewModel.actionState = ActionState.FAILURE
             }finally {
                 idempotencyKey = UUID.randomUUID().toString()
             }
@@ -129,7 +122,6 @@ class TransactionResultViewModel(
             }
 
         }
-
     }
 }
 

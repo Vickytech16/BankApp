@@ -2,6 +2,7 @@ package com.example.bankapp.entities
 
 import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.dbtables.User
+import com.example.bankapp.entities.uimodels.AccountUiModel
 
 
 sealed class SessionState {
@@ -12,7 +13,7 @@ sealed class SessionState {
 
     sealed class Authenticated() : SessionState() {
 
-        data class AccountRegistered(val user: User, val account: Account) : SessionState()
+        data class AccountRegistered(val user: User, val account: AccountUiModel) : SessionState()
 
         data class AccountNotRegistered(val user: User): SessionState()
     }

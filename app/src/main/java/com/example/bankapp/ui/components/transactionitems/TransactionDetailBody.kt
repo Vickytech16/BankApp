@@ -28,7 +28,6 @@ import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.ui.theme.amountGreenColor
-import com.example.bankapp.utilities.formatTransactionDateTime
 
 @Composable
 fun TransactionDetailBody(
@@ -125,7 +124,7 @@ fun TransactionDetailBody(
         MediumSpacer()
 
         Text(
-            text = formatTransactionDateTime(transactionItem.transactionDate),
+            text = transactionItem.transactionDate.toFullDateTimeDisplay(),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

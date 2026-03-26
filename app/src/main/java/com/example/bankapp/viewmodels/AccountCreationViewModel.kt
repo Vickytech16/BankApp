@@ -8,10 +8,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.TransactionResult
 import com.example.bankapp.entities.types.account.AccountType
+import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.services.PasswordHashingService
@@ -21,11 +23,11 @@ import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.amountFieldValidator
 import com.example.bankapp.utilities.depositAmountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
+import com.example.bankapp.utilities.mappers.toUiModel
 
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.util.UUID
 
 class AccountCreationViewModel(
@@ -94,7 +96,6 @@ class AccountCreationViewModel(
 
     private var idempotencyKey = UUID.randomUUID().toString()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onSubmit(){
 
         if(isLoading)
@@ -132,11 +133,11 @@ class AccountCreationViewModel(
                     else {
                         if (PasswordHashingService.matches(password, user.passwordHashed)) {
                             isSubmitSuccessful = true
-                            val account = Account(
+                            val account = AccountUiModel(
                                 userId = user.userId,
                                 accountType = accountType,
-                                createdAt = LocalDateTime.now(),
-                                updatedAt = LocalDateTime.now()
+                                createdAt = BankDateFactory.now(),
+                                updatedAt = BankDateFactory.now()
                             )
 
                             val accNo =

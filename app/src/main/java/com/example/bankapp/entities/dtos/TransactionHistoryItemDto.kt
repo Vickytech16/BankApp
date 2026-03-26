@@ -1,6 +1,8 @@
 package com.example.bankapp.entities.dtos
 
 import androidx.room.ColumnInfo
+import com.example.bankapp.core.datecompatability.BankDateFactory
+import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.entities.types.transaction.TransactionFailureType
 import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.entities.types.transaction.TransactionType
@@ -12,7 +14,7 @@ data class TransactionHistoryItemDto(
     val transactionType: TransactionType,
 
     @ColumnInfo(name = "transaction_date")
-    val transactionDate: String,
+    val transactionDate: BankDateTime,
 
     val amount: String,
 
@@ -31,7 +33,7 @@ data class TransactionHistoryItemDto(
     val transactionStatus: TransactionStatus? = null,
 
     @ColumnInfo(name = "updated_at")
-    val updatedAt: String = "",
+    val updatedAt: BankDateTime = transactionDate,
 
     @ColumnInfo(name = "failure_type")
     val failureType: TransactionFailureType? = null,

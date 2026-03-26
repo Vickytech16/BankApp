@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.SessionState
+import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.repositories.AccountRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,7 @@ class HomeViewModel(
     val user by mutableStateOf(sessionState.user)
 
     val username = user.userName
-    val account: StateFlow<Account> = accountRepository
+    val account: StateFlow<AccountUiModel> = accountRepository
         .getAccountAsFlowByAccountNumber(sessionState.account.accNo).map { it!! }
         .stateIn(
             scope = viewModelScope,
@@ -41,6 +42,4 @@ class HomeViewModel(
     fun onLogoutClickChange(newValue: Boolean) {
         showLogoutDialog = newValue
     }
-
-
 }

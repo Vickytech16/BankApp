@@ -206,7 +206,9 @@ class RegisterViewModel(
                                 userName = userName
                                     .trim()
                                     .replace(Regex("\\s+"), " "),
-                                phoneNumber = phoneNumber.trim()
+                                phoneNumber = phoneNumber.trim(),
+                                countryCode = "INdia",
+                                timeZone = "jfj"
                             )
                         )
                     }

@@ -1,7 +1,5 @@
 package com.example.bankapp.ui.screens
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,11 +47,7 @@ import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.viewmodels.FilterViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionsScreen(
@@ -199,18 +193,6 @@ fun TransactionsScreen(
     }
 }
 
-
-
-fun String.toMonthAndDayOnlyDate(): String{
-    return try {
-        val truncated = this.substringBeforeLast(".")
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-        val parsed = LocalDateTime.parse(truncated, formatter)
-        parsed.format(DateTimeFormatter.ofPattern("dd MMMM", Locale.getDefault()))
-    } catch (e: Exception) {
-        this
-    }
-}
 
 fun String.uiAmountDisplay(): String {
     val parts = this.split(".")

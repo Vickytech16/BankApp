@@ -6,29 +6,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.FormError
-import com.example.bankapp.entities.errors.TransactionResult
-import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
-import com.example.bankapp.ui.components.navigators.HOME_ROUTE
-import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_ROUTE
-import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
-import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
-import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.di.providers.HomeSessionHandlerProvider
-import com.example.bankapp.usecases.CurrentSessionIntent
-import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.amountFieldValidator
-import com.example.bankapp.utilities.cashTransferAmountRegex
 import com.example.bankapp.utilities.depositAmountRegex
 
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class DepositViewModel(
     sessionState: SessionState.Authenticated.AccountRegistered,

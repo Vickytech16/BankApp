@@ -47,19 +47,11 @@ import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
-import com.example.bankapp.ui.components.navigators.HOME_ROUTE
-import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_ROUTE
-import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
-import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
-import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.di.providers.HomeSessionHandlerProvider
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.textfields.AccountNumberOutlinedTextField
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.usecases.CurrentSessionIntent
-import com.example.bankapp.usecases.HomeSessionHandler
 import com.example.bankapp.utilities.AmountFieldStrategy
 import com.example.bankapp.utilities.toDbAccNo
 import com.example.bankapp.viewmodels.CashTransferViewModel
@@ -77,7 +69,6 @@ fun CashTransferScreen(
     val viewModel: CashTransferViewModel = viewModel(factory = cashTransferViewModelFactory)
 
     LaunchedEffect(Unit) {
-        HomeSessionHandlerProvider.setHandlerByIntent(CurrentSessionIntent.CASH_TRANSFER)
         friendAccNo?.let {
             viewModel.onFriendPay(friendAccNo)
         }

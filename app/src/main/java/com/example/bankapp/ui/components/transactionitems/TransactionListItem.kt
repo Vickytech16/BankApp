@@ -1,7 +1,5 @@
 package com.example.bankapp.ui.components.transactionitems
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,13 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.entities.types.transaction.LedgerDirection
 import com.example.bankapp.ui.components.UserAvatar
-import com.example.bankapp.ui.screens.toMonthAndDayOnlyDate
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.amountGreenColor
@@ -33,12 +30,12 @@ fun TransactionListItem(
     counterPartyName: String,
     transactionDirection: LedgerDirection?,
     amount: String,
-    transactionDate: String,
+    transactionDate: BankDateTime,
     pfpURL: String? = null,
     onClickAction: () -> Unit = {},
     deviceSpec: DeviceSpec
 ) {
-    val formattedDate = transactionDate.toMonthAndDayOnlyDate()
+    val formattedDate = transactionDate.toMonthDayDisplay()
     val isCredit = transactionDirection == LedgerDirection.CREDIT
     val avatarSize = dimensionResource(deviceSpec.transactionListItemAvatarSize)
 
