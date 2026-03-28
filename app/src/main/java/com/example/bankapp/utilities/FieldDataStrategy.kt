@@ -109,17 +109,6 @@ object UserNameFieldStrategy: FieldTypeStrategy {
         override fun getKeyboardOptions(): KeyboardOptions =
             KeyboardOptions(keyboardType = KeyboardType.Decimal)
 
-        @Composable
-        override fun buildTrailingIcon(): @Composable (() -> Unit) = {
-            Text(
-                text = stringResource(R.string.rupee_symbol),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(end = AppSpacing.md)
-            )
-        }
-
-
         override fun getLeadingIcon(): ImageVector = Icons.Outlined.Money
     }
 

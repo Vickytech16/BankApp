@@ -2,7 +2,6 @@ package com.example.bankapp.ui.components.navigators
 
 import SharedTransactionViewModel
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -124,25 +123,33 @@ fun NavGraphBuilder.homeNavGraph(
                     transactionsViewModel = transactionsViewModel,
                     navController = navController,
                     filterViewModelFactory = filterViewModelFactory,
-                    windowSizeClass = windowSizeClass
+                    windowSizeClass = windowSizeClass,
                 )
             }
 
             composable(
-                route = "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/{transactionId}",
+                route = "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/{transactionId}?origin={origin}",
                 arguments = listOf(
                     navArgument("transactionId") {
                         type = NavType.StringType
+                    },
+                    navArgument("origin") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = "default"
                     }
                 )
             ) { backStackEntry ->
                 val transactionId = backStackEntry.arguments?.getString("transactionId") ?: ""
+                val backRoute = backStackEntry.arguments?.getString("origin") ?: HOME_ROUTE
                 TransactionDetailsScreen(
                     navController = navController,
                     transactionDetailsViewModelFactory = transactionDetailsViewModelFactory,
                     transactionId = transactionId,
                     windowSizeClass = windowSizeClass,
-                    accNo = sessionState.account.accNo
+                    accNo = sessionState.account.accNo,
+                    countryCode = sessionState.user.countryCode,
+                    backRoute = backRoute
                 )
             }
 

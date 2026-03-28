@@ -29,12 +29,15 @@ import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.utilities.uiAccNo
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import com.example.bankapp.ui.components.SmallSpacer
+import com.example.bankapp.utilities.getCurrencySymbol
+import java.util.Locale
 
 @Composable
 fun TransactionDetailsCard(
     historyItem: TransactionHistoryItemDto,
     windowSizeClass: WindowSizeClass,
-    isDeposit: Boolean = false
+    isDeposit: Boolean = false,
+    countryCode: String
 ) {
 
     val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
@@ -101,7 +104,7 @@ fun TransactionDetailsCard(
 
             LargeSpacer()
 
-            BalanceAfterSectionCard(balanceAfter = historyItem.balanceAfter)
+            BalanceAfterSectionCard(balanceAfter = historyItem.balanceAfter, countryCode)
         }
     }
 }
@@ -169,7 +172,7 @@ private fun DetailRowWithSubtext(
 }
 
 @Composable
-fun BalanceAfterSectionCard(balanceAfter: String) {
+fun BalanceAfterSectionCard(balanceAfter: String, countryCode: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,7 +198,7 @@ fun BalanceAfterSectionCard(balanceAfter: String) {
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = stringResource(R.string.rupee_symbol),
+                    text = getCurrencySymbol(countryCode = countryCode),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSecondary

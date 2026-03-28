@@ -45,7 +45,10 @@ fun ErrorTextBuilder(error: FormError?) {
 
                     is FormError.AlreadyYourFriendError,
 
-                    is FormError.UserDoesNotHaveAccountError
+                    is FormError.UserDoesNotHaveAccountError,
+
+                    is FormError.YouAreTheUser
+
                         ->
 
                         stringResource(error.message)
@@ -79,8 +82,7 @@ fun ErrorTextBuilder(error: FormError?) {
                         )
 
 
-                    is FormError.YouAreTheUser ->
-                        stringResource(error.message, stringResource(error.fieldNameRes))
+
                 }
 
             Text(

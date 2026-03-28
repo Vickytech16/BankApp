@@ -28,7 +28,7 @@ sealed class FormError(override val message: Int): UiError {
     class UserAlreadyExists(val fieldNameRes: Int):
             FormError(R.string.user_already_exists_error)
 
-    class YouAreTheUser(val fieldNameRes: Int):
+    object YouAreTheUser:
             FormError(R.string.your_own_details_error)
 
     object AlreadyYourFriendError:

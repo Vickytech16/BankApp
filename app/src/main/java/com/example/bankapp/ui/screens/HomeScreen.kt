@@ -139,7 +139,8 @@ fun HomeScreen(
                         account = account,
                         isBalanceVisible = homeViewModel.isBalanceVisible,
                         onIsBalanceVisibleChange = homeViewModel::onIsBalanceVisibleChange,
-                        deviceSpec = deviceSpec
+                        deviceSpec = deviceSpec,
+                        countryCode = homeViewModel.countryCode
                     )
                 }
 
@@ -186,24 +187,11 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .padding(horizontal = deviceSpec.HomeCardHorizontalPadding),
                     navController = navController,
-                    deviceSpec = deviceSpec
+                    deviceSpec = deviceSpec,
+                    countryCode = homeViewModel.countryCode
                 )
             }
         }
     }
     )
-}
-
-fun Modifier.homeModifier(
-    windowSizeClass: WindowSizeClass,
-    contentPadding: PaddingValues,
-    scrollState: ScrollState
-): Modifier {
-    val topPadding = contentPadding.calculateTopPadding()
-
-    return this
-        .padding(top = topPadding)
-        .padding(screenPadding)
-        .fillMaxHeight()
-        .verticalScroll(scrollState)
 }

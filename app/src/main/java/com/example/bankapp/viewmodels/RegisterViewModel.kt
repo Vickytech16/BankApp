@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.User
+import com.example.bankapp.entities.dtos.Country
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
 import com.example.bankapp.utilities.*
@@ -14,16 +15,21 @@ import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.UiError
+import com.example.bankapp.repositories.CountryRepository
 import com.example.bankapp.utilities.invalidConfirmPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.invalidEmailErrorMessageBuilder
 import com.example.bankapp.utilities.invalidPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.invalidNumericalFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidUserNameErrorMessageBuilder
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 
 class RegisterViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val countryRepository: CountryRepository
 ): ViewModel()
 {
     var userName by mutableStateOf("")
@@ -162,6 +168,58 @@ class RegisterViewModel(
             submitError=null
     }
 
+    val countries: StateFlow<List<Country>> = countryRepository.getCountries()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    var selectedCountry by mutableStateOf<Country?>(null)
+        private set
+    var selectedTimezone by mutableStateOf<String?>(null)
+        private set
+
+    var isCountrySheetVisible by mutableStateOf(false)
+
+    var countrySearchQuery by mutableStateOf("")
+
+
+    var isTimezoneSheetVisible by mutableStateOf(false)
+
+    var timezoneSearchQuery by mutableStateOf("")
+
+
+    var isTimezoneFieldVisible by mutableStateOf(false)
+
+
+    fun onCountrySelected(country: Country) {
+        selectedCountry = country
+        countrySearchQuery = ""
+        countryError = null
+        selectedTimezone = null
+
+        if (country.timezones.size == 1) {
+            selectedTimezone = country.timezones.first()
+            isTimezoneFieldVisible = false
+            timezoneError = null
+        } else {
+            selectedTimezone = null
+            isTimezoneSheetVisible = true
+            isTimezoneFieldVisible = true
+        }
+    }
+
+    fun onTimeZoneChange(newTimeZone: String){
+        timezoneError = null
+        selectedTimezone = newTimeZone
+    }
+
+    var countryError by mutableStateOf<FormError?>(null)
+        private set
+
+    var timezoneError by mutableStateOf<FormError?>(null)
+        private set
 
     var isLoading by mutableStateOf(false)
         private set
@@ -185,10 +243,19 @@ class RegisterViewModel(
         onPasswordChange(password)
         onConfirmPasswordChange(confirmPassword)
 
+        if (selectedCountry == null) {
+            countryError = FormError.EmptyData(R.string.country_field_name)
+        }
+
+        if (isTimezoneFieldVisible && selectedTimezone == null) {
+            timezoneError = FormError.EmptyData(R.string.timezone_label)
+        }
+
         viewModelScope.launch {
             try {
-                if (userNameError != null || passwordError.isNotEmpty() || emailError != null || phoneNumberError != null || confirmPasswordError != null) {
+                if (userNameError != null || passwordError.isNotEmpty() || emailError != null || phoneNumberError != null || confirmPasswordError != null || countryError != null ||   timezoneError != null) {
                     submitError = FormError.InvalidData
+                    return@launch
                 } else {
                     if (userRepository.getUserByEmail(email) != null)
                         submitError = FormError.UserAlreadyExists(R.string.email_field_name)
@@ -207,13 +274,12 @@ class RegisterViewModel(
                                     .trim()
                                     .replace(Regex("\\s+"), " "),
                                 phoneNumber = phoneNumber.trim(),
-                                countryCode = "INdia",
-                                timeZone = "jfj"
+                                countryCode = selectedCountry?.countryCode ?: "IN",
+                                timeZone = selectedTimezone ?: "UTC"
                             )
                         )
                     }
                 }
-
             }
             catch (_: Exception){
                 submitError = FormError.InvalidData

@@ -79,7 +79,7 @@ fun TransactionResultScreen(
                 onDone = {
                     val transactionId = flowData.transactionId
                     if (transactionId != null) {
-                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
+                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
                             popUpTo(HOME_ROUTE) {
                                 inclusive = false
                             }
@@ -125,7 +125,7 @@ fun TransactionResultScreen(
                 onDone = {
                     val transactionId = flowData.transactionId
                     if (transactionId != null) {
-                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
+                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
                             popUpTo(HOME_ROUTE) {
                                 inclusive = false
                             }

@@ -4,17 +4,25 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Country(
-    val countryCode: String,
+data class CountryJsonModel(
+    @SerialName("name")
     val countryName: String,
+
+    @SerialName("emoji")
     val countryFlagEmoji: String,
-    val countryPhoneCode: List<String>,
+
+    @SerialName("phone")
+    val countryPhoneCodes: List<String>,
+
+    @SerialName("timezones")
     val timezones: Map<String, String>,
+
+    @SerialName("iso")
     val iso: IsoDetails
 )
 
-data class CountryDto(
-    val code: String,
+data class Country(
+    val countryCode: String,
     val name: String,
     val emoji: String,
     val phonePrefix: String,

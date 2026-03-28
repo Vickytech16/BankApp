@@ -25,8 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.bankapp.R
+import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.appbar.Appbar
+import com.example.bankapp.ui.components.navigators.TRANSACTIONS_LOG_ROUTE
 import com.example.bankapp.ui.components.transactionitems.TransactionDetailBody
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +39,8 @@ fun TransactionDetailsScreen(
     transactionId: String,
     accNo: Long,
     windowSizeClass: WindowSizeClass,
+    countryCode: String,
+    backRoute: String
 ){
     val viewModel: TransactionDetailsViewModel = viewModel(factory = transactionDetailsViewModelFactory)
 
@@ -44,6 +49,8 @@ fun TransactionDetailsScreen(
     }
 
     val detailItem = viewModel.transaction.collectAsState(null).value
+
+    BackButtonHandler(navController, backRoute,)
 
     Scaffold(
         topBar = {
@@ -74,7 +81,8 @@ fun TransactionDetailsScreen(
                 TransactionDetailBody(
                     transactionItem = detailItem,
                     paddingValues = paddingValues,
-                    windowSizeClass = windowSizeClass
+                    windowSizeClass = windowSizeClass,
+                    countryCode = countryCode
                 )
             }
         } else {

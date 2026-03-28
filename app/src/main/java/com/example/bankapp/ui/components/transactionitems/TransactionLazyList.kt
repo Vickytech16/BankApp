@@ -21,12 +21,11 @@ import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_ROUTE
+import com.example.bankapp.ui.components.navigators.TRANSACTIONS_LOG_ROUTE
 import com.example.bankapp.ui.screens.uiAmountDisplay
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.utilities.isSameDay
-
-
 
 
 @Composable
@@ -36,7 +35,8 @@ fun TransactionLazyList(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     state: LazyListState = rememberLazyListState(),
     navController: NavController,
-    deviceSpec: DeviceSpec
+    deviceSpec: DeviceSpec,
+    countryCode: String
 ) {
     val groupedTransactions = transactions.groupBy { transaction ->
         val transactionDate = transaction.transactionDate
@@ -90,10 +90,11 @@ fun TransactionLazyList(
                     pfpURL = counterPartyPfp,
                     onClickAction = {
                         navController.navigate(
-                            "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/${transaction.transactionId}"
+                            "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/${transaction.transactionId}?origin=$TRANSACTIONS_LOG_ROUTE"
                         )
                     },
-                    deviceSpec = deviceSpec
+                    deviceSpec = deviceSpec,
+                    countryCode = countryCode
                 )
 
                 SmallSpacer()

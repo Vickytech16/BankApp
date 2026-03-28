@@ -34,6 +34,7 @@ import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.utilities.RUPEE_SYMBOL
+import com.example.bankapp.utilities.getCurrencySymbol
 import com.example.bankapp.utilities.uiAccNo
 
 @Composable
@@ -41,7 +42,8 @@ fun HomeScreenCard(
     account: AccountUiModel,
     isBalanceVisible: Boolean,
     onIsBalanceVisibleChange: () -> Unit,
-    deviceSpec: DeviceSpec
+    deviceSpec: DeviceSpec,
+    countryCode: String
 ) {
     val maskedAccNo = "**** ${account.accNo.uiAccNo.takeLast(4)}"
     val accNoCardGradient = 0.12f
@@ -89,7 +91,7 @@ fun HomeScreenCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = RUPEE_SYMBOL,
+                        text = getCurrencySymbol(countryCode),
                         style = MaterialTheme.typography.displayMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimary

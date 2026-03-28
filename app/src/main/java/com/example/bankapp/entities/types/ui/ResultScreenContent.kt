@@ -4,23 +4,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
 data class ResultContent(
-    val text1: UiText? = null,
-    val text2: UiText? = null,
-    val text3: UiText? = null,
-    val text4: UiText? = null,
-    val text5: UiText? = null,
+    val text1: ResultUiText? = null,
+    val text2: ResultUiText? = null,
+    val text3: ResultUiText? = null,
+    val text4: ResultUiText? = null,
+    val text5: ResultUiText? = null,
     val primaryButton: ResultButton? = null,
     val secondaryButton: ResultButton? = null
 )
 
 data class ResultButton(
-    val text: UiText,
+    val text: ResultUiText,
     val onClick: () -> Unit
 )
 
-sealed class UiText {
-    data class StringResource(val resId: Int) : UiText()
-    data class DynamicString(val value: String) : UiText()
+sealed class ResultUiText {
+    data class StringResource(val resId: Int) : ResultUiText()
+    data class DynamicString(val value: String) : ResultUiText()
 
     @Composable
     fun asString(): String {

@@ -28,12 +28,15 @@ import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.ui.theme.amountGreenColor
+import com.example.bankapp.utilities.getCurrencySymbol
+import java.util.Locale
 
 @Composable
 fun TransactionDetailBody(
     transactionItem: TransactionHistoryItemDto,
     paddingValues: PaddingValues,
-    windowSizeClass: WindowSizeClass
+    windowSizeClass: WindowSizeClass,
+    countryCode: String
 ) {
     val transactionType = transactionItem.transactionType
     val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
@@ -100,7 +103,7 @@ fun TransactionDetailBody(
                 color = amountColor
             )
             Text(
-                text = stringResource(R.string.rupee_symbol),
+                text = getCurrencySymbol(countryCode),
                 style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Bold,
                 color = amountColor
@@ -139,7 +142,8 @@ fun TransactionDetailBody(
             TransactionDetailsCard(
                 historyItem = transactionItem,
                 windowSizeClass = windowSizeClass,
-                isDeposit = transactionType == TransactionType.DEPOSIT
+                isDeposit = transactionType == TransactionType.DEPOSIT,
+                countryCode = countryCode
             )
         }
 

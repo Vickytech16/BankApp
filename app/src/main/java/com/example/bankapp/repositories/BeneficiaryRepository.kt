@@ -15,18 +15,15 @@ class BeneficiaryRepository(private val beneficiaryDao: BeneficiaryDao, private 
     fun getAllBeneficiaries(userId: Long): Flow<List<Beneficiary>> =
         beneficiaryDao.getAllBeneficiaries(userId)
 
-    suspend fun addBeneficiary(userId: Long, beneficiaryUserId: Long, nickname: String? = null): Long {
+    suspend fun addBeneficiary(userId: Long, beneficiaryUserId: Long, nickname: String = ""): Long {
        return withContext(Dispatchers.IO) {
 
             val currentDate = BankDateFactory.now().epochMillis
 
-            val currentNickName =
-                nickname  ?: ""
-
-            val beneficiary = Beneficiary(
+           val beneficiary = Beneficiary(
                 userId = userId,
                 beneficiaryUserId = beneficiaryUserId,
-                nickname = currentNickName,
+                nickname = nickname,
                 isFavorite = false,
                 addedDate = currentDate
             )

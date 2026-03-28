@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class TransactionDetailsViewModel(
-   private val transactionRepository: TransactionRepository,
+   private val transactionRepository: TransactionRepository
 ): ViewModel() {
 
     private var _transaction = MutableStateFlow<TransactionHistoryItemDto?>(null)

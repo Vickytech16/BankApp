@@ -203,7 +203,8 @@ fun ProfileScreen(
                     title = stringResource(R.string.account_details_label),
                     deviceSpec = deviceSpec,
                     viewModel = viewModel,
-                    account = account
+                    account = account,
+                    countryCode = user.countryCode
                 )
 
                 LargeSpacer()

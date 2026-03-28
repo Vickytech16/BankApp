@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +36,7 @@ import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
+import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
@@ -48,6 +50,7 @@ import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.utilities.EmailFieldStrategy
+import com.example.bankapp.utilities.UserNameFieldStrategy
 import com.example.bankapp.viewmodels.AddBeneficiaryViewModel
 
 
@@ -121,32 +124,30 @@ fun AddBeneficiaryScreen(
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 UnifiedOutlinedTextField(
-                    value = viewModel.email,
-                    onValueChange = viewModel::onEmailChange,
-                    labelText = stringResource(R.string.email_field_name),
-                    isError = viewModel.emailError != null,
+                    value = viewModel.userIdentifier,
+                    onValueChange = viewModel::onIdentifierChange,
+                    labelText = stringResource(R.string.email_or_phone_number_label),
+                    isError = viewModel.userIdentifierError != null,
                     supportingText = {
-                        ErrorTextBuilder(viewModel.emailError)
+                        ErrorTextBuilder(viewModel.userIdentifierError)
                     },
-                    leadingIcon = Icons.Outlined.Email,
-                    strategy = EmailFieldStrategy
+                    strategy = EmailFieldStrategy,
+                    leadingIcon = Icons.AutoMirrored.Outlined.Login,
                 )
 
-                MediumSpacer()
+                LargeSpacer()
 
-              UnifiedOutlinedTextField(
-                    value = viewModel.phoneNumber,
-                    onValueChange = viewModel::onPhoneNumberChange,
-                    labelText = stringResource(R.string.phone_number_field_name),
-                    isError = viewModel.phoneNumberError != null,
+                UnifiedOutlinedTextField(
+                    value = viewModel.nickname,
+                    onValueChange = viewModel::onNickNameChange,
+                    labelText = stringResource(R.string.nickname_optional_field_name),
+                    isError = viewModel.nicknameError != null,
                     supportingText = {
-                        ErrorTextBuilder(viewModel.phoneNumberError)
+                        ErrorTextBuilder(viewModel.nicknameError)
                     },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.NumberPassword
-                    ),
-                    leadingIcon = Icons.Outlined.Phone
+                    strategy = UserNameFieldStrategy
                 )
 
                 XLSpacer()

@@ -23,6 +23,7 @@ import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.SmallSpacer
+import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_ROUTE
 import com.example.bankapp.ui.components.transactionitems.TransactionListItem
 import com.example.bankapp.ui.screens.uiAmountDisplay
@@ -35,7 +36,8 @@ fun HomeTransactionSection(
     onSeeAllClickAction: () -> Unit,
     modifier: Modifier = Modifier,
     navController: NavController,
-    deviceSpec: DeviceSpec
+    deviceSpec: DeviceSpec,
+    countryCode: String
 ) {
     Column(modifier = modifier) {
         Row(
@@ -94,10 +96,11 @@ fun HomeTransactionSection(
                 pfpURL = displayPfp,
                 onClickAction = {
                     navController.navigate(
-                        "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/${transaction.transactionId}"
+                        "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/${transaction.transactionId}?origin=$HOME_ROUTE"
                     )
                 },
-                deviceSpec = deviceSpec
+                deviceSpec = deviceSpec,
+                countryCode = countryCode
             )
             SmallSpacer()
         }

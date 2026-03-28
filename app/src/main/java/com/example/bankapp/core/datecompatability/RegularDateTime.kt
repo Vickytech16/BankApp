@@ -9,9 +9,10 @@ import java.time.format.FormatStyle
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
-class RegularDateTime(override val epochMillis: Long) : BankDateTime {
+class RegularDateTime(override val epochMillis: Long, override val activeTimeZone: String) : BankDateTime {
+    private val zoneId = ZoneId.of(activeTimeZone)
     private val instant = Instant.ofEpochMilli(epochMillis)
-    private val zonedDateTime = instant.atZone(ZoneId.systemDefault())
+    private val zonedDateTime = instant.atZone(zoneId)
 
     override fun plusDays(days: Int): BankDateTime =
         BankDateFactory.fromMillis(zonedDateTime.plusDays(days.toLong()).toInstant().toEpochMilli())
@@ -20,7 +21,7 @@ class RegularDateTime(override val epochMillis: Long) : BankDateTime {
         BankDateFactory.fromMillis(zonedDateTime.minusDays(days.toLong()).toInstant().toEpochMilli())
 
     override fun toFullDisplay(): String =
-        zonedDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
+        zonedDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withZone(zoneId))
 
     override fun toIsoString(): String = zonedDateTime.toString()
 

@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.material3.Scaffold
@@ -21,6 +24,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,12 +36,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.example.bankapp.viewmodels.RegisterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
+import com.example.bankapp.entities.dtos.Country
 import com.example.bankapp.ui.components.BackButtonHandler
+import com.example.bankapp.ui.components.DropDownPickerField
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
@@ -171,6 +178,46 @@ fun RegisterScreen(
                     strategy = PhoneNumberFieldStrategy,
                     modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
                 )
+
+                MediumSpacer()
+
+                DropDownPickerField(
+                    label = "Country",
+                    selectedValue = viewModel.selectedCountry?.name ?: "",
+                    placeholder = stringResource(R.string.select_your_country_placeholder),
+                    items = viewModel.countries.collectAsState().value,
+                    onItemSelected = { viewModel.onCountrySelected(it) },
+                    itemLabel = { it.name },
+                    itemSecondaryLabel = { it.countryCode },
+                    itemLeadingIcon = { Text(it.emoji, fontSize = 20.sp) },
+                    showSheet = viewModel.isCountrySheetVisible,
+                    onShowSheetChange = { viewModel.isCountrySheetVisible = it },
+                    searchQuery = viewModel.countrySearchQuery,
+                    onSearchQueryChange = { viewModel.countrySearchQuery = it },
+                    isError = viewModel.countryError != null,
+                    errorBehaviour = { ErrorTextBuilder(viewModel.countryError) }
+                )
+
+                MediumSpacer()
+
+                if (viewModel.isTimezoneFieldVisible) {
+                    DropDownPickerField(
+                        label = stringResource(R.string.timezone_label),
+                        selectedValue = viewModel.selectedTimezone ?: "",
+                        placeholder = stringResource(R.string.local_time_zone),
+                        items = viewModel.selectedCountry?.timezones ?: emptyList(),
+                        onItemSelected = { viewModel.onTimeZoneChange(it) },
+                        itemLabel = { it },
+                        itemLeadingIcon = { Icon(Icons.Outlined.Schedule, null) },
+                        showSheet = viewModel.isTimezoneSheetVisible,
+                        onShowSheetChange = { viewModel.isTimezoneSheetVisible = it },
+                        searchQuery = viewModel.timezoneSearchQuery,
+                        onSearchQueryChange = { viewModel.timezoneSearchQuery = it },
+                        isError = viewModel.timezoneError != null,
+                        errorBehaviour = { ErrorTextBuilder(viewModel.timezoneError) }
+
+                    )
+                }
 
                 MediumSpacer()
 

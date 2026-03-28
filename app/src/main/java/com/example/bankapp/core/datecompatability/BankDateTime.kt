@@ -9,6 +9,8 @@ import java.util.TimeZone
 interface BankDateTime {
     val epochMillis: Long
 
+    val activeTimeZone: String
+
     fun plusDays(days: Int): BankDateTime
     fun minusDays(days: Int): BankDateTime
 

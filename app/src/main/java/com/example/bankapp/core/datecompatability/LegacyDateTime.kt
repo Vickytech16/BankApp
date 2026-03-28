@@ -6,8 +6,10 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
-class LegacyDateTime(override val epochMillis: Long) : BankDateTime {
-    private val calendar = Calendar.getInstance().apply {
+class LegacyDateTime(override val epochMillis: Long, override val activeTimeZone: String) : BankDateTime {
+    private val userTimeZone = TimeZone.getTimeZone(activeTimeZone)
+
+    private val calendar = Calendar.getInstance(userTimeZone).apply {
         timeInMillis = epochMillis
     }
 
@@ -23,8 +25,15 @@ class LegacyDateTime(override val epochMillis: Long) : BankDateTime {
         return BankDateFactory.fromMillis(newCal.timeInMillis)
     }
 
+    private fun getFormatter(pattern: String): SimpleDateFormat {
+        return SimpleDateFormat(pattern, Locale.getDefault()).apply {
+            timeZone = userTimeZone
+        }
+    }
+
     override fun toFullDisplay(): String {
         val format = DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault())
+        format.timeZone = userTimeZone
         return format.format(calendar.time)
     }
 
@@ -37,12 +46,10 @@ class LegacyDateTime(override val epochMillis: Long) : BankDateTime {
     override fun toString(): String = toIsoString()
 
     override fun toMonthDayDisplay(): String {
-        val sdf = SimpleDateFormat("dd MMMM", Locale.getDefault())
-        return sdf.format(calendar.time)
+        return getFormatter("dd MMMM").format(calendar.time)
     }
 
     override fun toFullDateTimeDisplay(): String {
-        val sdf = SimpleDateFormat("dd MMMM yyyy, hh:mm a", Locale.getDefault())
-        return sdf.format(java.util.Date(epochMillis))
+        return getFormatter("dd MMMM yyyy, hh:mm a").format(calendar.time)
     }
 }

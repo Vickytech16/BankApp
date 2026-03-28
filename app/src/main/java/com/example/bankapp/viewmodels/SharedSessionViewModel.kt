@@ -6,12 +6,12 @@ import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.types.ActionState
+import com.example.bankapp.entities.types.ui.ResultButton
+import com.example.bankapp.entities.types.ui.ResultContent
+import com.example.bankapp.entities.types.ui.ResultUiText
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
-import com.example.bankapp.usecases.ResultButton
-import com.example.bankapp.usecases.ResultContent
-import com.example.bankapp.usecases.UiText
 import java.math.BigDecimal
 
 
@@ -88,17 +88,17 @@ class SharedTransactionViewModel : ViewModel() {
                 successMessage = R.string.transaction_success
             return if (isSuccess) {
                 ResultContent(
-                    text1 = UiText.StringResource(successMessage),
-                    text2 = UiText.DynamicString((flowData as FlowData.CashTransfer).amount.toString()),
-                    text3 = UiText.DynamicString(BankDateFactory.now().toString()),
-                    primaryButton = ResultButton(UiText.StringResource(R.string.done), onDone)
+                    text1 = ResultUiText.StringResource(successMessage),
+                    text2 = ResultUiText.DynamicString((flowData as FlowData.CashTransfer).amount.toString()),
+                    text3 = ResultUiText.DynamicString(BankDateFactory.now().toString()),
+                    primaryButton = ResultButton(ResultUiText.StringResource(R.string.done), onDone)
                 )
               }    else {
                 ResultContent(
-                    text1 = UiText.StringResource(R.string.transaction_failed),
-                    text2 = UiText.StringResource(failureReason),
-                    text3 = UiText.DynamicString(BankDateFactory.now().toString()),
-                    primaryButton = ResultButton(UiText.StringResource(R.string.try_again), onRetry)
+                    text1 = ResultUiText.StringResource(R.string.transaction_failed),
+                    text2 = ResultUiText.StringResource(failureReason),
+                    text3 = ResultUiText.DynamicString(BankDateFactory.now().toString()),
+                    primaryButton = ResultButton(ResultUiText.StringResource(R.string.try_again), onRetry)
                 )
             }
         }
@@ -106,13 +106,13 @@ class SharedTransactionViewModel : ViewModel() {
                 successMessage = R.string.beneficiary_added_successfully
              return  if(isSuccess){
                     ResultContent(
-                        text1 = UiText.StringResource(R.string.beneficiary_added_successfully),
-                        primaryButton = ResultButton(UiText.StringResource(R.string.done), onClick =  onDone)
+                        text1 = ResultUiText.StringResource(R.string.beneficiary_added_successfully),
+                        primaryButton = ResultButton(ResultUiText.StringResource(R.string.done), onClick =  onDone)
                     )
                 }   else{
                     ResultContent(
-                        text1 = UiText.StringResource(R.string.failed_label),
-                        primaryButton = ResultButton(UiText.StringResource(R.string.try_again), onClick = onRetry)
+                        text1 = ResultUiText.StringResource(R.string.failed_label),
+                        primaryButton = ResultButton(ResultUiText.StringResource(R.string.try_again), onClick = onRetry)
                     )
                 }
             }
@@ -120,25 +120,25 @@ class SharedTransactionViewModel : ViewModel() {
                 successMessage = R.string.transaction_success
                return if (isSuccess) {
                     ResultContent(
-                        text1 = UiText.StringResource(R.string.transaction_success),
-                        text2 = UiText.DynamicString((flowData as FlowData.Deposit).amount.toString()),
-                        text3 = UiText.DynamicString(BankDateFactory.now().toString()),
-                        primaryButton = ResultButton(text = UiText.StringResource(R.string.done), onDone),
+                        text1 = ResultUiText.StringResource(R.string.transaction_success),
+                        text2 = ResultUiText.DynamicString((flowData as FlowData.Deposit).amount.toString()),
+                        text3 = ResultUiText.DynamicString(BankDateFactory.now().toString()),
+                        primaryButton = ResultButton(text = ResultUiText.StringResource(R.string.done), onDone),
                     )
                 }
                 else {
                     ResultContent(
-                        text1 = UiText.StringResource(R.string.transaction_failed),
-                        text2 = UiText.StringResource(failureReason),
-                        primaryButton = ResultButton(text = UiText.StringResource(R.string.try_again), onClick = onRetry),
+                        text1 = ResultUiText.StringResource(R.string.transaction_failed),
+                        text2 = ResultUiText.StringResource(failureReason),
+                        primaryButton = ResultButton(text = ResultUiText.StringResource(R.string.try_again), onClick = onRetry),
                     )
                 }
             }
             else ->
            return ResultContent(
-                text1 = UiText.StringResource(R.string.transaction_failed),
-                text2 = UiText.StringResource(failureReason),
-                primaryButton = ResultButton(UiText.StringResource(R.string.try_again), onRetry)
+                text1 = ResultUiText.StringResource(R.string.transaction_failed),
+                text2 = ResultUiText.StringResource(failureReason),
+                primaryButton = ResultButton(ResultUiText.StringResource(R.string.try_again), onRetry)
             )
         }
     }

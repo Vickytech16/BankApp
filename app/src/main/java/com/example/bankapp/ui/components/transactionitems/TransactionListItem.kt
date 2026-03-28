@@ -24,6 +24,7 @@ import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.amountGreenColor
 import com.example.bankapp.utilities.RUPEE_SYMBOL
+import com.example.bankapp.utilities.getCurrencySymbol
 
 @Composable
 fun TransactionListItem(
@@ -33,7 +34,8 @@ fun TransactionListItem(
     transactionDate: BankDateTime,
     pfpURL: String? = null,
     onClickAction: () -> Unit = {},
-    deviceSpec: DeviceSpec
+    deviceSpec: DeviceSpec,
+    countryCode: String
 ) {
     val formattedDate = transactionDate.toMonthDayDisplay()
     val isCredit = transactionDirection == LedgerDirection.CREDIT
@@ -85,7 +87,7 @@ fun TransactionListItem(
             }
 
             Text(
-                text = "$amountPrefix$RUPEE_SYMBOL$amount",
+                text = "$amountPrefix${getCurrencySymbol(countryCode)}$amount",
                 style = deviceSpec.transactionListItemMoneyStyle(),
                 fontWeight = FontWeight.Bold,
                 color = amountColor

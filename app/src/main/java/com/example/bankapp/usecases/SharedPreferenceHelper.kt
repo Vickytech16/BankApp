@@ -34,4 +34,12 @@ class SharedPreferenceHelper(
     suspend fun saveTheme(theme: String) {
         sharedPreferenceService.saveTheme(theme)
     }
+
+    fun saveUserTimeZone(userId: String, timezone: String){
+        sharedPreferenceService.saveUserTimezone(userId, timezone)
+    }
+
+    fun getUserTimeZone(): String{
+        return sharedPreferenceService.getUserTimezone()
+    }
 }

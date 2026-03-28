@@ -22,6 +22,7 @@ class HomeViewModel(
     val user by mutableStateOf(sessionState.user)
 
     val username = user.userName
+    val countryCode = user.countryCode
     val account: StateFlow<AccountUiModel> = accountRepository
         .getAccountAsFlowByAccountNumber(sessionState.account.accNo).map { it!! }
         .stateIn(

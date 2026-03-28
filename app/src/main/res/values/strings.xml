@@ -35,7 +35,7 @@
     <string name="otp_expired">Otp Expired</string>
     <string name="invalid_deposit_amount_format_error">Amount must be less than 1000000000 and only up to 2 decimal characters are allowed</string>
     <string name="invalid_cash_transfer_amount_format_error">Amount must be less than 1000000 and only up to 2 decimal characters are allowed</string>
-    <string name="your_own_details_error">This is your %1$s</string>
+    <string name="your_own_details_error">This is your credentials</string>
 
 <!-- Transaction Errors  -->
     <string name="transaction_success">Transaction success</string>
@@ -144,7 +144,6 @@
     <string name="transaction_details">Transaction Details</string>
     <string name="share_button">Share</string>
     <string name="transaction_to">To %s</string>
-    <string name="rupee_symbol">₹</string>
     <string name="status_completed">Completed</string>
     <string name="status_failed">Failed</string>
     <string name="status_pending">Pending</string>
@@ -245,6 +244,11 @@
     <string name="action_success">Action success</string>
     <string name="user_doesnt_have_account_error">User doesn\'t have an account yet</string>
     <string name="email_or_phone_number_label">Email / Phone number</string>
+    <string name="timezone_label">Timezone</string>
+    <string name="local_time_zone">Select local timezone</string>
+    <string name="country_field_name">Country</string>
+    <string name="select_your_country_placeholder">Select your country</string>
+    <string name="nickname_optional_field_name">Nickname (optional)</string>
 
 
 </resources>

@@ -12,6 +12,7 @@ import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ThemeViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.TransactionDetailsViewModelFactory
 import com.example.bankapp.repositories.AccountRepository
+import com.example.bankapp.repositories.CountryRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 
@@ -20,7 +21,8 @@ class ViewModelContainer(
     userRepository: UserRepository,
     useCaseContainer: UseCaseContainer,
     private val accountRepository: AccountRepository,
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val countryRepository: CountryRepository
 ) {
     val loginViewModelFactory: LoginViewModelFactory = LoginViewModelFactory(
         userRepository,
@@ -28,7 +30,7 @@ class ViewModelContainer(
     )
 
     val registerViewModelFactory: RegisterViewModelFactory = RegisterViewModelFactory(
-        userRepository
+        userRepository, countryRepository = countryRepository
     )
 
     val changePasswordViewModelFactory: ChangePasswordViewModelFactory = ChangePasswordViewModelFactory(

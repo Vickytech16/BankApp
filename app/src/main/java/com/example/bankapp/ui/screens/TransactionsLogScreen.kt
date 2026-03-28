@@ -51,7 +51,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionsScreen(
-    transactionsViewModel: TransactionsViewModel, navController: NavController,
+    transactionsViewModel: TransactionsViewModel,
+    navController: NavController,
     filterViewModelFactory: FilterViewModelFactory,
     windowSizeClass: WindowSizeClass
 ) {
@@ -187,7 +188,8 @@ fun TransactionsScreen(
                     bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                 ),
                 navController = navController,
-                deviceSpec = deviceSpec
+                deviceSpec = deviceSpec,
+                countryCode = transactionsViewModel.countryCode
             )
         }
     }

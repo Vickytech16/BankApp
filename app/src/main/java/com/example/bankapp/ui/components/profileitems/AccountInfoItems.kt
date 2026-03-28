@@ -30,6 +30,7 @@ import com.example.bankapp.ui.screens.ProfileDivider
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.utilities.RUPEE_SYMBOL
+import com.example.bankapp.utilities.getCurrencySymbol
 import com.example.bankapp.viewmodels.ProfileViewModel
 
 @Composable
@@ -37,7 +38,8 @@ fun ProfileAccountCard(
     title: String,
     deviceSpec: DeviceSpec,
     viewModel: ProfileViewModel,
-    account: AccountUiModel
+    account: AccountUiModel,
+    countryCode: String
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -76,7 +78,7 @@ fun ProfileAccountCard(
 
             ProfileAccountRow(
                 label = stringResource(R.string.balance_label),
-                value = "$RUPEE_SYMBOL ${account.balance}"
+                value = "${getCurrencySymbol(countryCode)} ${account.balance}"
             )
         }
     }

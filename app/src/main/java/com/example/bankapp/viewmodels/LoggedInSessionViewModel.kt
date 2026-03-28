@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.repositories.AccountRepository
@@ -40,6 +41,7 @@ class LoggedInSessionViewModel(
                 println("Accounts found = ${accounts.size}")
                 val account = accounts.firstOrNull()
                 currentUser = user
+                BankDateFactory.initialize(user.timeZone)
 
                 if(account == null) {
                     println("Session -> AccountNotRegistered")
@@ -59,6 +61,7 @@ class LoggedInSessionViewModel(
     fun logout(){
         sharedPreferenceHelper.clearSession()
         _sessionState .value= SessionState.UnAuthenticated
+        BankDateFactory.initialize("UTC")
         restoreSession()
     }
 }

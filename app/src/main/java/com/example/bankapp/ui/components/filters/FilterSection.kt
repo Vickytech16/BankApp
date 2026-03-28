@@ -145,7 +145,7 @@ fun FilterSection(
 }
 
 @Composable
-fun <T> FilterItem(
+private fun <T> FilterItem(
     title: String,
     options: Set<T>,
     selected: Set<T>,

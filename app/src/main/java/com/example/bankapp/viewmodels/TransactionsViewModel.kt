@@ -28,6 +28,8 @@ class TransactionsViewModel(
 
     private val _filterState = MutableStateFlow(FilterState())
 
+    val countryCode = sessionState.user.countryCode
+
     private val _sortState = MutableStateFlow(SortOptions.NEWEST_FIRST)
 
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -18,7 +18,9 @@ import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
 import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
+import com.example.bankapp.utilities.USERNAME_MAX_SIZE
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
+import com.example.bankapp.utilities.invalidUserNameErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 import kotlinx.coroutines.launch
 
@@ -31,34 +33,34 @@ class AddBeneficiaryViewModel(
 ) : ViewModel() {
 
 
-    var email by mutableStateOf("")
-        private  set
-
-    var emailError by mutableStateOf<FormError?>(null)
+    var userIdentifier by mutableStateOf("")
         private set
 
-    fun onEmailChange(newEmail: String){
-        if (newEmail.length <= EMAIL_MAX_SIZE)
-            email = newEmail
-        emailError =
-            newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
-                    newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE)
-        onSubmitErrorReset()
+    var userIdentifierError by mutableStateOf<FormError?>(null)
+        private set
+
+    fun onIdentifierChange(newIdentifier: String){
+        if(newIdentifier.length <= EMAIL_MAX_SIZE)
+            userIdentifier = newIdentifier
+
+        userIdentifierError =
+            newIdentifier.emptyTextFieldErrorMessageBuilder(R.string.generic_field_name) ?:
+                    newIdentifier.maxAllowedCharacterErrorMessageBuilder(R.string.generic_field_name, EMAIL_MAX_SIZE)
+        resetSubmitError()
     }
 
-    var phoneNumber by mutableStateOf("")
+    var nickname by mutableStateOf("")
         private set
 
-    var phoneNumberError by mutableStateOf<FormError?>(null)
+    var nicknameError by mutableStateOf<FormError?>(null)
         private set
 
-    fun onPhoneNumberChange(newPhoneNumber: String){
-        if (newPhoneNumber.length <= PHONE_NUMBER_MAX_SIZE)
-            phoneNumber = newPhoneNumber
-        phoneNumberError =
-            newPhoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name) ?:
-                    newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE)
-        onSubmitErrorReset()
+    fun onNickNameChange(newNickName: String){
+        if(newNickName.length <= USERNAME_MAX_SIZE)
+            nickname = newNickName
+
+        nicknameError = nickname.maxAllowedCharacterErrorMessageBuilder(R.string.nickname_optional_field_name, USERNAME_MAX_SIZE) ?:
+                        nickname.invalidUserNameErrorMessageBuilder()
     }
 
     var submitError by mutableStateOf<FormError?>(null)
@@ -73,8 +75,8 @@ class AddBeneficiaryViewModel(
 
     private var alreadySuceeded = false
 
-    fun onSubmitErrorReset(){
-        if(emailError==null && phoneNumberError==null)
+    fun resetSubmitError(){
+        if(userIdentifierError==null && nicknameError==null)
             submitError = null
     }
 
@@ -84,30 +86,29 @@ class AddBeneficiaryViewModel(
         if(isLoading)
             return
 
-        onEmailChange(email)
-        onPhoneNumberChange(phoneNumber)
+        onIdentifierChange(userIdentifier)
+        onNickNameChange(nickname)
+
         isLoading = true
 
         viewModelScope.launch {
             try {
-                if (email.isBlank() || phoneNumber.isBlank()) {
+                if (userIdentifier.isBlank()) {
                     submitError = FormError.AllFieldsAreRequired
                     return@launch
                 }
 
-                if(email == sessionState.user.email){
-                    submitError = FormError.YouAreTheUser(R.string.email_field_name)
-                    return@launch
-                }
-
-                if(phoneNumber == sessionState.user.phoneNumber){
-                    phoneNumberError = FormError.YouAreTheUser(R.string.phone_number_field_name)
-                    return@launch
+                if(userIdentifier==sessionState.user.email || userIdentifier==sessionState.user.phoneNumber) {
+                    submitError = FormError.YouAreTheUser
                 }
 
                 if(submitError==null) {
                     val friend: User? =
-                        userRepository.getUserByEmailAndPhoneNumber(email.trim(), phoneNumber.trim())
+                        if(userIdentifier.all { it.isDigit() })
+                            userRepository.getUserByPhoneNumber(userIdentifier)
+                        else
+                            userRepository.getUserByEmail(userIdentifier)
+
                     if (friend == null) {
                         submitError = FormError.InvalidCredentials
                         return@launch
@@ -120,7 +121,7 @@ class AddBeneficiaryViewModel(
                                 sharedTransactionViewModel.initializeAddBeneficiary(
                                     sessionState.user.userId,
                                     friend.userId,
-                                    ""
+                                    nickname
                                 )
                                 isVerificationSuccessful = true
                             }
