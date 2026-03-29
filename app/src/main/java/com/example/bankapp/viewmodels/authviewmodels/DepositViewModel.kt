@@ -1,4 +1,4 @@
-package com.example.bankapp.viewmodels
+package com.example.bankapp.viewmodels.authviewmodels
 
 import SharedTransactionViewModel
 import androidx.compose.runtime.getValue
@@ -11,7 +11,6 @@ import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.utilities.amountFieldValidator
 import com.example.bankapp.utilities.depositAmountRegex
-
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

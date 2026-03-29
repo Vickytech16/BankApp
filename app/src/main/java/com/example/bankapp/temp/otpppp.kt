@@ -61,7 +61,7 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.textfields.OtpInputField
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.viewmodels.NotificationViewmodel
-import com.example.bankapp.viewmodels.OtpViewModel
+import com.example.bankapp.viewmodels.authviewmodels.OtpViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "ContextCastToActivity")
@@ -467,7 +467,7 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.textfields.OtpInputField
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.viewmodels.NotificationViewmodel
-import com.example.bankapp.viewmodels.OtpViewModel
+import com.example.bankapp.viewmodels.authviewmodels.OtpViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

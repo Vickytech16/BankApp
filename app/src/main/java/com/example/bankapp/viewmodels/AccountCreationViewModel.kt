@@ -96,6 +96,13 @@ class AccountCreationViewModel(
 
     private var idempotencyKey = UUID.randomUUID().toString()
 
+    var showLogoutAction by mutableStateOf(false)
+        private set
+
+    fun onShowLogoutActionChange(newValue: Boolean){
+        showLogoutAction = newValue
+    }
+
     fun onSubmit(){
 
         if(isLoading)

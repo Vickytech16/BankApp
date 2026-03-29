@@ -13,9 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -43,9 +41,11 @@ import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.utilities.EmailFieldStrategy
 import com.example.bankapp.utilities.PhoneNumberFieldStrategy
-import com.example.bankapp.viewmodels.ForgotPasswordViewModel
+import com.example.bankapp.viewmodels.authviewmodels.ForgotPasswordViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,13 +57,9 @@ fun ForgetPasswordScreen(
     val viewModel: ForgotPasswordViewModel = viewModel(factory = forgotPasswordViewModelFactory)
     val scrollState = rememberScrollState()
 
-    val textFieldColumnWidth =
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> 0.9f
-            WindowWidthSizeClass.Medium -> 0.6f
-            WindowWidthSizeClass.Expanded -> 0.5f
-            else -> 0.8f
-        }
+    val deviceSpec = LocalDeviceSpec.current
+
+    val textFieldColumnWidth = deviceSpec.textFieldWidth
 
     BackButtonHandler(navController, LOGIN_ROUTE)
 
@@ -73,13 +69,13 @@ fun ForgetPasswordScreen(
         }
     }
 
-//    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-//
-//    LaunchedEffect(windowSizeClass.heightSizeClass) {
-//        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
-//            bringIntoViewRequester.bringIntoView()
-//        }
-//    }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(deviceSpec) {
+        if (deviceSpec is DeviceSpec.MobileLandscape) {
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -89,7 +85,7 @@ fun ForgetPasswordScreen(
         }
     ) { contentPadding ->
         Column(
-            modifier = Modifier.screenModifier(windowSizeClass,contentPadding,scrollState),
+            modifier = Modifier.screenModifier(contentPadding,scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -149,7 +145,7 @@ fun ForgetPasswordScreen(
                     onClick = { viewModel.onSubmit() },
                     text = stringResource(R.string.submit_button),
                     isLoading = viewModel.isLoading,
-                //    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
                 )
 
                 ErrorTextBuilder(viewModel.submitError)

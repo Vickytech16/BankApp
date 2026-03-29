@@ -1,5 +1,7 @@
 package com.example.bankapp.viewmodels
 
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,4 +45,6 @@ class HomeViewModel(
     fun onLogoutClickChange(newValue: Boolean) {
         showLogoutDialog = newValue
     }
+
+    var drawerState by mutableStateOf(DrawerValue.Closed)
 }

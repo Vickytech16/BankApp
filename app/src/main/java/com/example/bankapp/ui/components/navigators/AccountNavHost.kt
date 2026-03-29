@@ -1,18 +1,16 @@
 package com.example.bankapp.ui.components.navigators
 
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.bankapp.di.providers.SessionStateProvider
 import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.ui.screens.AccountCreationScreen
+import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 
-    fun NavGraphBuilder.accountNavGraph(
+fun NavGraphBuilder.accountNavGraph(
         accountCreationViewModelFactory: AccountCreationViewModelFactory,
-        windowSizeClass: WindowSizeClass,
-        restoreSession: () -> Unit
+        loggedInSessionViewModel: LoggedInSessionViewModel
     ){
         navigation(
             startDestination = ACCOUNT_CREATION_ROUTE,
@@ -21,8 +19,7 @@ import com.example.bankapp.ui.screens.AccountCreationScreen
             composable(ACCOUNT_CREATION_ROUTE){
                 AccountCreationScreen(
                     accountCreationViewModelFactory = accountCreationViewModelFactory,
-                    windowSizeClass = windowSizeClass,
-                    restoreSession = restoreSession
+                    loggedInSessionViewModel = loggedInSessionViewModel
                 )
             }
         }

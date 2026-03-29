@@ -5,27 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
-class NotificationViewmodel: ViewModel() {
 
-    var isPermissionGranted by mutableStateOf(false)
-        private set
+class NotificationViewmodel : ViewModel() {
 
     var hasPermissionBeenRequested by mutableStateOf(false)
         private set
 
-    fun onPermissionGranted() {
-        isPermissionGranted = true
+    fun onPermissionResult() {
         hasPermissionBeenRequested = true
-    }
-
-    fun onPermissionDenied() {
-        isPermissionGranted = false
-        hasPermissionBeenRequested = true
-    }
-
-    fun resetPermissionState() {
-        isPermissionGranted = false
-        hasPermissionBeenRequested = false
     }
 
 }

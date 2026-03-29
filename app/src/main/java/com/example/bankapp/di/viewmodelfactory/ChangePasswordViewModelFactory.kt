@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.usecases.ChangePasswordUseCase
-import com.example.bankapp.viewmodels.ChangePasswordViewModel
+import com.example.bankapp.viewmodels.authviewmodels.ChangePasswordViewModel
 
 
 class ChangePasswordViewModelFactory(

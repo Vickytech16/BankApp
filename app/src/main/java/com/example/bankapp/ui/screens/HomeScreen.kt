@@ -1,30 +1,22 @@
 package com.example.bankapp.ui.screens
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.SwapHoriz
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,7 +31,6 @@ import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.HomeViewModelFactory
 import com.example.bankapp.ui.components.HomeDrawer
 import com.example.bankapp.ui.components.LargeSpacer
-import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.appbar.HomeAppBar
 import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
 import com.example.bankapp.ui.components.buttons.ActionButton
@@ -52,8 +43,7 @@ import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_TO_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTIONS_LOG_ROUTE
 import com.example.bankapp.ui.components.screenModifier
-import com.example.bankapp.ui.theme.DeviceSpecProvider
-import com.example.bankapp.ui.theme.screenPadding
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.viewmodels.HomeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
@@ -77,9 +67,9 @@ fun HomeScreen(
     val currentRoute = currentBackStackEntry?.destination?.route ?: HOME_ROUTE
 
     val scrollState = rememberScrollState()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerState = rememberDrawerState(initialValue = homeViewModel.drawerState)
 
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val deviceSpec = LocalDeviceSpec.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val actionButtonDimensions = ButtonDimensions(
@@ -95,14 +85,7 @@ fun HomeScreen(
         username = homeViewModel.username,
         showLogoutDialog = homeViewModel.showLogoutDialog,
         onShowLogOutDialogChange = homeViewModel::onLogoutClickChange,
-        modifier = Modifier.fillMaxWidth(
-            when (windowSizeClass.widthSizeClass) {
-                WindowWidthSizeClass.Compact -> 0.75f
-                WindowWidthSizeClass.Medium -> 0.60f
-                WindowWidthSizeClass.Expanded -> 0.5f
-                else -> 0.75f
-            }
-        ),
+        modifier = Modifier.fillMaxWidth(deviceSpec.drawerWidth),
         content  = {
         Scaffold(
             topBar = {
@@ -127,7 +110,7 @@ fun HomeScreen(
             contentWindowInsets = WindowInsets(0, 0, 0, 0)
         ) { innerPadding ->
             Column(
-                modifier = Modifier.screenModifier(windowSizeClass, contentPadding = innerPadding, scrollState),
+                modifier = Modifier.screenModifier(contentPadding = innerPadding, scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {

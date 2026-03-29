@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,11 +39,12 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.REGISTER_ROUTE
 
 import com.example.bankapp.ui.components.screenModifier
-import com.example.bankapp.viewmodels.LoginViewModel
+import com.example.bankapp.viewmodels.authviewmodels.LoginViewModel
 import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.utilities.EmailFieldStrategy
 import com.example.bankapp.utilities.PasswordFieldStrategy
 
@@ -52,11 +52,12 @@ import com.example.bankapp.utilities.PasswordFieldStrategy
 @Composable
 fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                  loginViewModelFactory: LoginViewModelFactory, ) {
+
     val loginViewModel: LoginViewModel = viewModel(factory = loginViewModelFactory)
 
     val scrollState = rememberScrollState()
 
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val deviceSpec = LocalDeviceSpec.current
 
     val textFieldColumnWidth =
         deviceSpec.textFieldWidth
@@ -69,16 +70,16 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
 
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
 
-    LaunchedEffect(windowSizeClass.heightSizeClass) {
-        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
+    LaunchedEffect(deviceSpec) {
+        if (deviceSpec is DeviceSpec.MobileLandscape) {
             bringIntoViewRequester.bringIntoView()
         }
     }
 
-
-    Scaffold { contentPadding ->
+    Scaffold {
+        contentPadding ->
         Column(
-            modifier = Modifier.screenModifier(windowSizeClass, contentPadding, scrollState),
+            modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

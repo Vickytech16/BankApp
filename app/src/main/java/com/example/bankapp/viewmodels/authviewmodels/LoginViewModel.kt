@@ -1,4 +1,4 @@
-package com.example.bankapp.viewmodels
+package com.example.bankapp.viewmodels.authviewmodels
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,19 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.User
-import com.example.bankapp.usecases.SharedPreferenceHelper
+import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
-import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
-import com.example.bankapp.entities.errors.FormError
-import com.example.bankapp.utilities.uiUserId
-import kotlinx.coroutines.launch
-import com.example.bankapp.entities.types.ui.LoginType
+import com.example.bankapp.usecases.SharedPreferenceHelper
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
-import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
+import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
-
+import com.example.bankapp.utilities.uiUserId
+import kotlinx.coroutines.launch
 
 class LoginViewModel (
     private val userRepository: UserRepository,
@@ -44,7 +41,10 @@ class LoginViewModel (
 
         userIdentifierError =
             newIdentifier.emptyTextFieldErrorMessageBuilder(R.string.generic_field_name) ?:
-                    newIdentifier.maxAllowedCharacterErrorMessageBuilder(R.string.generic_field_name, EMAIL_MAX_SIZE)
+                    newIdentifier.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.generic_field_name,
+                        EMAIL_MAX_SIZE
+                    )
         resetSubmitError()
     }
 
@@ -62,7 +62,10 @@ class LoginViewModel (
             password = newPassword
         passwordError =
             newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name) ?:
-            newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
+            newPassword.maxAllowedCharacterErrorMessageBuilder(
+                R.string.password_field_name,
+                PASSWORD_MAX_SIZE
+            )
         resetSubmitError()
     }
 

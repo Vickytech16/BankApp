@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
+import com.example.bankapp.ui.theme.textFieldFontSize
 
 
 @Composable
@@ -23,7 +24,8 @@ fun <T> RadioButtonSelector(
     selected: T,
     onSelectionChange: (T) -> Unit,
     labelFor: @Composable (T) -> String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fontWeight: FontWeight = FontWeight.Medium
 ) {
     Column(
         modifier = modifier.fillMaxWidth()
@@ -31,8 +33,9 @@ fun <T> RadioButtonSelector(
         Text(
             text = title,
             style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            fontWeight = fontWeight,
+            color = MaterialTheme.colorScheme.onSurface,
+           // fontSize = textFieldFontSize
         )
 
         LargeSpacer()

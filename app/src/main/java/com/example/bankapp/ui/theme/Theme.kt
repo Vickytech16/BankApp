@@ -10,6 +10,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -88,10 +89,12 @@ val DarkColorScheme = darkColorScheme(
     inversePrimary = Color(0xFF1B3A6B),
 )
 
+val LocalDeviceSpec = staticCompositionLocalOf<DeviceSpec> {
+    DeviceSpec.MobilePortrait()
+}
 @Composable
 fun BankAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {

@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.repositories.CountryRepository
 import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.viewmodels.LoginViewModel
-import com.example.bankapp.viewmodels.RegisterViewModel
+import com.example.bankapp.viewmodels.authviewmodels.LoginViewModel
+import com.example.bankapp.viewmodels.authviewmodels.RegisterViewModel
 
 @Suppress("UNCHECKED_CAST")
 class RegisterViewModelFactory(

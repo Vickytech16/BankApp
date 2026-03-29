@@ -7,8 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -22,39 +20,47 @@ import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.ErrorTextBuilder
+import com.example.bankapp.ui.components.LogoutButton
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.RadioButtonSelector
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.components.screenModifier
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.utilities.AmountFieldStrategy
 import com.example.bankapp.utilities.PasswordFieldStrategy
 import com.example.bankapp.viewmodels.AccountCreationViewModel
+import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 
 
 @Composable
-fun AccountCreationScreen( accountCreationViewModelFactory: AccountCreationViewModelFactory, windowSizeClass: WindowSizeClass, restoreSession: ()-> Unit)
+fun AccountCreationScreen(
+    accountCreationViewModelFactory: AccountCreationViewModelFactory,
+    loggedInSessionViewModel: LoggedInSessionViewModel)
 {
     val accountCreationViewModel: AccountCreationViewModel = viewModel(factory = accountCreationViewModelFactory)
 
     val scrollState = rememberScrollState()
 
-    val textFieldColumnWidth =
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> 0.9f
-            WindowWidthSizeClass.Medium -> 0.6f
-            WindowWidthSizeClass.Expanded -> 0.5f
-            else -> 0.8f
-        }
+    val deviceSpec = LocalDeviceSpec.current
+
+    val textFieldColumnWidth = deviceSpec.textFieldWidth
 
     Scaffold() {
         contentPadding ->
         Column(
-            modifier = Modifier.screenModifier(windowSizeClass, contentPadding, scrollState),
+            modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+
+            if(deviceSpec is DeviceSpec.MobilePortrait){
+                XLSpacer()
+                XLSpacer()
+            }
+
             Text(
                 text = stringResource(R.string.create_account),
                 style = MaterialTheme.typography.headlineSmall,
@@ -62,6 +68,8 @@ fun AccountCreationScreen( accountCreationViewModelFactory: AccountCreationViewM
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.ExtraBold
             )
+
+            XLSpacer()
 
             Text(stringResource(R.string.create_account_description),
                 textAlign = TextAlign.Center)
@@ -79,7 +87,8 @@ fun AccountCreationScreen( accountCreationViewModelFactory: AccountCreationViewM
                     onSelectionChange = accountCreationViewModel::onAccountTypeChange,
                     labelFor =  { accountType ->
                         accountType.name.lowercase().replaceFirstChar { it.uppercase() }
-                    }
+                    },
+                    fontWeight = FontWeight.Medium
                 )
 
                 MediumSpacer()
@@ -113,15 +122,23 @@ fun AccountCreationScreen( accountCreationViewModelFactory: AccountCreationViewM
                 SubmitButton(
                     onClick = {accountCreationViewModel.onSubmit()},
                     text = stringResource(R.string.create_account),
-                    isLoading = accountCreationViewModel.isLoading)
+                    isLoading = accountCreationViewModel.isLoading,
+                    )
 
                 ErrorTextBuilder(accountCreationViewModel.submitError)
 
                 XLSpacer()
 
+                LogoutButton(accountCreationViewModel.showLogoutAction, accountCreationViewModel::onShowLogoutActionChange) {
+                    loggedInSessionViewModel.logout()
+                }
+
+                XLSpacer()
+
+
                 LaunchedEffect(accountCreationViewModel.isSubmitSuccessful) {
                     if(accountCreationViewModel.isSubmitSuccessful)
-                        restoreSession()
+                        loggedInSessionViewModel.restoreSession()
                 }
             }
         }

@@ -17,9 +17,11 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.BankApp">
-
+            android:theme="@style/Theme.BankApp"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:windowSoftInputMode="adjustResize"
+            android:saveEnabled="false"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

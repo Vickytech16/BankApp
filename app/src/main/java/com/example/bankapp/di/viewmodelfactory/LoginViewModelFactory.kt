@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.usecases.SharedPreferenceHelper
-import com.example.bankapp.viewmodels.LoginViewModel
+import com.example.bankapp.viewmodels.authviewmodels.LoginViewModel
 
 
 class LoginViewModelFactory(

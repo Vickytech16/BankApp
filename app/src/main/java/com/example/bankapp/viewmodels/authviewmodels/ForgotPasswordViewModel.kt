@@ -1,4 +1,4 @@
-package com.example.bankapp.viewmodels
+package com.example.bankapp.viewmodels.authviewmodels
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,15 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.User
+import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.usecases.ChangePasswordUseCase
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
 import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
-import com.example.bankapp.entities.errors.FormError
 import kotlinx.coroutines.launch
-
 
 class ForgotPasswordViewModel(
     private val userRepository: UserRepository,
@@ -33,7 +32,10 @@ class ForgotPasswordViewModel(
             email = newEmail
         emailError =
                     newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
-                    newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE)
+                    newEmail.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.email_field_name,
+                        EMAIL_MAX_SIZE
+                    )
         onSubmitErrorReset()
     }
 
@@ -48,7 +50,10 @@ class ForgotPasswordViewModel(
             phoneNumber = newPhoneNumber
         phoneNumberError =
                     newPhoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name) ?:
-                    newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE)
+                    newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.phone_number_field_name,
+                        PHONE_NUMBER_MAX_SIZE
+                    )
         onSubmitErrorReset()
     }
 

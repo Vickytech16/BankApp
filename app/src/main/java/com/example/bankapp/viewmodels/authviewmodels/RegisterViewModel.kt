@@ -1,4 +1,4 @@
-package com.example.bankapp.viewmodels
+package com.example.bankapp.viewmodels.authviewmodels
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,28 +8,30 @@ import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.entities.dtos.Country
-import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.services.PasswordHashingService
-import com.example.bankapp.utilities.*
-import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
-import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.UiError
 import com.example.bankapp.repositories.CountryRepository
+import com.example.bankapp.repositories.UserRepository
+import com.example.bankapp.services.PasswordHashingService
+import com.example.bankapp.utilities.EMAIL_MAX_SIZE
+import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
+import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
+import com.example.bankapp.utilities.USERNAME_MAX_SIZE
+import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidConfirmPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.invalidEmailErrorMessageBuilder
-import com.example.bankapp.utilities.invalidPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.invalidNumericalFieldErrorMessageBuilder
+import com.example.bankapp.utilities.invalidPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.invalidUserNameErrorMessageBuilder
+import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-
 class RegisterViewModel(
     private val userRepository: UserRepository,
-    private val countryRepository: CountryRepository
+    countryRepository: CountryRepository
 ): ViewModel()
 {
     var userName by mutableStateOf("")
@@ -43,7 +45,10 @@ class RegisterViewModel(
             userName = newUserName
         userNameError =
                     newUserName.emptyTextFieldErrorMessageBuilder(R.string.username_field_name) ?:
-                    newUserName.maxAllowedCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MAX_SIZE) ?:
+                    newUserName.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.username_field_name,
+                        USERNAME_MAX_SIZE
+                    ) ?:
                     newUserName.invalidUserNameErrorMessageBuilder()
         submitErrorReset()
     }
@@ -66,7 +71,10 @@ class RegisterViewModel(
             email = newEmail.lowercase()
         emailError =
                     newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
-                    newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE) ?:
+                    newEmail.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.email_field_name,
+                        EMAIL_MAX_SIZE
+                    ) ?:
                     newEmail.invalidEmailErrorMessageBuilder()
         submitErrorReset()
     }
@@ -83,7 +91,10 @@ class RegisterViewModel(
             phoneNumber = newPhoneNumber
         phoneNumberError =
             newPhoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name) ?:
-                    newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE) ?:
+                    newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.phone_number_field_name,
+                        PHONE_NUMBER_MAX_SIZE
+                    ) ?:
                     newPhoneNumber.invalidNumericalFieldErrorMessageBuilder(R.string.phone_number_field_name)
         submitErrorReset()
     }
@@ -112,7 +123,8 @@ class RegisterViewModel(
             password = newPassword
         passwordError = listOfNotNull(
             newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
-                        newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE
+                        newPassword.maxAllowedCharacterErrorMessageBuilder(
+                            R.string.password_field_name, PASSWORD_MAX_SIZE
             )
         ) + newPassword.invalidPasswordErrorMessageBuilder()
 
@@ -140,7 +152,10 @@ class RegisterViewModel(
             confirmPassword = newConfirmPassword
         confirmPasswordError =
                     newConfirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
-                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE) ?:
+                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.confirm_password_field_name,
+                        PASSWORD_MAX_SIZE
+                    ) ?:
                     newConfirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
         submitErrorReset()
     }
@@ -171,7 +186,7 @@ class RegisterViewModel(
     val countries: StateFlow<List<Country>> = countryRepository.getCountries()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Companion.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 

@@ -2,7 +2,7 @@ package com.example.bankapp.di.viewmodelfactory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.bankapp.viewmodels.OtpViewModel
+import com.example.bankapp.viewmodels.authviewmodels.OtpViewModel
 
 
 class OtpViewModelFactory() : ViewModelProvider.Factory {

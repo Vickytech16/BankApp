@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -38,9 +41,10 @@ import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.utilities.PasswordFieldStrategy
-import com.example.bankapp.viewmodels.ChangePasswordViewModel
+import com.example.bankapp.viewmodels.authviewmodels.ChangePasswordViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,17 +56,23 @@ fun ChangePasswordScreen(
     val scrollState = rememberScrollState()
     val viewModel: ChangePasswordViewModel = viewModel(factory = viewModelFactory)
 
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val deviceSpec = LocalDeviceSpec.current
 
-    val textFieldColumnWidth =
-        deviceSpec.textFieldWidth
-
+    val textFieldColumnWidth = deviceSpec.textFieldWidth
 
     BackButtonHandler(navController, LOGIN_ROUTE)
 
     LaunchedEffect(viewModel.isSubmitSuccessful) {
         if (viewModel.isSubmitSuccessful) {
             navController.navigate(LOGIN_ROUTE)
+        }
+    }
+
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(deviceSpec) {
+        if (deviceSpec is DeviceSpec.MobileLandscape) {
+            bringIntoViewRequester.bringIntoView()
         }
     }
 
@@ -82,7 +92,7 @@ fun ChangePasswordScreen(
         }
     ) { contentPadding ->
         Column(
-            modifier = Modifier.screenModifier(windowSizeClass,contentPadding, scrollState),
+            modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -142,7 +152,7 @@ fun ChangePasswordScreen(
                     supportingText = {
                         ErrorTextBuilder(viewModel.confirmPasswordError)
                     },
-                    strategy = PasswordFieldStrategy(viewModel.passwordVisible, viewModel::onPasswordVisibleChange)
+                    strategy = PasswordFieldStrategy(viewModel.confirmPasswordVisible, viewModel::onConfirmPasswordVisibleChange)
                 )
 
                 XLSpacer()
@@ -152,7 +162,8 @@ fun ChangePasswordScreen(
                         viewModel.onSubmit()
                     },
                     isLoading = viewModel.isLoading,
-                    text = stringResource(R.string.submit_button)
+                    text = stringResource(R.string.submit_button),
+                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
                 )
 
                 ErrorTextBuilder(viewModel.submitError)

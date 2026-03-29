@@ -1,5 +1,6 @@
 package com.example.bankapp.ui.theme
 
+import android.content.res.Configuration
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,6 +20,7 @@ import com.example.bankapp.R
 sealed class DeviceSpec {
 
 
+    abstract val drawerWidth: Float
     abstract val profileScreenWidthFaction: Float
     abstract val textFieldWidth: Float
 
@@ -122,6 +124,7 @@ sealed class DeviceSpec {
     data class MobilePortrait(
 
         override val textFieldWidth: Float = 0.9f,
+        override val drawerWidth: Float = 0.7f,
 
         override val qabButtonSize: Int = R.dimen.qab_button_size,
         override val qabButtonIconSize: Int = R.dimen.qab_icon_size,
@@ -224,6 +227,7 @@ sealed class DeviceSpec {
     data class MobileLandscape(
 
         override val textFieldWidth: Float = 0.6f,
+        override val drawerWidth: Float = 0.5f,
 
         override val qabButtonSize: Int = R.dimen.qab_button_size_landscape,
         override val qabButtonIconSize: Int = R.dimen.qab_icon_size_landscape,
@@ -326,6 +330,7 @@ sealed class DeviceSpec {
     data class TabPortrait(
 
         override val textFieldWidth: Float = 0.6f,
+        override val drawerWidth: Float = 0.5f,
 
         override val qabButtonSize: Int = R.dimen.qab_button_size_tab,
         override val qabButtonIconSize: Int = R.dimen.qab_icon_size_tab,
@@ -428,6 +433,7 @@ sealed class DeviceSpec {
     data class TabLandscape(
 
         override val textFieldWidth: Float = 0.5f,
+        override val drawerWidth: Float = 0.5f,
 
         override val qabButtonSize: Int = R.dimen.qab_button_size_tab,
         override val qabButtonIconSize: Int = R.dimen.qab_icon_size_tab,
@@ -526,41 +532,45 @@ sealed class DeviceSpec {
     }
 }
 
-object DeviceSpecProvider {
-//    @Composable
-//    fun getCurrentDeviceSpec(windowSizeClass: WindowSizeClass): DeviceSpec {
-//
-//        val width = windowSizeClass.widthSizeClass
-//        val height = windowSizeClass.heightSizeClass
-//
-//        return when (width) {
-//
-//            WindowWidthSizeClass.Compact -> {
-//                if (height == WindowHeightSizeClass.Compact)
-//                    DeviceSpec.MobileLandscape()
-//                else
-//                    DeviceSpec.MobilePortrait()
-//            }
-//
-//            WindowWidthSizeClass.Medium -> {
-//                if (height == WindowHeightSizeClass.Compact)
-//                    DeviceSpec.MobileLandscape()
-//                else
-//                    DeviceSpec.TabPortrait()
-//            }
-//
-//            WindowWidthSizeClass.Expanded -> {
-//                if (height == WindowHeightSizeClass.Compact)
-//                    DeviceSpec.TabLandscape()
-//                else
-//                    DeviceSpec.TabPortrait()
-//            }
-//
-//            else -> DeviceSpec.MobilePortrait()
-//        }
-//    }
 
-        @Composable
+object DeviceSpecProvider {
+
+    @Composable
+    fun getCurrentDeviceSpec(windowSizeClass: WindowSizeClass): DeviceSpec {
+        val configuration = LocalConfiguration.current
+
+        val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
+        val isTablet = configuration.smallestScreenWidthDp >= 600
+
+        return when {
+            isTablet && isLandscape -> DeviceSpec.TabLandscape()
+            isTablet && !isLandscape -> DeviceSpec.TabPortrait()
+            !isTablet && isLandscape -> DeviceSpec.MobileLandscape()
+            else -> DeviceSpec.MobilePortrait()
+        }
+    }
+}
+
+object DeviceSpecProviderTemp {
+
+    fun getCurrentDeviceSpec(windowSizeClass: WindowSizeClass, configuration: Configuration): DeviceSpec {
+
+        val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+        val isTablet = configuration.smallestScreenWidthDp >= 500
+
+        return when {
+            isTablet && isLandscape -> DeviceSpec.TabLandscape()
+            isTablet && !isLandscape -> DeviceSpec.TabPortrait()
+            !isTablet && isLandscape -> DeviceSpec.MobileLandscape()
+            else -> DeviceSpec.MobilePortrait()
+        }
+    }
+}
+
+/*
+ @Composable
         fun getCurrentDeviceSpec(windowSizeClass: WindowSizeClass): DeviceSpec {
 
             val configuration = LocalConfiguration.current
@@ -576,4 +586,4 @@ object DeviceSpecProvider {
                 else -> DeviceSpec.MobilePortrait()
             }
         }
-}
+ */

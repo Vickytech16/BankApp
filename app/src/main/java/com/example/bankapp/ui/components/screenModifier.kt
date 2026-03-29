@@ -6,14 +6,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.ui.theme.screenPadding
 
-fun Modifier.screenModifier(windowSizeClass: WindowSizeClass, contentPadding: PaddingValues, scrollState: ScrollState, ): Modifier {
-    if(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Companion.Compact || windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact){
+@Composable
+fun Modifier.screenModifier(contentPadding: PaddingValues, scrollState: ScrollState, ): Modifier {
+    val deviceSpec = LocalDeviceSpec.current
+    if(deviceSpec is DeviceSpec.MobilePortrait || deviceSpec is DeviceSpec.MobileLandscape){
         return this
             .safeContentPadding()
             .verticalScroll(scrollState)

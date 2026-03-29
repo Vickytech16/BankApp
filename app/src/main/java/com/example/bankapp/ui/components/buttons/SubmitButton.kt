@@ -26,12 +26,10 @@ fun SubmitButton(
     text: String = stringResource(R.string.submit_button),
     enabled: Boolean = true,
     isLoading: Boolean = false,
-
 ){
     Button(
             onClick = { onClick() },
             modifier = modifier
-                       .widthIn(max = dimensionResource(R.dimen.submit_button_max_width))
                        .fillMaxWidth(),
             enabled = enabled && !isLoading
     ) {

@@ -10,13 +10,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.bankapp.di.ViewModelContainer
-import com.example.bankapp.di.viewmodelfactory.LoggedInSessionViewModelFactory
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 
@@ -35,7 +33,7 @@ fun AppNavHost(
     val sessionViewModel: LoggedInSessionViewModel =
         viewModel(factory = viewModelContainer.loggedInSessionViewModelFactory)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(sessionViewModel.sessionState) {
         sessionViewModel.restoreSession()
     }
 
@@ -56,7 +54,7 @@ fun AppNavHost(
             MAIN_ROUTE
     }
 
-    val sharedTxVm: SharedTransactionViewModel = viewModel()
+    val sharedTransactionViewModel: SharedTransactionViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -90,15 +88,14 @@ fun AppNavHost(
             filterViewModelFactory = viewModelContainer.filterViewModelFactory,
             transactionDetailsViewModelFactory = viewModelContainer.transactionDetailsViewModelFactory,
             themeViewModel = themeViewModel,
-            sharedTransactionViewModel = sharedTxVm
+            sharedTransactionViewModel = sharedTransactionViewModel
         )
 
         splashNavGraph()
 
         accountNavGraph(
             accountCreationViewModelFactory = viewModelContainer.accountCreationViewModelFactory,
-            windowSizeClass = windowSizeClass,
-            restoreSession = { sessionViewModel.restoreSession() }
+            loggedInSessionViewModel = sessionViewModel
         )
     }
 

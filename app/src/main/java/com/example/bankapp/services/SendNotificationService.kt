@@ -18,6 +18,7 @@ object SendNotificationService {
             .setContentTitle(notification.title)
             .setContentText(notification.message)
             .setAutoCancel(true)
+            .setTimeoutAfter(61000)
             .build()
 
         val notificationManager =

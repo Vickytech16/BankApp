@@ -1,4 +1,4 @@
-package com.example.bankapp.viewmodels
+package com.example.bankapp.viewmodels.authviewmodels
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,19 +7,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.entities.dbtables.User
+import com.example.bankapp.entities.errors.FormError
+import com.example.bankapp.entities.errors.UiError
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
 import com.example.bankapp.usecases.ChangePasswordUseCase
-import com.example.bankapp.utilities.*
+import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
-import com.example.bankapp.entities.errors.FormError
-import com.example.bankapp.entities.errors.UiError
 import com.example.bankapp.utilities.invalidConfirmPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.invalidPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 import kotlinx.coroutines.launch
-
-
 
 class ChangePasswordViewModel(
     private val userRepository: UserRepository,
@@ -56,11 +54,16 @@ class ChangePasswordViewModel(
             password = newPassword
         passwordError = listOfNotNull(
             newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
-                        newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
+                        newPassword.maxAllowedCharacterErrorMessageBuilder(
+                            R.string.password_field_name,
+                            PASSWORD_MAX_SIZE
+                        )
         ) + newPassword.invalidPasswordErrorMessageBuilder()
 
         if(confirmPassword.isNotBlank())
             confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(newPassword)
+
+        submitErrorReset()
     }
 
     var passwordVisible by mutableStateOf(false)
@@ -81,8 +84,13 @@ class ChangePasswordViewModel(
             confirmPassword = newConfirmPassword
         confirmPasswordError =
                     newConfirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
-                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE) ?:
+                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.confirm_password_field_name,
+                        PASSWORD_MAX_SIZE
+                    ) ?:
                     newConfirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
+
+        submitErrorReset()
     }
 
     var confirmPasswordVisible by mutableStateOf(false)
@@ -151,7 +159,6 @@ class ChangePasswordViewModel(
 
                 isSubmitSuccessful = true
                 submitError = null
-
             } catch (_: Exception) {
                 submitError = FormError.UnknownError
             } finally {

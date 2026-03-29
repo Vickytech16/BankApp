@@ -44,6 +44,7 @@ import com.example.bankapp.ui.components.filters.FilterSection
 import com.example.bankapp.ui.components.filters.SortSection
 import com.example.bankapp.ui.components.SearchBarComponent
 import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.viewmodels.FilterViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 import kotlinx.coroutines.launch
@@ -67,7 +68,9 @@ fun TransactionsScreen(
 
     val isLoading = transactionsViewModel.isLoading.collectAsState().value
 
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+   // val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+
+    val deviceSpec = LocalDeviceSpec.current
 
 
     LaunchedEffect(filterViewModel.filterState) {

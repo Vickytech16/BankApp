@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -43,6 +44,7 @@ import com.example.bankapp.R
 import kotlinx.coroutines.delay
 
 import androidx.compose.ui.input.key.Key
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 
 private val otpFontSize = 20.sp
 
@@ -54,6 +56,8 @@ fun OtpInputField(
 ) {
     val focusRequesters = List(6) { FocusRequester() }
     var shakeOffset by remember { mutableFloatStateOf(0f) }
+
+    val deviceSpec = LocalDeviceSpec.current
 
     LaunchedEffect(isError) {
         if (isError) {
@@ -82,7 +86,7 @@ fun OtpInputField(
     ) {
         Row(
             modifier = Modifier
-                .widthIn(dimensionResource(R.dimen.otp_field_max_width))
+                .fillMaxWidth(deviceSpec.textFieldWidth)
                 .offset(x = shakeOffset.dp),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing)),
             verticalAlignment = Alignment.CenterVertically
@@ -136,6 +140,7 @@ private fun OtpBox(
         },
         modifier = modifier
             .scale(scale.value)
+            .aspectRatio(0.8f)
             .border(
                 width = dimensionResource(R.dimen.otp_box_border),
                 color = borderColor,

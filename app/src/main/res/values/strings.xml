@@ -249,6 +249,8 @@
     <string name="country_field_name">Country</string>
     <string name="select_your_country_placeholder">Select your country</string>
     <string name="nickname_optional_field_name">Nickname (optional)</string>
+    <string name="enable_button_text">Enable Notifications</string>
+    <string name="open_settings_manually">Open settings</string>
 
 
 </resources>

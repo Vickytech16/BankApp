@@ -11,7 +11,7 @@
     <dimen name="app_bottom_paddin">24dp</dimen>
 
 <!--    buttons -->
-    <dimen name="submit_button_max_width">400dp</dimen>
+    <dimen name="submit_button_max_width">500dp</dimen>
     <dimen name="divider_thickness">2dp</dimen>
 
 <!--    success confirmation screen -->

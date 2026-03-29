@@ -19,9 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,12 +35,11 @@ import androidx.compose.ui.text.font.FontWeight
 
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import com.example.bankapp.viewmodels.RegisterViewModel
+import com.example.bankapp.viewmodels.authviewmodels.RegisterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
-import com.example.bankapp.entities.dtos.Country
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.DropDownPickerField
 import com.example.bankapp.ui.components.ErrorTextBuilder
@@ -53,7 +50,8 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.utilities.EmailFieldStrategy
 import com.example.bankapp.utilities.PasswordFieldStrategy
 import com.example.bankapp.utilities.PhoneNumberFieldStrategy
@@ -71,13 +69,9 @@ fun RegisterScreen(
 
     val scrollState = rememberScrollState()
 
-    val textFieldColumnWidth =
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> 0.9f
-            WindowWidthSizeClass.Medium -> 0.6f
-            WindowWidthSizeClass.Expanded -> 0.5f
-            else -> 0.8f
-        }
+    val deviceSpec = LocalDeviceSpec.current
+
+    val textFieldColumnWidth = deviceSpec.textFieldWidth
 
     BackButtonHandler(navController, LOGIN_ROUTE)
 
@@ -90,18 +84,16 @@ fun RegisterScreen(
 
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
 
-    LaunchedEffect(windowSizeClass.heightSizeClass) {
-        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
+    LaunchedEffect(deviceSpec) {
+        if (deviceSpec is DeviceSpec.MobileLandscape) {
             bringIntoViewRequester.bringIntoView()
         }
     }
 
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
-
     Scaffold {
         contentPadding ->
         Column(
-            modifier = Modifier.screenModifier(windowSizeClass,contentPadding, scrollState),
+            modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         )
