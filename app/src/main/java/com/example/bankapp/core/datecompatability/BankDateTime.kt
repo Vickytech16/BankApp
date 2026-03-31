@@ -20,4 +20,6 @@ interface BankDateTime {
     fun toMonthDayDisplay(): String
 
     fun toFullDateTimeDisplay(): String
+
+    fun getDateAndTime(millis: Long): String
 }

@@ -1,6 +1,8 @@
 package com.example.bankapp.di
 
+import AuthorizationViewModel
 import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.AuthorizationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ChangePasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.FilterViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
@@ -8,6 +10,7 @@ import com.example.bankapp.di.viewmodelfactory.LoggedInSessionViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoginViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.RecoveryKeyViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ThemeViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.TransactionDetailsViewModelFactory
@@ -56,7 +59,7 @@ class ViewModelContainer(
         )
 
     val loggedInSessionViewModelFactory: LoggedInSessionViewModelFactory =
-        LoggedInSessionViewModelFactory(accountRepository = accountRepository, sharedPreferenceHelper = useCaseContainer.sharedPreferenceHelper)
+        LoggedInSessionViewModelFactory(accountRepository = accountRepository, sharedPreferenceHelper = useCaseContainer.sharedPreferenceHelper, userRepository = userRepository)
 
     val filterViewModelFactory: FilterViewModelFactory =
         FilterViewModelFactory()
@@ -66,6 +69,12 @@ class ViewModelContainer(
 
     val themeViewModelFactory: ThemeViewModelFactory =
         ThemeViewModelFactory(useCaseContainer.sharedPreferenceHelper)
+
+    val recoveryKeyViewModelFactory: RecoveryKeyViewModelFactory =
+        RecoveryKeyViewModelFactory(useCaseContainer.changePasswordUseCase)
+
+    val authorizationViewModelFactory: AuthorizationViewModelFactory =
+        AuthorizationViewModelFactory()
 
 
 }

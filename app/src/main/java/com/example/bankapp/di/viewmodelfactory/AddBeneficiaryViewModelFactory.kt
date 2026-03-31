@@ -1,6 +1,6 @@
 package com.example.bankapp.di.viewmodelfactory
 
-import SharedTransactionViewModel
+import AuthorizationViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.entities.SessionState
@@ -13,7 +13,7 @@ class AddBeneficiaryViewModelFactory(
     private val userRepository: UserRepository,
     private val beneficiaryRepository: BeneficiaryRepository,
     private val sessionState: SessionState.Authenticated.AccountRegistered,
-    private val sharedTransactionViewModel: SharedTransactionViewModel,
+    private val authorizationViewModel: AuthorizationViewModel,
     private val accountRepository: AccountRepository
 ) : ViewModelProvider.Factory {
 
@@ -21,7 +21,7 @@ class AddBeneficiaryViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AddBeneficiaryViewModel::class.java)) {
             return AddBeneficiaryViewModel(
-                userRepository, beneficiaryRepository, sessionState, sharedTransactionViewModel, accountRepository
+                userRepository, beneficiaryRepository, sessionState, authorizationViewModel, accountRepository
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

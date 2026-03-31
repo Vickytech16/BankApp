@@ -19,12 +19,3 @@ fun BankDateTime.isSameDay(other: BankDateTime): Boolean {
     return thisDisplay == otherDisplay
 }
 
-fun getCurrencySymbol(countryCode: String): String {
-    return try {
-        val locale = Locale("", countryCode)
-        val currency = Currency.getInstance(locale)
-        currency.symbol
-    } catch (e: Exception) {
-        "$"
-    }
-}

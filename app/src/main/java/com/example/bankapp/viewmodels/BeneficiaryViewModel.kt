@@ -1,6 +1,6 @@
 package com.example.bankapp.viewmodels
 
-import SharedTransactionViewModel
+import AuthorizationViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,11 +13,8 @@ import com.example.bankapp.entities.errors.FormError
 
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
-import com.example.bankapp.entities.dbtables.Account
-import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
-import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
 import com.example.bankapp.utilities.USERNAME_MAX_SIZE
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidUserNameErrorMessageBuilder
@@ -27,11 +24,12 @@ import kotlinx.coroutines.launch
 class AddBeneficiaryViewModel(
     private val userRepository: UserRepository,
     private val beneficiaryRepository: BeneficiaryRepository,
-    private val sessionState: SessionState.Authenticated.AccountRegistered,
-    private val sharedTransactionViewModel: SharedTransactionViewModel,
+    sessionState: SessionState.Authenticated.AccountRegistered,
+    private val authorizationViewModel: AuthorizationViewModel,
     private val accountRepository: AccountRepository
 ) : ViewModel() {
 
+    private val user = sessionState.user
 
     var userIdentifier by mutableStateOf("")
         private set
@@ -98,7 +96,7 @@ class AddBeneficiaryViewModel(
                     return@launch
                 }
 
-                if(userIdentifier==sessionState.user.email || userIdentifier==sessionState.user.phoneNumber) {
+                if(userIdentifier == user.value.email || userIdentifier == user.value.phoneNumber) {
                     submitError = FormError.YouAreTheUser
                 }
 
@@ -114,12 +112,12 @@ class AddBeneficiaryViewModel(
                         return@launch
                     }
                     else {
-                        if(beneficiaryRepository.getBeneficiary(sessionState.user.userId, friend.userId) == null){
+                        if(beneficiaryRepository.getBeneficiary(user.value.userId, friend.userId) == null){
                             if(accountRepository.getAccountByUserId(friend.userId).isEmpty()){
                                 submitError = FormError.UserDoesNotHaveAccountError
                             }else {
-                                sharedTransactionViewModel.initializeAddBeneficiary(
-                                    sessionState.user.userId,
+                                authorizationViewModel.initializeAddBeneficiary(
+                                    user.value.userId,
                                     friend.userId,
                                     nickname
                                 )

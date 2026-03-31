@@ -89,6 +89,7 @@ fun FilterSection(
                     TransactionType.DEPOSIT -> stringResource(R.string.deposit_label)
                     TransactionType.CASH_TRANSFER -> stringResource(R.string.cash_transfer_label)
                     TransactionType.SCHEDULED_TRANSFER -> stringResource(R.string.scheduled_transfer_label)
+                    TransactionType.INTERNATIONAL_TRANSFER -> stringResource(R.string.international_transfer_label)
                 }
             },
         )

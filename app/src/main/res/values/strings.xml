@@ -132,7 +132,7 @@
     <string name="register_successful">Registration successful!</string>
     <string name="login_succcessful">Login successful!</string>
     <string name="password_changed_successfully">Password changed successfully</string>
-    <string name="redirecting_to_login">Redirecting to login</string>
+    <string name="redirecting_to_login">Redirecting...</string>
     <string name="loading_your_account">Wait a min, we are loading your account</string>
 
     <string name="bottom_nav_home">Home</string>
@@ -251,6 +251,32 @@
     <string name="nickname_optional_field_name">Nickname (optional)</string>
     <string name="enable_button_text">Enable Notifications</string>
     <string name="open_settings_manually">Open settings</string>
+    <string name="international_transfer_label">International transfer</string>
+    <string name="internet_required_content">No cached exchange rates found. Please enable internet to process this international transfer.</string>
+    <string name="internet_required">Internet required!</string>
+    <string name="ok">Ok</string>
+    <string name="recipeient_recieves">Recipient receives:</string>
+    <string name="copy_recovery_text_warning">IMPORTANT: Copy this string now. You will never see this again. If you lose it, you cannot change your password.</string>
+    <string name="saved_key_button">I have saved the key</string>
+    <string name="password_security_error">You have typed wrong password multiple times. We are logging you out for security reasons.</string>
+    <string name="password_security_breach">Security breach!</string>
+    <string name="verify_recoverykey">Verify recoverykey</string>
+    <string name="enter_recovery_key">Enter Recovery Key</string>
+    <string name="enter_recovery_key_content">Please enter the 10-character code provided during registration to proceed.</string>
+    <string name="verify_key_disclaimer">If you forgot your recovery key, please write to vangi@gmail.com so we can verify your credentials.</string>
+    <string name="your_recovery_key">Your Recovery Key</string>
+    <string name="copy_content_description">Copy</string>
 
+    <string name="currency_converter_label">Currency Converter</string>
+    <string name="last_updated_label">Rates as of</string>
+    <string name="converter_disclaimer">Indicative rates for reference only.</string>
+    <string name="swap">Swap</string>
+    <string name="select_currency">Select currency</string>
+    <string name="result">Result</string>
+    <string name="available_balance">Available balance</string>
+    <string name="rates_updated">Rates updated</string>
+    <string name="Export_as_csv">Export as csv</string>
+    <string name="Export_as_pdf">Export as pdf</string>
+    <string name="limit_exceeded">Transaction limit exceeded!</string>
 
 </resources>

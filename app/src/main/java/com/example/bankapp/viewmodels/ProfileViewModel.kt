@@ -2,28 +2,17 @@ package com.example.bankapp.viewmodels
 
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.bankapp.entities.SessionState
-import com.example.bankapp.entities.dbtables.Account
-import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.utilities.uiAccNo
-import com.example.bankapp.utilities.uiUserId
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bankapp.entities.uimodels.AccountUiModel
-import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.UserRepository
+import com.example.bankapp.usecases.ChangePasswordUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -31,32 +20,28 @@ import java.io.File
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
-    private val accountRepository: AccountRepository,
-    private val sessionState: SessionState.Authenticated.AccountRegistered
+    sessionState: SessionState.Authenticated.AccountRegistered,
+    private val changePasswordUseCase: ChangePasswordUseCase
 ) : ViewModel() {
 
 
-    val account: StateFlow<AccountUiModel> = accountRepository
-        .getAccountAsFlowByAccountNumber(sessionState.account.accNo).map { it!! }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = sessionState.account
-        )
+    val account = sessionState.account
+    var user = sessionState.user
 
-    private var _user: MutableStateFlow<User> = MutableStateFlow<User>(sessionState.user)
-    val user: StateFlow<User> = _user.asStateFlow()
+    init {
+        changePasswordUseCase.user = user.value
+    }
 
     var imageUpdateTrigger by mutableStateOf(0)
         private set
 
     init {
-        viewModelScope.launch {
-            userRepository.getUserAsFlowByUserId(sessionState.user.userId)
-                .collect { updatedUser ->
-                    _user.value = updatedUser!!
-                }
-        }
+//        viewModelScope.launch {
+//            userRepository.getUserAsFlowByUserId(user.value.userId)
+//                .collect { updatedUser ->
+//                  user.value = updatedUser!!
+//                }
+//        }
     }
 
     var isLoading by mutableStateOf(false)
@@ -66,8 +51,6 @@ class ProfileViewModel(
 
     var isAccNoVisible by mutableStateOf(false)
         private set
-
-    val isDarkMode = mutableStateOf(true)
 
     var showLogoutDialog by mutableStateOf(false)
         private set
@@ -95,10 +78,10 @@ class ProfileViewModel(
             try {
                 val imagePath = saveBitmapToLocalStorage(bitmap, context)
                 if (imagePath != null) {
-                    _user.value = _user.value.copy(pfpURL = imagePath)
-                    userRepository.updateUser(_user.value)
+                    val currentUser = user.value
+                    val updatedUser = currentUser.copy(pfpURL = imagePath)
+                    userRepository.updateUser(updatedUser)
                     imageUpdateTrigger++
-
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -112,7 +95,7 @@ class ProfileViewModel(
         withContext(Dispatchers.IO) {
             return@withContext try {
 
-                val userId = _user.value.userId
+                val userId = user.value.userId
                 val appDir = context.getExternalFilesDir("profile_pictures")
                     ?: return@withContext null
 

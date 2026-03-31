@@ -99,7 +99,6 @@ fun TransactionLazyList(
 
                 SmallSpacer()
             }
-
             item {
                 LargeSpacer()
             }

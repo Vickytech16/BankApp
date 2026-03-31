@@ -23,14 +23,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
-import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.uimodels.AccountUiModel
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.screens.ProfileDivider
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
-import com.example.bankapp.utilities.RUPEE_SYMBOL
-import com.example.bankapp.utilities.getCurrencySymbol
+import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.viewmodels.ProfileViewModel
 
 @Composable
@@ -78,7 +76,7 @@ fun ProfileAccountCard(
 
             ProfileAccountRow(
                 label = stringResource(R.string.balance_label),
-                value = "${getCurrencySymbol(countryCode)} ${account.balance}"
+                value = "${CurrencyUtils.getCurrencySymbol(countryCode)} ${account.balance}"
             )
         }
     }

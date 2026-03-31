@@ -1,6 +1,6 @@
 package com.example.bankapp.ui.components.navigators
 
-import SharedTransactionViewModel
+import AuthorizationViewModel
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -11,8 +11,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.CashTransferViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.ChangePasswordViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.CurrencyConvertorViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.DepositViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.FilterViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.HomeViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
@@ -28,6 +31,10 @@ import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.di.viewmodelfactory.ManageBeneficiaryViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.RecoveryKeyViewModelFactory
+import com.example.bankapp.repositories.CountryRepository
+import com.example.bankapp.repositories.CurrencyExchangeRepository
+import com.example.bankapp.services.TransactionExportService
 import com.example.bankapp.ui.screens.beneficiaryscreens.AddBeneficiaryScreen
 import com.example.bankapp.ui.screens.payscreens.CashTransferScreen
 import com.example.bankapp.ui.screens.payscreens.DepositScreen
@@ -40,7 +47,12 @@ import com.example.bankapp.ui.screens.ProfileScreen
 import com.example.bankapp.ui.screens.TransactionDetailsScreen
 import com.example.bankapp.ui.screens.TransactionResultScreen
 import com.example.bankapp.ui.screens.TransactionsScreen
+import com.example.bankapp.ui.screens.authscreens.ChangePasswordScreen
+import com.example.bankapp.ui.screens.authscreens.ForgetPasswordScreen
 import com.example.bankapp.ui.screens.authscreens.OtpScreen
+import com.example.bankapp.ui.screens.authscreens.RecoveryKeyVerificationScreen
+import com.example.bankapp.usecases.ChangePasswordUseCase
+import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
@@ -50,15 +62,22 @@ fun NavGraphBuilder.homeNavGraph(
     sessionState: SessionState,
     transactionRepository: TransactionRepository,
     accountRepository: AccountRepository,
-    logoutAction: () -> Unit,
     otpViewModelFactory: OtpViewModelFactory,
     notificationViewModelFactory: NotificationViewModelFactory,
     beneficiaryRepository: BeneficiaryRepository,
     userRepository: UserRepository,
     filterViewModelFactory: FilterViewModelFactory,
     transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory,
+    forgotPasswordViewModelFactory: ForgotPasswordViewModelFactory,
+    changePasswordViewModelFactory: ChangePasswordViewModelFactory,
+    recoveryKeyViewModelFactory: RecoveryKeyViewModelFactory,
     themeViewModel: ThemeViewModel,
-    sharedTransactionViewModel: SharedTransactionViewModel
+    authorizationViewModel: AuthorizationViewModel,
+    currencyExchangeRepository: CurrencyExchangeRepository,
+    sessionViewModel: LoggedInSessionViewModel,
+    countryRepository: CountryRepository,
+    changePasswordUseCase: ChangePasswordUseCase,
+    transactionExportService: TransactionExportService
 ) {
     navigation(
         startDestination = HOME_ROUTE,
@@ -67,34 +86,35 @@ fun NavGraphBuilder.homeNavGraph(
         if (sessionState is SessionState.Authenticated.AccountRegistered) {
 
             val transactionsViewModelFactory =
-                TransactionsViewModelFactory(sessionState, transactionRepository)
+                TransactionsViewModelFactory(sessionState, transactionRepository, transactionExportService)
             val homeViewModelFactory =
                 HomeViewModelFactory(sessionState, accountRepository)
             val cashTransferViewModelFactory =
-                CashTransferViewModelFactory(sessionState, transactionRepository, beneficiaryRepository, accountRepository, sharedTransactionViewModel )
+                CashTransferViewModelFactory(sessionState, transactionRepository, beneficiaryRepository, accountRepository, authorizationViewModel, userRepository, currencyExchangeRepository )
             val depositViewModelFactory =
-                DepositViewModelFactory(sessionState, sharedTransactionViewModel)
+                DepositViewModelFactory(sessionState, authorizationViewModel)
             val passwordConfirmationViewModelFactory =
-                PasswordConfirmationViewModelFactory(sessionState)
+                PasswordConfirmationViewModelFactory(sessionState, sessionViewModel)
             val transactionResultViewModelFactory =
-                TransactionResultViewModelFactory(transactionRepository, beneficiaryRepository, sharedTransactionViewModel)
+                TransactionResultViewModelFactory(transactionRepository, beneficiaryRepository, authorizationViewModel)
             val beneficiaryViewModelFactory =
-                AddBeneficiaryViewModelFactory(userRepository = userRepository, beneficiaryRepository = beneficiaryRepository, sessionState = sessionState, sharedTransactionViewModel = sharedTransactionViewModel, accountRepository = accountRepository)
+                AddBeneficiaryViewModelFactory(userRepository = userRepository, beneficiaryRepository = beneficiaryRepository, sessionState = sessionState, authorizationViewModel = authorizationViewModel, accountRepository = accountRepository)
             val payToBeneficiaryViewModelFactory =
                 PayToBeneficiaryViewModelFactory(beneficiaryRepository = beneficiaryRepository, sessionState = sessionState)
             val profileViewModelFactory =
-                ProfileViewModelFactory(userRepository = userRepository, accountRepository = accountRepository, sessionState = sessionState)
+                ProfileViewModelFactory(userRepository = userRepository, sessionState = sessionState, changePasswordUseCase = changePasswordUseCase)
             val manageBeneficiaryViewModelFactory =
                 ManageBeneficiaryViewModelFactory(sessionState = sessionState, beneficiaryRepository = beneficiaryRepository)
+            val currencyConvertorViewModelFactory =
+                CurrencyConvertorViewModelFactory(sessionState = sessionState, currencyExchangeRepository = currencyExchangeRepository, countryRepository = countryRepository)
 
             composable(HOME_ROUTE) {
                 val transactionsViewModel: TransactionsViewModel =
                     viewModel(factory = transactionsViewModelFactory)
                 HomeScreen(
-                    windowSizeClass = windowSizeClass,
                     homeViewModelFactory = homeViewModelFactory,
                     navController = navController,
-                    logoutAction = logoutAction,
+                    logoutAction = sessionViewModel::logout,
                     transactionsViewModel = transactionsViewModel
                 )
             }
@@ -102,7 +122,8 @@ fun NavGraphBuilder.homeNavGraph(
             composable(PAY_ROUTE) {
                 PayScreen(
                     navController = navController,
-                    windowSizeClass = windowSizeClass
+                    windowSizeClass = windowSizeClass,
+                    currencyConvertorViewModelFactory = currencyConvertorViewModelFactory
                 )
             }
 
@@ -111,7 +132,7 @@ fun NavGraphBuilder.homeNavGraph(
                     navController = navController,
                     windowSizeClass =  windowSizeClass,
                     profileViewModelFactory = profileViewModelFactory,
-                    logoutAction = logoutAction,
+                    logoutAction = sessionViewModel::logout,
                     themeViewModel = themeViewModel
                 )
             }
@@ -147,9 +168,8 @@ fun NavGraphBuilder.homeNavGraph(
                     transactionDetailsViewModelFactory = transactionDetailsViewModelFactory,
                     transactionId = transactionId,
                     windowSizeClass = windowSizeClass,
-                    accNo = sessionState.account.accNo,
-                    countryCode = sessionState.user.countryCode,
-                    backRoute = backRoute
+                    backRoute = backRoute,
+                    sessionState = sessionState
                 )
             }
 
@@ -172,7 +192,6 @@ fun NavGraphBuilder.homeNavGraph(
 
             composable(DEPOSIT_ROUTE) {
                 DepositScreen(
-                    windowSizeClass = windowSizeClass,
                     depositViewModelFactory = depositViewModelFactory,
                     navController = navController
                 )
@@ -195,8 +214,9 @@ fun NavGraphBuilder.homeNavGraph(
                     passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
                     onDismissRoute = backRoute,
                     onPasswordVerificationSuccess = {
-                          sharedTransactionViewModel.proceedAfterPassword(navController)
-                    }
+                          authorizationViewModel.proceedAfterPassword(navController)
+                    },
+                    sessionViewModel = sessionViewModel
                 )
             }
 
@@ -204,7 +224,7 @@ fun NavGraphBuilder.homeNavGraph(
                 TransactionResultScreen(
                     transactionResultViewModelFactory,
                     navController,
-                    sharedTransactionViewModel
+                    authorizationViewModel
                 )
             }
 
@@ -248,11 +268,34 @@ fun NavGraphBuilder.homeNavGraph(
                     otpViewModelFactory = otpViewModelFactory,
                     backRoute = backRoute,
                     onOtpSuccess = {
-                       sharedTransactionViewModel.proceedAfterOtp(navController)
+                       authorizationViewModel.proceedAfterOtp(navController)
                     },
                     onDismiss = {
 
                     }
+                )
+            }
+
+            composable(FORGOT_PASSWORD_ROUTE_HOME) {
+                ForgetPasswordScreen(
+                    navController = navController,
+                    forgotPasswordViewModelFactory = forgotPasswordViewModelFactory
+                )
+            }
+
+            composable(CHANGE_PASSWORD_ROUTE_HOME) {
+                ChangePasswordScreen(
+                    windowSizeClass = windowSizeClass,
+                    navController = navController,
+                    viewModelFactory = changePasswordViewModelFactory
+                )
+            }
+
+            composable(RECOVERY_KEY_HOME_ROUTE) {
+                RecoveryKeyVerificationScreen(
+                    recoveryKeyViewModelFactory,
+                    navController,
+                    {navController.navigate(CHANGE_PASSWORD_ROUTE_HOME)}
                 )
             }
         }

@@ -1,6 +1,6 @@
 package com.example.bankapp.viewmodels
 
-import SharedTransactionViewModel
+import AuthorizationViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,25 +12,52 @@ import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.types.account.AccountStatus
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
+import com.example.bankapp.repositories.CurrencyExchangeRepository
 import com.example.bankapp.repositories.TransactionRepository
+import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.utilities.ACCOUNT_NUMBER_SIZE
+import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.utilities.amountFieldValidator
 import com.example.bankapp.utilities.cashTransferAmountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidNumericalFieldErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 import com.example.bankapp.utilities.toDbAccNo
+import com.example.bankapp.utilities.uiUserId
 import kotlinx.coroutines.launch
 
 class CashTransferViewModel(
-    private val sessionState: SessionState.Authenticated.AccountRegistered,
+    sessionState: SessionState.Authenticated.AccountRegistered,
     private val transactionRepository: TransactionRepository,
     private val beneficiaryRepository: BeneficiaryRepository,
     private val accountRepository: AccountRepository,
-    private val sharedSessionViewModel: SharedTransactionViewModel
+    private val sharedSessionViewModel: AuthorizationViewModel,
+    private val userRepository: UserRepository,
+    private val currencyRepository: CurrencyExchangeRepository
 ) : ViewModel() {
 
-    private val account = sessionState.account
+    var exchangeRates by mutableStateOf<Map<String, Double>>(emptyMap())
+        private set
+
+    init {
+        loadExchangeRates()
+    }
+
+    private fun loadExchangeRates() {
+        viewModelScope.launch {
+
+            val ratesData = currencyRepository.getLatestRates()
+            if (ratesData != null) {
+                exchangeRates = ratesData.rates
+            }
+
+            lastUpdatedTime = currencyRepository.getLastUpdated()
+        }
+    }
+
+    val account = sessionState.account
+
+    val user = sessionState.user
 
     var accountNumber by mutableStateOf("")
         private set
@@ -53,11 +80,38 @@ class CashTransferViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
-    var isNavigationSet by mutableStateOf(false)
-
-
     var isVerifySuccessful by mutableStateOf(false)
         private set
+
+    var isInternational by mutableStateOf(false)
+        private set
+    private var recieverCountryCode by mutableStateOf("")
+
+    private var recieverCurrencyCode  by mutableStateOf("")
+
+
+    var exchangeRate by mutableStateOf(java.math.BigDecimal.ONE)
+    var showInternetAlert by mutableStateOf(false)
+
+    var lastUpdatedTime by mutableStateOf("---")
+        private set
+
+
+    val convertedAmountDisplay: String
+        get() {
+            if (amount.isEmpty() || exchangeRates.isEmpty())
+                return ""
+            val result = CurrencyUtils.convertCurrency(
+                amount = amount,
+                rates = exchangeRates,
+                baseCountryCode = user.value.countryCode,
+                targetCountryCode = recieverCountryCode
+            )
+
+            val symbol = CurrencyUtils.getCurrencySymbol(recieverCountryCode)
+
+            return "$result $symbol"
+        }
 
     fun onFriendPay(accNo: String){
         accountNumber = accNo
@@ -87,18 +141,31 @@ class CashTransferViewModel(
             accountExistsStatus = AccountStatus.EMPTY
             return
         }
-        if (accNo.toDbAccNo() == account.accNo) {
+        if (accNo.toDbAccNo() == account.value.accNo) {
             accountExistsStatus = AccountStatus.SAME_ACCOUNT
             return
         }
         viewModelScope.launch {
             try {
                 val exists = transactionRepository.checkIfAccountExists(accNo.toDbAccNo())
+
                 accountExistsStatus =
                     if (exists)
                         AccountStatus.EXISTS
                     else
                         AccountStatus.NOT_FOUND
+
+                if(exists){
+                val otherUserId = accountRepository.getUserIdByAccNo(accNo.toDbAccNo()).uiUserId
+                val otherUser = userRepository.getUserByUserId(otherUserId)
+                    isInternational = otherUser!!.countryCode != user.value.countryCode
+                    if (isInternational) {
+                        recieverCountryCode = otherUser.countryCode
+                        val myRate = exchangeRates[CurrencyUtils.getCurrencyCode(user.value.countryCode)] ?: 1.0
+                        val targetRate = exchangeRates[CurrencyUtils.getCurrencyCode(otherUser.countryCode)] ?: 1.0
+                        exchangeRate = (targetRate / myRate).toBigDecimal()
+                    }
+                }
             } catch (e: Exception) {
                 accountExistsStatus = AccountStatus.ERROR
             }
@@ -151,23 +218,32 @@ class CashTransferViewModel(
                 if (submitError == null) {
                     val otherUserId = accountRepository.getUserIdByAccNo(accountNumber.toDbAccNo())
 
-                    val isFriend = beneficiaryRepository.getBeneficiary(sessionState.user.userId, otherUserId) != null
+                    val isFriend = beneficiaryRepository.getBeneficiary(user.value.userId, otherUserId) != null
 
-//                    cashTransfer.onInitialize(
-//                        sessionState.account.accNo,
-//                        accountNumber.toDbAccNo(),
-//                        convertedAmount,
-//                        isFriend
-//                    )
-//
-//                    cashTransfer.intent = CurrentSessionIntent.CASH_TRANSFER
-
-                    sharedSessionViewModel.initializeCashTransfer(
-                        fromAccNo = sessionState.account.accNo,
-                        toAccNo = accountNumber.toDbAccNo(),
-                        amount = amount.toBigDecimal(),
-                        friend = isFriend
-                    )
+                    if (isInternational) {
+                        val cache = currencyRepository.getLatestRates()
+                        if (cache == null) {
+                            showInternetAlert = true
+                            return@launch
+                        }
+                        sharedSessionViewModel.initializeInternationalTransfer(
+                            fromAccNo = account.value.accNo,
+                            toAccNo = accountNumber.toDbAccNo(),
+                            amount = amount.toBigDecimal(),
+                            baseCurrency = CurrencyUtils.getCurrencySymbol(user.value.countryCode),
+                            targetCurrency = CurrencyUtils.getCurrencySymbol(recieverCountryCode),
+                            rate = exchangeRate
+                        )
+                    }
+                    else {
+                        sharedSessionViewModel.initializeCashTransfer(
+                            fromAccNo = account.value.accNo,
+                            toAccNo = accountNumber.toDbAccNo(),
+                            amount = amount.toBigDecimal(),
+                            friend = isFriend,
+                            countryCode = user.value.countryCode
+                        )
+                    }
 
                     isVerifySuccessful = true
                 }
@@ -179,14 +255,4 @@ class CashTransferViewModel(
         }
     }
 
-    fun resetScreenState() {
-        accountNumber = ""
-        amount = ""
-        accountNumberError = null
-        amountError = null
-        submitError = null
-        accountExistsStatus = null
-        isVerifySuccessful = false
-        isLoading = false
-    }
 }

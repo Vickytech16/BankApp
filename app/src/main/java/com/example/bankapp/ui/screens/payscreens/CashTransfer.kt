@@ -1,20 +1,17 @@
 package com.example.bankapp.ui.screens.payscreens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,14 +19,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,11 +44,18 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
 import com.example.bankapp.entities.types.transaction.TransactionType
+import com.example.bankapp.ui.components.AlertButtonConfig
+import com.example.bankapp.ui.components.AlertDialogBox
+import com.example.bankapp.ui.components.BalanceStatusCard
+import com.example.bankapp.ui.components.ExchangeDisplayData
+import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.textfields.AccountNumberOutlinedTextField
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.utilities.AmountFieldStrategy
+import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.utilities.toDbAccNo
 import com.example.bankapp.viewmodels.CashTransferViewModel
 
@@ -68,11 +71,24 @@ fun CashTransferScreen(
 
     val viewModel: CashTransferViewModel = viewModel(factory = cashTransferViewModelFactory)
 
+    val user by viewModel.user.collectAsState()
+    val account by viewModel.account.collectAsState()
+
+    if (viewModel.showInternetAlert) {
+        AlertDialogBox(
+            onDismissRequest = { viewModel.showInternetAlert = false },
+            title = stringResource(R.string.internet_required),
+            content = { Text(text = stringResource(R.string.internet_required_content) )},
+            confirmButton = AlertButtonConfig(stringResource(R.string.ok), { viewModel.showInternetAlert = false })
+        )
+    }
+
     LaunchedEffect(Unit) {
         friendAccNo?.let {
             viewModel.onFriendPay(friendAccNo)
         }
     }
+
     val scrollState = rememberScrollState()
 
     val illustrationHeight = dimensionResource(R.dimen.illustration_height).value.toInt()
@@ -83,86 +99,15 @@ fun CashTransferScreen(
         }
     }
 
-
     LaunchedEffect(viewModel.isVerifySuccessful) {
-// && !viewModel.isNavigationSet
         if (viewModel.isVerifySuccessful ) {
-
-//            viewModel.isNavigationSet = true
-//
-//            val homeSessionHandler = HomeSessionHandlerProvider.currentHandler
-//            val cashTransfer = homeSessionHandler as HomeSessionHandler.CashTransfer
-//
-//            cashTransfer.navigationLocked = false
-//
-//            cashTransfer.onActionSuccessPrimaryAction = {
-//                if (!cashTransfer.navigationLocked) {
-//                    cashTransfer.navigationLocked = true
-//                    val transactionId = cashTransfer.transactionId
-//
-//                    if (transactionId != null) {
-//                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
-//                            popUpTo(HOME_ROUTE) { inclusive = false }
-//                        }
-//                    } else {
-//                        navController.navigate(HOME_ROUTE) {
-//                            popUpTo(MAIN_ROUTE) {
-//                                inclusive = true
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            cashTransfer.onActionFailurePrimaryAction = {
-//                if (!cashTransfer.navigationLocked) {
-//                    cashTransfer.navigationLocked= true
-//                    navController.navigate(CASH_TRANSFER_ROUTE) {
-//                        popUpTo(HOME_ROUTE) {
-//                            inclusive = false
-//                        }
-//                    }
-//                }
-//            }
-//
-//            homeSessionHandler.onOtpSuccess = {
-//                if (!cashTransfer.navigationLocked) {
-////                    cashTransfer.navigationLocked = true
-//                    if(!cashTransfer.isFriend) {
-//                        navController.navigate("$PASSWORD_CONFIRMATION_ROUTE/$CASH_TRANSFER_ROUTE")
-//                    } else {
-//                        homeSessionHandler.onPasswordSuccess.invoke()
-//                    }
-//                }
-//            }
-//
-//            homeSessionHandler.onPasswordSuccess = {
-//                if (!cashTransfer.navigationLocked) {
-////                    cashTransfer.navigationLocked = true
-//                    navController.navigate(TRANSACTION_RESULT_ROUTE)
-//                }
-//            }
-
             navController.navigate("$HOME_OTP/$CASH_TRANSFER_ROUTE")
         }
-
     }
 
-    val textFieldColumnWidth =
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> 0.8f
-            WindowWidthSizeClass.Medium -> 0.6f
-            WindowWidthSizeClass.Expanded -> 0.5f
-            else -> 0.8f
-        }
+    val deviceSpec = LocalDeviceSpec.current
 
-
-
-//    DisposableEffect(Unit) {
-//        onDispose {
-//            viewModel.resetScreenState()
-//        }
-//    }
+    val textFieldColumnWidth = deviceSpec.textFieldWidth
 
     Scaffold(
         topBar = {
@@ -178,21 +123,20 @@ fun CashTransferScreen(
     ) {
         contentPadding ->
         Column(
-            modifier = AppPadding.padding(contentPadding).fillMaxHeight().verticalScroll(scrollState),
+            modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.signup_illustration),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensionResource(R.dimen.illustration_height))
-                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
-                contentScale = ContentScale.Fit
-            )
+            val balanceValue = account.balance
 
-            MediumSpacer()
+            val exchangeInfo = if (viewModel.isInternational &&
+                viewModel.amount.isNotEmpty() &&
+                viewModel.accountExistsStatus == AccountStatus.EXISTS) {
+                ExchangeDisplayData(
+                    convertedAmount = viewModel.convertedAmountDisplay,
+                    lastUpdated = viewModel.lastUpdatedTime
+                )
+            } else null
 
             Text(
                 text = stringResource(R.string.enter_transaction_details),
@@ -202,16 +146,22 @@ fun CashTransferScreen(
                 fontWeight = FontWeight.ExtraBold
             )
 
-            XLSpacer()
+            LargeSpacer()
+
+            BalanceStatusCard(
+                modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
+                balanceValue = CurrencyUtils.formatCurrency(balanceValue, user.countryCode) + " " + CurrencyUtils.getCurrencyCode(user.countryCode),
+                exchangeInfo = exchangeInfo
+            )
+
+            LargeSpacer()
 
             Column(
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                if(friendAccNo?.toDbAccNo()==null || friendAccNo.toDbAccNo()==0.toLong()) {
-
-
+                if (friendAccNo?.toDbAccNo() == null || friendAccNo.toDbAccNo() == 0.toLong()) {
                     AccountNumberOutlinedTextField(
                         viewModel.accountNumber,
                         viewModel::onAccountNumberChange,
@@ -236,8 +186,6 @@ fun CashTransferScreen(
                     strategy = AmountFieldStrategy(TransactionType.CASH_TRANSFER),
                 )
 
-                MediumSpacer()
-
                 XLSpacer()
 
                 SubmitButton(
@@ -249,11 +197,12 @@ fun CashTransferScreen(
 
                 ErrorTextBuilder(viewModel.submitError)
             }
+        }
 
             XLSpacer()
         }
     }
-}
+
 
 @Composable
 private fun AccountVerificationMessage(accountExistsStatus: AccountStatus?) {
@@ -278,10 +227,8 @@ private fun AccountVerificationMessage(accountExistsStatus: AccountStatus?) {
                     AccountStatus.EXISTS -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.error
                 },
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(AppSpacing.xl)
             )
-
-
 
             Text(
                 text = when (accountExistsStatus) {
@@ -301,91 +248,3 @@ private fun AccountVerificationMessage(accountExistsStatus: AccountStatus?) {
     }
 }
 
-
-/*
-// Password dialog (for future use)
-if (viewModel.showPasswordDialog) {
-    PasswordVerificationDialog(
-        onDismiss = { /* handle */ },
-        onSubmit = { password -> /* handle */ },
-        isLoading = viewModel.isLoading,
-        password = viewModel.password,
-        onPasswordChange = viewModel::onPasswordChange,
-        passwordVisible = viewModel.passwordVisible,
-        passwordError = viewModel.passwordError,
-        onPasswordVisibleChange = viewModel::onPasswordVisibleChange
-    )
-}
-
-// Cancel dialog (for future use)
-if (viewModel.showCancelDialog) {
-    AlertDialog(
-        onDismissRequest = { /* handle */ },
-        title = { Text(stringResource(R.string.cancel_transaction)) },
-        text = { Text(stringResource(R.string.dismissing_Cancel_transaction_message)) },
-        confirmButton = {
-            Button(onClick = { /* handle */ }) {
-                Text(stringResource(R.string.yes_cancel_confirmation))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { /* handle */ }) {
-                Text(stringResource(R.string.continue_label))
-            }
-        }
-    )
-}
-*/
-
-/*
-
-LaunchedEffect(viewModel.isVerifySuccessful) {
-
-
-        val homeSessionHandler = TransactionSessionManager.currentHandler
-        val cashTransfer = homeSessionHandler as HomeSessionHandler.CashTransfer
-
-        if (viewModel.isVerifySuccessful) {
-
-            cashTransfer.onTransactionSuccessPrimaryAction = {
-                val transactionId = cashTransfer.transactionId
-
-                if (transactionId != null) {
-                    navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId") {
-                        popUpTo(HOME_ROUTE) {
-                            inclusive = false
-                        }
-                    }
-                } else {
-                    navController.navigate(HOME_ROUTE) {
-                        popUpTo(MAIN_ROUTE) {
-                            inclusive = true
-                        }
-                    }
-                }
-            }
-
-            cashTransfer.onTransactionFailurePrimaryAction = {
-                navController.navigate(CASH_TRANSFER_ROUTE) {
-                    popUpTo(HOME_ROUTE) {
-                        inclusive = false
-                    }
-                }
-            }
-
-            homeSessionHandler.onOtpSuccess = {
-                if(!cashTransfer.isFriend) {
-                    navController.navigate("$PASSWORD_CONFIRMATION_ROUTE/$CASH_TRANSFER_ROUTE")
-                } else {
-                    homeSessionHandler.onPasswordSuccess.invoke()
-                }
-            }
-
-            homeSessionHandler.onPasswordSuccess = {
-                navController.navigate(TRANSACTION_RESULT_ROUTE)
-            }
-
-            navController.navigate("$HOME_OTP/$CASH_TRANSFER_ROUTE")
-        }
-    }
- */

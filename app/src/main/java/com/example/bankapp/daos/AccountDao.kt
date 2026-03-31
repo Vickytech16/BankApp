@@ -26,6 +26,9 @@ interface AccountDao {
     @Query("select * from accounts where accNo = :accNo")
     fun getAccountAsFlowByAccNo(accNo: Long): Flow<Account?>
 
+    @Query("select * from accounts where userId=:userId")
+    fun getAccountAsFlowByUserId(userId: Long): Flow<Account?>
+
     @Query("select userId from accounts where accNo = :accNo")
     fun getUserIdByAccNo(accNo: Long): Long
 

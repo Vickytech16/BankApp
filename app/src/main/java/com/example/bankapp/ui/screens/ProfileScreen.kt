@@ -78,11 +78,13 @@ import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PROFILE_ROUTE
+import com.example.bankapp.ui.components.navigators.RECOVERY_KEY_HOME_ROUTE
 import com.example.bankapp.ui.components.profileitems.ProfileAccountCard
 import com.example.bankapp.ui.components.profileitems.ProfileSettingsCard
 import com.example.bankapp.ui.components.profileitems.UserInfoCard
 import com.example.bankapp.ui.components.profileitems.UserInfoRow
 import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.viewmodels.ThemeType
 import com.example.bankapp.viewmodels.ThemeViewModel
 
@@ -98,7 +100,8 @@ fun ProfileScreen(
 
     val viewModel: ProfileViewModel = viewModel(factory = profileViewModelFactory)
     val scrollState = rememberScrollState()
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val deviceSpec = LocalDeviceSpec.current
+
     val account by viewModel.account.collectAsState()
     val currentRoute = remember { PROFILE_ROUTE }
     val user by viewModel.user.collectAsState()
@@ -213,7 +216,8 @@ fun ProfileScreen(
                 ProfileSettingsCard(
                     title = stringResource(R.string.settings_support_label),
                     deviceSpec = deviceSpec,
-                    themeViewModel = themeViewModel
+                    themeViewModel = themeViewModel,
+                    { navController.navigate(RECOVERY_KEY_HOME_ROUTE) }
                 )
 
                 XLSpacer()

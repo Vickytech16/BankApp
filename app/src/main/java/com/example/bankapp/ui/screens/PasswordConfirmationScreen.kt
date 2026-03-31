@@ -26,6 +26,8 @@ import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.PasswordConfirmationViewModelFactory
 import com.example.bankapp.entities.errors.FormError
+import com.example.bankapp.ui.components.AlertButtonConfig
+import com.example.bankapp.ui.components.AlertDialogBox
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
@@ -33,6 +35,7 @@ import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.usecases.TransactionSessionHolder
 import com.example.bankapp.utilities.PasswordFieldStrategy
+import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 import com.example.bankapp.viewmodels.PasswordConfirmationViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -42,7 +45,8 @@ fun PasswordConfirmationScreen(
     navController: NavController,
     passwordConfirmationViewModelFactory: PasswordConfirmationViewModelFactory,
     onDismissRoute: String,
-    onPasswordVerificationSuccess: () -> Unit
+    onPasswordVerificationSuccess: () -> Unit,
+    sessionViewModel: LoggedInSessionViewModel
 ) {
     val viewModel: PasswordConfirmationViewModel =
         viewModel(factory = passwordConfirmationViewModelFactory)
@@ -57,6 +61,17 @@ fun PasswordConfirmationScreen(
                 }
             }
         }
+    }
+
+    val ok = stringResource(R.string.ok)
+
+    if(sessionViewModel.shouldLogoutOnPasswordFailure){
+        AlertDialogBox(
+            onDismissRequest = {sessionViewModel.logout()},
+            confirmButton = AlertButtonConfig(ok,{sessionViewModel.logout()}),
+            content =  {Text(stringResource(R.string.password_security_error))},
+            title = stringResource(R.string.password_security_breach)
+        )
     }
 
     LaunchedEffect(Unit) {

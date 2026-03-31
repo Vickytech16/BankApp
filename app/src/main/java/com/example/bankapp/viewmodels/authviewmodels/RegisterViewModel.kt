@@ -13,6 +13,7 @@ import com.example.bankapp.entities.errors.UiError
 import com.example.bankapp.repositories.CountryRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
+import com.example.bankapp.services.RecoverKeyGenerationService
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
@@ -34,6 +35,10 @@ class RegisterViewModel(
     countryRepository: CountryRepository
 ): ViewModel()
 {
+
+    var recoveryKey = ""
+        private set
+
     var userName by mutableStateOf("")
         private set
 
@@ -279,6 +284,9 @@ class RegisterViewModel(
                             FormError.UserAlreadyExists(R.string.phone_number_field_name)
                     else {
                         submitError = null
+
+                        recoveryKey = RecoverKeyGenerationService.generateRecoveryKey()
+
                         isSubmitSuccessful = true
 
                         userRepository.createNewUser(
@@ -290,7 +298,8 @@ class RegisterViewModel(
                                     .replace(Regex("\\s+"), " "),
                                 phoneNumber = phoneNumber.trim(),
                                 countryCode = selectedCountry?.countryCode ?: "IN",
-                                timeZone = selectedTimezone ?: "UTC"
+                                timeZone = selectedTimezone ?: "UTC",
+                                recoveryKey = PasswordHashingService.hash(recoveryKey)
                             )
                         )
                     }

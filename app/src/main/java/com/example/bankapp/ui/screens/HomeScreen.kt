@@ -16,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,7 +52,6 @@ import com.example.bankapp.viewmodels.TransactionsViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    windowSizeClass: WindowSizeClass,
     navController: NavController,
     homeViewModelFactory: HomeViewModelFactory,
     logoutAction: () -> Unit,
@@ -61,6 +59,7 @@ fun HomeScreen(
 ) {
     val homeViewModel: HomeViewModel = viewModel(factory = homeViewModelFactory)
     val account by homeViewModel.account.collectAsState()
+    val user by homeViewModel.user.collectAsState()
     val transactions by transactionsViewModel.transactions.collectAsState()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -82,14 +81,14 @@ fun HomeScreen(
    HomeDrawer(
         drawerState = drawerState,
         logoutAction = logoutAction,
-        username = homeViewModel.username,
+        username = user.userName,
         showLogoutDialog = homeViewModel.showLogoutDialog,
         onShowLogOutDialogChange = homeViewModel::onLogoutClickChange,
         modifier = Modifier.fillMaxWidth(deviceSpec.drawerWidth),
         content  = {
         Scaffold(
             topBar = {
-                HomeAppBar(homeViewModel.username, drawerState, scrollBehavior, deviceSpec)
+                HomeAppBar(user.userName, drawerState, scrollBehavior, deviceSpec)
             },
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             bottomBar = {
@@ -123,7 +122,7 @@ fun HomeScreen(
                         isBalanceVisible = homeViewModel.isBalanceVisible,
                         onIsBalanceVisibleChange = homeViewModel::onIsBalanceVisibleChange,
                         deviceSpec = deviceSpec,
-                        countryCode = homeViewModel.countryCode
+                        countryCode = user.countryCode
                     )
                 }
 
@@ -171,7 +170,7 @@ fun HomeScreen(
                         .padding(horizontal = deviceSpec.HomeCardHorizontalPadding),
                     navController = navController,
                     deviceSpec = deviceSpec,
-                    countryCode = homeViewModel.countryCode
+                    countryCode = user.countryCode
                 )
             }
         }

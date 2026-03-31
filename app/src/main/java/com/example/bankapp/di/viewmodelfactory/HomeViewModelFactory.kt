@@ -14,8 +14,8 @@ class HomeViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             return HomeViewModel(
-                sessionState = sessionState,
-                accountRepository = accountRepository) as T
+                sessionState = sessionState
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

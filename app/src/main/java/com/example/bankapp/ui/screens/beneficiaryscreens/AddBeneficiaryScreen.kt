@@ -48,6 +48,7 @@ import com.example.bankapp.ui.components.navigators.PAY_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppPadding
 import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.usecases.CurrentSessionIntent
 import com.example.bankapp.utilities.EmailFieldStrategy
 import com.example.bankapp.utilities.UserNameFieldStrategy
@@ -78,7 +79,7 @@ fun AddBeneficiaryScreen(
         }
     }
 
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val deviceSpec = LocalDeviceSpec.current
 
     val textFieldColumnWidth =
         deviceSpec.textFieldWidth

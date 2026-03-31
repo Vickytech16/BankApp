@@ -182,5 +182,6 @@
     <dimen name="beneficiary_avatar_size_tab">90dp</dimen>
     <dimen name="beneficiary_icon_button_area">40dp</dimen>
     <dimen name="beneficiary_list_icon_size">20dp</dimen>
+    <dimen name="field_corner_radius">12dp</dimen>
 
 </resources>

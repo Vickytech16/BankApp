@@ -1,17 +1,9 @@
 package com.example.bankapp.ui.theme
 
 import android.content.res.Configuration
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -528,7 +520,6 @@ sealed class DeviceSpec {
 
         @Composable
         override fun profileSectionTitleStyle(): TextStyle = MaterialTheme.typography.labelMedium
-
     }
 }
 
@@ -554,7 +545,7 @@ object DeviceSpecProvider {
 
 object DeviceSpecProviderTemp {
 
-    fun getCurrentDeviceSpec(windowSizeClass: WindowSizeClass, configuration: Configuration): DeviceSpec {
+    fun getCurrentDeviceSpec(configuration: Configuration): DeviceSpec {
 
         val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 

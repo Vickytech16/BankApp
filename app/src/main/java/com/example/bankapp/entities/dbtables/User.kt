@@ -18,5 +18,6 @@ data class User(
     val passwordHashed: String,
     val pfpURL: String? = null,
     val countryCode: String,
-    val timeZone: String
+    val timeZone: String,
+    val recoveryKey: String
 )

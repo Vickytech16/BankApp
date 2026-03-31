@@ -20,9 +20,9 @@ const val MAIN_ROUTE = "main"
 
 const val ACCOUNT_ROUTE = "account"
 
-const val FORGOT_PASSWORD_ROUTE = "forgot-password"
+const val FORGOT_PASSWORD_ROUTE_AUTH = "forgot-password-auth"
 
-const val CHANGE_PASSWORD_ROUTE = "change-password"
+const val CHANGE_PASSWORD_ROUTE_AUTH = "change-password-auth"
 
 const val CHANGE_PASSWORD_SUCCESS_ROUTE = "success-change-password"
 
@@ -48,7 +48,17 @@ const val ADD_BENEFICIARY_ROUTE = "add-beneficiary"
 
 const val PAY_TO_BENEFICIARY_ROUTE = "pay-to-beneficiary"
 
-const val MANAGE_BENEFICIARY_ROUTE = "manage_beneficiaries"
+const val MANAGE_BENEFICIARY_ROUTE = "manage-beneficiaries"
+
+const val RECOVERY_KEY_AUTH_ROUTE = "recovery-key-auth"
+
+const val RECOVERY_KEY_HOME_ROUTE = "recovery-key-home"
+
+const val RECOVERY_KEY_DISPLAY_ROUTE = "recovery-key-display"
+
+const val FORGOT_PASSWORD_ROUTE_HOME = "forgot-password-home"
+
+const val CHANGE_PASSWORD_ROUTE_HOME = "change-password-home"
 
 
 

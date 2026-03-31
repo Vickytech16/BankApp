@@ -1,6 +1,6 @@
 package com.example.bankapp.viewmodels.authviewmodels
 
-import SharedTransactionViewModel
+import AuthorizationViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,9 +17,12 @@ import kotlinx.coroutines.launch
 
 class DepositViewModel(
     sessionState: SessionState.Authenticated.AccountRegistered,
-    private val sharedTransactionViewModel: SharedTransactionViewModel
+    private val authorizationViewModel: AuthorizationViewModel
 ): ViewModel() {
-    private val account = sessionState.account
+
+    val account = sessionState.account.value
+
+    val user = sessionState.user.value
 
     var amount by mutableStateOf("")
         private set
@@ -74,7 +77,7 @@ class DepositViewModel(
                     return@launch
                 }
                 if (submitError == null) {
-                    sharedTransactionViewModel.initializeDeposit(accNo = account.accNo, amount = convertedAmount)
+                    authorizationViewModel.initializeDeposit(accNo = account.accNo, amount = convertedAmount, countryCode = user.countryCode)
                     isVerifySuccessful = true
                 }
             } catch (e: Exception) {

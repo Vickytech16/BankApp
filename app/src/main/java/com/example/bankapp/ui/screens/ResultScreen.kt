@@ -1,7 +1,7 @@
 package com.example.bankapp.ui.screens
 
-import FlowData
-import SharedTransactionViewModel
+import com.example.bankapp.entities.AuthorizationIntent
+import AuthorizationViewModel
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
@@ -54,30 +54,31 @@ import kotlinx.coroutines.delay
 fun TransactionResultScreen(
     transactionResultViewModelFactory: TransactionResultViewModelFactory,
     navController: NavController,
-    sharedTransactionViewModel: SharedTransactionViewModel
+    authorizationViewModel: AuthorizationViewModel
 ) {
     val viewModel: TransactionResultViewModel = viewModel(factory = transactionResultViewModelFactory)
 
-    val actionState = sharedTransactionViewModel.actionState
+    val actionState = authorizationViewModel.actionState
 
     LaunchedEffect(Unit) {
         if(!viewModel.actionExecuted) {
             viewModel.actionExecuted = true
-            when(sharedTransactionViewModel.flowData){
-                is FlowData.CashTransfer -> viewModel.cashTransfer(sharedTransactionViewModel.flowData as FlowData.CashTransfer)
-                is FlowData.AddBeneficiary -> viewModel.AddBeneficiary(sharedTransactionViewModel.flowData as FlowData.AddBeneficiary)
-                is FlowData.Deposit -> viewModel.Deposit(sharedTransactionViewModel.flowData as FlowData.Deposit)
+            when(authorizationViewModel.authorizationIntent){
+                is AuthorizationIntent.CashTransfer -> viewModel.cashTransfer(authorizationViewModel.authorizationIntent as AuthorizationIntent.CashTransfer)
+                is AuthorizationIntent.AddBeneficiary -> viewModel.AddBeneficiary(authorizationViewModel.authorizationIntent as AuthorizationIntent.AddBeneficiary)
+                is AuthorizationIntent.Deposit -> viewModel.Deposit(authorizationViewModel.authorizationIntent as AuthorizationIntent.Deposit)
+                is AuthorizationIntent.InternationalTransfer -> viewModel.InternationalTransfer(authorizationViewModel.authorizationIntent as AuthorizationIntent.InternationalTransfer)
                 else -> {}
             }
         }
     }
 
-    val resultContent: ResultContent = when(sharedTransactionViewModel.flowData) {
-        is FlowData.CashTransfer -> {
-            val flowData = sharedTransactionViewModel.flowData as FlowData.CashTransfer
-            sharedTransactionViewModel.getResultContent(
+    val resultContent: ResultContent = when(authorizationViewModel.authorizationIntent) {
+        is AuthorizationIntent.CashTransfer -> {
+            val authorizationIntent = authorizationViewModel.authorizationIntent as AuthorizationIntent.CashTransfer
+            authorizationViewModel.getResultContent(
                 onDone = {
-                    val transactionId = flowData.transactionId
+                    val transactionId = authorizationIntent.transactionId
                     if (transactionId != null) {
                         navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
                             popUpTo(HOME_ROUTE) {
@@ -101,8 +102,8 @@ fun TransactionResultScreen(
                 }
             )
         }
-        is FlowData.AddBeneficiary -> {
-            sharedTransactionViewModel.getResultContent(
+        is AuthorizationIntent.AddBeneficiary -> {
+            authorizationViewModel.getResultContent(
                 onDone = {
                     navController.navigate(HOME_ROUTE) {
                         popUpTo(HOME_ROUTE){
@@ -119,11 +120,11 @@ fun TransactionResultScreen(
                 }
             )
         }
-        is FlowData.Deposit -> {
-            val flowData = sharedTransactionViewModel.flowData as FlowData.Deposit
-            sharedTransactionViewModel.getResultContent(
+        is AuthorizationIntent.Deposit -> {
+            val authorizationIntent = authorizationViewModel.authorizationIntent as AuthorizationIntent.Deposit
+            authorizationViewModel.getResultContent(
                 onDone = {
-                    val transactionId = flowData.transactionId
+                    val transactionId = authorizationIntent.transactionId
                     if (transactionId != null) {
                         navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
                             popUpTo(HOME_ROUTE) {
@@ -148,7 +149,7 @@ fun TransactionResultScreen(
             )
         }
         else ->
-            sharedTransactionViewModel.getResultContent(
+            authorizationViewModel.getResultContent(
                 onDone = {
                     navController.navigate(HOME_ROUTE)
                 },

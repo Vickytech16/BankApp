@@ -1,5 +1,6 @@
 package com.example.bankapp.ui.components.navigators
 
+import RecoveryKeyDisplayScreen
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
@@ -9,12 +10,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.bankapp.R
-import com.example.bankapp.di.providers.SessionStateProvider
 import com.example.bankapp.di.viewmodelfactory.ChangePasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.LoginViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.RecoveryKeyViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
 import com.example.bankapp.ui.screens.authscreens.ChangePasswordScreen
 import com.example.bankapp.ui.screens.authscreens.ForgetPasswordScreen
@@ -22,6 +23,7 @@ import com.example.bankapp.ui.screens.authscreens.LoginScreen
 import com.example.bankapp.ui.screens.authscreens.OtpScreen
 import com.example.bankapp.ui.screens.authscreens.RegisterScreen
 import com.example.bankapp.ui.screens.SuccessConfirmation
+import com.example.bankapp.ui.screens.authscreens.RecoveryKeyVerificationScreen
 
 
 fun NavGraphBuilder.authNavGraph(
@@ -33,6 +35,7 @@ fun NavGraphBuilder.authNavGraph(
     changePasswordViewModelFactory: ChangePasswordViewModelFactory,
     otpViewModelFactory: OtpViewModelFactory,
     notificationViewModelFactory: NotificationViewModelFactory,
+    recoveryKeyViewModelFactory: RecoveryKeyViewModelFactory,
     restoreSession: () -> Unit
 ) {
     navigation(
@@ -42,7 +45,6 @@ fun NavGraphBuilder.authNavGraph(
 
         composable(LOGIN_ROUTE) {
             LoginScreen(
-                windowSizeClass = windowSizeClass,
                 navController = navController,
                 loginViewModelFactory = loginViewModelFactory
             )
@@ -56,15 +58,14 @@ fun NavGraphBuilder.authNavGraph(
             )
         }
 
-        composable(FORGOT_PASSWORD_ROUTE) {
+        composable(FORGOT_PASSWORD_ROUTE_AUTH) {
             ForgetPasswordScreen(
-                windowSizeClass = windowSizeClass,
                 navController = navController,
                 forgotPasswordViewModelFactory = forgotPasswordViewModelFactory
             )
         }
 
-        composable(CHANGE_PASSWORD_ROUTE) {
+        composable(CHANGE_PASSWORD_ROUTE_AUTH) {
             ChangePasswordScreen(
                 windowSizeClass = windowSizeClass,
                 navController = navController,
@@ -77,8 +78,8 @@ fun NavGraphBuilder.authNavGraph(
                 stringResource(R.string.register_successful),
                 stringResource(R.string.redirecting_to_login),
                 {
-                    navController.navigate(AUTH_ROUTE) {
-                        popUpTo(0) {
+                    navController.navigate(RECOVERY_KEY_DISPLAY_ROUTE) {
+                        popUpTo(AUTH_ROUTE) {
                             inclusive = true
                         }
                     }
@@ -108,24 +109,51 @@ fun NavGraphBuilder.authNavGraph(
             )
         }
 
+        composable(RECOVERY_KEY_AUTH_ROUTE) {
+            RecoveryKeyVerificationScreen(
+                recoveryKeyViewModelFactory,
+                navController,
+                {navController.navigate(CHANGE_PASSWORD_ROUTE_AUTH)}
+            )
+        }
+
+        composable(
+            route = "$RECOVERY_KEY_DISPLAY_ROUTE/{key}",
+            arguments = listOf(
+                navArgument("key") {
+                    type = NavType.StringType
+                })
+            ) { backStackEntry ->
+            val key = backStackEntry.arguments?.getString("key")
+            RecoveryKeyDisplayScreen(key!!, {
+                navController.navigate(AUTH_ROUTE) {
+                    popUpTo(0) {
+                        inclusive = true
+                    }
+                }
+            })
+        }
+
+
+
         composable(
             route = "$AUTH_OTP/{backRoute}",
             arguments = listOf(
                 navArgument("backRoute") {
                     type = NavType.StringType
-                    defaultValue = FORGOT_PASSWORD_ROUTE
+                    defaultValue = FORGOT_PASSWORD_ROUTE_AUTH
                 }
             )
         ) { backStackEntry ->
-            val backRoute = backStackEntry.arguments?.getString("backRoute") ?: FORGOT_PASSWORD_ROUTE
+            val backRoute = backStackEntry.arguments?.getString("backRoute") ?: FORGOT_PASSWORD_ROUTE_AUTH
             OtpScreen(
                 navController = navController,
                 notificationViewModelFactory = notificationViewModelFactory,
                 otpViewModelFactory = otpViewModelFactory,
                 backRoute = backRoute,
                 onOtpSuccess = {
-                    navController.navigate(CHANGE_PASSWORD_ROUTE) {
-                        popUpTo(FORGOT_PASSWORD_ROUTE) { inclusive = true }
+                    navController.navigate(CHANGE_PASSWORD_ROUTE_AUTH) {
+                        popUpTo(FORGOT_PASSWORD_ROUTE_AUTH) { inclusive = true }
                     }
                 }
             )

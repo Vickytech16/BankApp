@@ -44,7 +44,7 @@ class ManageBeneficiaryViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 isLoading = true
-                val allFriends = beneficiaryRepository.getAllBeneficiariesForUser(user.userId)
+                val allFriends = beneficiaryRepository.getAllBeneficiariesForUser(user.value.userId)
                 _friends.value = allFriends
 
             } catch (e: Exception) {
@@ -121,7 +121,7 @@ class ManageBeneficiaryViewModel(
                 try {
                     val beneficiary = Beneficiary(
                         beneficiaryId = friend.beneficiaryId,
-                        userId = user.userId,
+                        userId = user.value.userId,
                         beneficiaryUserId = friend.friendUserId,
                         nickname = nickname,
                         isFavorite = false,
@@ -145,7 +145,7 @@ class ManageBeneficiaryViewModel(
         selectedFriend?.let { friend ->  // ← Use selectedFriend
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    beneficiaryRepository.removeBeneficiary(user.userId, friend.friendUserId)
+                    beneficiaryRepository.removeBeneficiary(user.value.userId, friend.friendUserId)
                     viewModelScope.launch {
                         onShowDeleteDialogChange(false)
                         loadFriends()

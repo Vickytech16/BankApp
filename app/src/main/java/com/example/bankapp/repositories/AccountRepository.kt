@@ -11,13 +11,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 interface AccountRepository {
-    suspend fun getAccountByUserId(userId: Long):List<AccountUiModel>
+    suspend fun getAccountByUserId(userId: Long) : List<AccountUiModel>
 
-    fun getAccountAsFlowByAccountNumber(accNo: Long): Flow<AccountUiModel?>
+    fun getAccountAsFlowByAccountNumber(accNo: Long) : Flow<AccountUiModel?>
 
     suspend fun createAccount(account: AccountUiModel) : Long
 
     suspend fun getUserIdByAccNo(accNo: Long) : Long
+
+     fun getAccountAsFlowByUserId(userId: Long) : Flow<AccountUiModel?>
 }
 
 class AccountRepositoryImpl(
@@ -45,5 +47,11 @@ class AccountRepositoryImpl(
             accountDao.getUserIdByAccNo(accNo)
         }
     }
+
+    override fun getAccountAsFlowByUserId(userId: Long): Flow<AccountUiModel?> {
+          return  accountDao.getAccountAsFlowByUserId(userId).map { it?.toUiModel() }
+    }
+
+
 
 }

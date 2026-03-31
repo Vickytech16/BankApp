@@ -3,6 +3,7 @@ package com.example.bankapp.core.datecompatability
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -35,5 +36,13 @@ class RegularDateTime(override val epochMillis: Long, override val activeTimeZon
     override fun toFullDateTimeDisplay(): String {
         val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a", Locale.getDefault())
         return zonedDateTime.format(formatter)
+    }
+
+    override fun getDateAndTime(millis: Long): String {
+        val instant = Instant.ofEpochMilli(millis)
+        val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", java.util.Locale.getDefault())
+        val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+
+        return localDateTime.format(formatter)
     }
 }

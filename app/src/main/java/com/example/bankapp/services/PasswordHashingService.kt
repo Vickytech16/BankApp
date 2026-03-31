@@ -9,7 +9,6 @@ import javax.crypto.spec.PBEKeySpec
 
 
 object PasswordHashingService {
-
         private const val ITERATIONS = 100_000
         private const val KEY_LENGTH = 256
         private const val SALT_LENGTH = 16

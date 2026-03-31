@@ -11,17 +11,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bankapp.core.WorkManagerInitializer
 import com.example.bankapp.di.AppContainer
 import com.example.bankapp.di.ViewModelContainer
+import com.example.bankapp.services.TransactionExportService
 import com.example.bankapp.ui.components.navigators.AppNavHost
 import com.example.bankapp.ui.theme.BankAppTheme
-import com.example.bankapp.ui.theme.DeviceSpec
-import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.ui.theme.DeviceSpecProviderTemp
 import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.viewmodels.ThemeType
 import com.example.bankapp.viewmodels.ThemeViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -33,6 +35,13 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val viewModelContainer: ViewModelContainer = appContainer.viewModelContainer
 
+        WorkManagerInitializer.scheduleCurrencyExchangeSync(this)
+
+        lifecycleScope.launch {
+            appContainer.currencyExchangeRepository.getLatestRates()
+        }
+
+        val transactionExportService: TransactionExportService = TransactionExportService(this)
 
         setContent {
             val themeViewModel: ThemeViewModel = viewModel(factory = viewModelContainer.themeViewModelFactory)
@@ -44,16 +53,13 @@ class MainActivity : ComponentActivity() {
                 ThemeType.SYSTEM_DEFAULT -> isSystemInDarkTheme()
             }
 
-            // These two lines are the "engine" that detects rotation
             val configuration = LocalConfiguration.current
             val windowSizeClass = calculateWindowSizeClass(this)
 
-            // This recalculates ONLY when rotation or window size changes
             val deviceSpec = remember(configuration, windowSizeClass) {
-                DeviceSpecProviderTemp.getCurrentDeviceSpec(windowSizeClass, configuration)
+                DeviceSpecProviderTemp.getCurrentDeviceSpec(configuration)
             }
 
-            // Provide the spec to the entire hierarchy
             CompositionLocalProvider(LocalDeviceSpec provides deviceSpec) {
                 BankAppTheme(darkTheme = useDarkTheme) {
                     AppNavHost(
@@ -63,7 +69,11 @@ class MainActivity : ComponentActivity() {
                         accountRepository = appContainer.accountRepository,
                         beneficiaryRepository = appContainer.beneficiaryRepository,
                         userRepository = appContainer.userRepository,
-                        themeViewModel = themeViewModel
+                        themeViewModel = themeViewModel,
+                        currencyExchangeRepository = appContainer.currencyExchangeRepository,
+                        countryRepository = appContainer.countryRepository,
+                        changePasswordUseCase = appContainer.useCaseContainer.changePasswordUseCase,
+                        transactionExportService = transactionExportService
                     )
                 }
             }

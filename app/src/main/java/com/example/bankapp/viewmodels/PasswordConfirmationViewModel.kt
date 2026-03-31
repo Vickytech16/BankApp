@@ -1,7 +1,5 @@
 package com.example.bankapp.viewmodels
 
-import com.example.bankapp.usecases.TransactionSessionHolder
-
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,7 +10,6 @@ import com.example.bankapp.R
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.services.PasswordHashingService
-import com.example.bankapp.usecases.CurrentTransactionStatus
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
@@ -20,6 +17,7 @@ import kotlinx.coroutines.launch
 
 class PasswordConfirmationViewModel(
     sessionState: SessionState.Authenticated.AccountRegistered,
+    private val loggedInSessionViewModel: LoggedInSessionViewModel
 ) : ViewModel() {
 
     private val user = sessionState.user
@@ -88,10 +86,12 @@ class PasswordConfirmationViewModel(
                     return@launch
                 }
 
-                if (PasswordHashingService.matches(password, user.passwordHashed)) {
+                if (PasswordHashingService.matches(password, user.value.passwordHashed)) {
                     isPasswordVerified = true
+                    loggedInSessionViewModel.handlePasswordAttempt(true)
                 } else {
                     submitError = FormError.PasswordDoesntMatch
+                    loggedInSessionViewModel.handlePasswordAttempt(false)
                 }
             } catch (_: Exception) {
                 submitError = FormError.UnknownError
@@ -99,13 +99,5 @@ class PasswordConfirmationViewModel(
                 isLoading = false
             }
         }
-    }
-
-
-    fun resetScreenState() {
-
-        showPasswordDialog = false
-        showCancelDialog = false
-        isPasswordVerified = false
     }
 }

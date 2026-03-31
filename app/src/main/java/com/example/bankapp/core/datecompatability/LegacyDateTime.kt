@@ -7,6 +7,7 @@ import java.util.Locale
 import java.util.TimeZone
 
 class LegacyDateTime(override val epochMillis: Long, override val activeTimeZone: String) : BankDateTime {
+
     private val userTimeZone = TimeZone.getTimeZone(activeTimeZone)
 
     private val calendar = Calendar.getInstance(userTimeZone).apply {
@@ -51,5 +52,11 @@ class LegacyDateTime(override val epochMillis: Long, override val activeTimeZone
 
     override fun toFullDateTimeDisplay(): String {
         return getFormatter("dd MMMM yyyy, hh:mm a").format(calendar.time)
+    }
+
+    override fun getDateAndTime(millis: Long): String {
+        val date = java.util.Date(millis)
+        val formatter = SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault())
+        return formatter.format(date)
     }
 }

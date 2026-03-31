@@ -17,11 +17,10 @@ class PayToBeneficiaryViewModel(
     sessionState: SessionState.Authenticated.AccountRegistered,
     private val beneficiaryRepository: BeneficiaryRepository
 ) : ViewModel() {
-    private val user = sessionState.user
 
+    private val user = sessionState.user
     private val _friends = MutableStateFlow<List<BeneficiaryDto>>(emptyList())
     val friends: StateFlow<List<BeneficiaryDto>> = _friends
-
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
 
@@ -36,9 +35,8 @@ class PayToBeneficiaryViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 isLoading = true
-                val allFriends = beneficiaryRepository.getAllBeneficiariesForUser(user.userId)
+                val allFriends = beneficiaryRepository.getAllBeneficiariesForUser(user.value.userId)
                 _friends.value = allFriends
-
             } catch (e: Exception) {
                 println("Error: ${e.message}")
                 e.printStackTrace()

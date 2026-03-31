@@ -29,6 +29,11 @@ class TransactionRepository(
    private val accountDao: AccountDao,
    private val database: BankDatabase
 ){
+
+    companion object {
+        private val MAX_TRANSFER_LIMIT = BigDecimal("999999.99")
+        private val MAX_DEPOSIT_LIMIT = BigDecimal("999999999.99")
+    }
   fun getFilteredTransactions(
       accNo: Long,
       searchQuery: String = "",
@@ -80,6 +85,9 @@ class TransactionRepository(
             }
             if (fromAccountNo == toAccountNo) {
                 return@withTransaction TransactionResult.Error.SameAccountTransfer
+            }
+            if (amount > MAX_TRANSFER_LIMIT) {
+                return@withTransaction TransactionResult.Error.LimitExceeded
             }
 
             val fromAccount: Account? =
@@ -179,6 +187,10 @@ class TransactionRepository(
                 accountDao.getAccountAsFlowByAccNo(accNo = accountNo).firstOrNull()
                     ?: return@withTransaction TransactionResult.Error.AccountNotFound
 
+            if (amount > MAX_DEPOSIT_LIMIT) {
+                return@withTransaction TransactionResult.Error.LimitExceeded
+            }
+
             val transaction = createTransaction(
                 transactionType = TransactionType.DEPOSIT,
                 transactionStatus = TransactionStatus.PENDING,
@@ -208,6 +220,80 @@ class TransactionRepository(
 
             ledgerDao.insertAll(listOf(ledger))
 
+            transactionDao.update(updatedTransaction)
+
+            TransactionResult.Success(updatedTransaction.transactionId)
+        }
+    }
+
+
+    suspend fun internationalTransfer(
+        fromAccountNo: Long,
+        toAccountNo: Long,
+        amount: BigDecimal,
+        targetCurrency: String,
+        exchangeRate: BigDecimal,
+        idempotencyKey: String
+    ): TransactionResult = withContext(Dispatchers.IO) {
+        return@withContext database.withTransaction {
+
+
+            val fromAccount = accountDao.getAccountAsFlowByAccNo(fromAccountNo).firstOrNull()
+            val toAccount = accountDao.getAccountAsFlowByAccNo(toAccountNo).firstOrNull()
+
+            if (fromAccount == null || toAccount == null) {
+                return@withTransaction TransactionResult.Error.AccountNotFound
+            }
+
+            if (fromAccount.balance < amount) {
+                return@withTransaction TransactionResult.Error.InsufficientBalance
+            }
+
+            if (amount > MAX_TRANSFER_LIMIT) {
+                return@withTransaction TransactionResult.Error.LimitExceeded
+            }
+
+            val transaction = createTransaction(
+                TransactionType.INTERNATIONAL_TRANSFER,
+                TransactionStatus.PENDING,
+                idempotencyKey
+            ) ?: return@withTransaction TransactionResult.Error.RepeatedTransaction
+
+            val convertedAmount = amount.multiply(exchangeRate)
+
+            accountDao.withdraw(amount, BankDateFactory.now().epochMillis, fromAccountNo)
+
+            val isDepositSuccessful = accountDao.deposit(
+                convertedAmount,
+                BankDateFactory.now().epochMillis,
+                toAccountNo
+            )
+
+            if (isDepositSuccessful == 0) {
+                val failedTransaction = getUpdatedTransaction(transaction, TransactionStatus.FAILED)
+                transactionDao.update(failedTransaction)
+                return@withTransaction TransactionResult.Error.UnKnown
+            }
+
+            val fromLedger = Ledger(
+                transactionId = transaction.transactionId,
+                accNo = fromAccount.accNo,
+                direction = LedgerDirection.DEBIT,
+                amount = amount,
+                balanceAfter = fromAccount.balance - amount
+            )
+
+            val toLedger = Ledger(
+                transactionId = transaction.transactionId,
+                accNo = toAccount.accNo,
+                direction = LedgerDirection.CREDIT,
+                amount = convertedAmount,
+                balanceAfter = toAccount.balance + convertedAmount
+            )
+
+            ledgerDao.insertAll(listOf(fromLedger, toLedger))
+
+            val updatedTransaction = getUpdatedTransaction(transaction, TransactionStatus.COMPLETED)
             transactionDao.update(updatedTransaction)
 
             TransactionResult.Success(updatedTransaction.transactionId)

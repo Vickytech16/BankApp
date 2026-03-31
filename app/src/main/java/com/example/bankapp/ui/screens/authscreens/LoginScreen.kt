@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -40,7 +39,7 @@ import com.example.bankapp.ui.components.navigators.REGISTER_ROUTE
 
 import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.viewmodels.authviewmodels.LoginViewModel
-import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
+import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE_AUTH
 import com.example.bankapp.ui.components.navigators.LOGIN_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.DeviceSpec
@@ -50,8 +49,9 @@ import com.example.bankapp.utilities.PasswordFieldStrategy
 
 
 @Composable
-fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
-                 loginViewModelFactory: LoginViewModelFactory, ) {
+fun LoginScreen(
+    navController: NavController,
+    loginViewModelFactory: LoginViewModelFactory, ) {
 
     val loginViewModel: LoginViewModel = viewModel(factory = loginViewModelFactory)
 
@@ -144,7 +144,7 @@ fun LoginScreen( windowSizeClass: WindowSizeClass, navController: NavController,
                 TextButton(
                     onClick = {
                         navController.navigate(
-                            FORGOT_PASSWORD_ROUTE
+                            FORGOT_PASSWORD_ROUTE_AUTH
                         )
                     },
                     modifier = Modifier.align(alignment = Alignment.End),

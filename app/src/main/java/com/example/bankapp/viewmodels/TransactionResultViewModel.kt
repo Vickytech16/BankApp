@@ -1,7 +1,7 @@
 package com.example.bankapp.viewmodels
 
-import FlowData
-import SharedTransactionViewModel
+import com.example.bankapp.entities.AuthorizationIntent
+import AuthorizationViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,87 +18,87 @@ import java.util.UUID
 class TransactionResultViewModel(
     private val transactionRepository: TransactionRepository,
     private val beneficiaryRepository: BeneficiaryRepository,
-    private val sharedTransactionViewModel: SharedTransactionViewModel
+    private val authorizationViewModel: AuthorizationViewModel
 ): ViewModel() {
     var transactionResult by mutableStateOf<TransactionResult?>(null)
         private set
     var actionExecuted by mutableStateOf(false)
     private var idempotencyKey by mutableStateOf(UUID.randomUUID().toString())
 
-    fun cashTransfer(cashTransferFlowData: FlowData.CashTransfer){
+    fun cashTransfer(cashTransferAuthorizationIntent: AuthorizationIntent.CashTransfer){
 
 
         viewModelScope.launch {
             try{
-                if(cashTransferFlowData.toAccNo==0.toLong()){
+                if(cashTransferAuthorizationIntent.toAccNo==0.toLong()){
                     transactionResult = TransactionResult.Error.UnKnown
-                    sharedTransactionViewModel.actionState = ActionState.FAILURE
+                    authorizationViewModel.actionState = ActionState.FAILURE
                     return@launch
                 }
 
                 transactionResult = transactionRepository.cashTransfer(
-                    cashTransferFlowData.fromAccNo,
-                    cashTransferFlowData.toAccNo,
-                    cashTransferFlowData.amount,
+                    cashTransferAuthorizationIntent.fromAccNo,
+                    cashTransferAuthorizationIntent.toAccNo,
+                    cashTransferAuthorizationIntent.amount,
                     idempotencyKey
                 )
 
                 when (transactionResult) {
                     is TransactionResult.Success -> {
-                        sharedTransactionViewModel.assignTransactionId((transactionResult as TransactionResult.Success).transactionId)
-                        sharedTransactionViewModel.actionState = ActionState.SUCCESS
+                        authorizationViewModel.assignTransactionId((transactionResult as TransactionResult.Success).transactionId)
+                        authorizationViewModel.actionState = ActionState.SUCCESS
                     }
 
                     is TransactionResult.Error -> {
                         val reason = (transactionResult as TransactionResult.Error).message
-                        sharedTransactionViewModel.actionState = ActionState.FAILURE
-                        sharedTransactionViewModel.failureReason = reason
+                        authorizationViewModel.actionState = ActionState.FAILURE
+                        authorizationViewModel.failureReason = reason
                     }
                     else -> {}
                 }
             }catch (e: Exception){
                 e.printStackTrace()
-                sharedTransactionViewModel.actionState = ActionState.FAILURE
+                authorizationViewModel.actionState = ActionState.FAILURE
             }finally {
                 idempotencyKey = UUID.randomUUID().toString()
             }
         }
     }
 
-    fun Deposit(depositFlowData: FlowData.Deposit){
+    fun Deposit(depositAuthorizationIntent: AuthorizationIntent.Deposit){
         viewModelScope.launch {
             try {
 
-                if(depositFlowData.userAccNo == 0.toLong()){
+                if(depositAuthorizationIntent.userAccNo == 0.toLong()){
                     transactionResult = TransactionResult.Error.UnKnown
-                    sharedTransactionViewModel.actionState = ActionState.FAILURE
+                    authorizationViewModel.actionState = ActionState.FAILURE
                     return@launch
                 }
 
                 transactionResult = transactionRepository.deposit(
-                    accountNo = depositFlowData.userAccNo,
-                    amount = depositFlowData.amount,
+                    accountNo = depositAuthorizationIntent.userAccNo,
+                    amount = depositAuthorizationIntent.amount,
                     idempotencyKey = idempotencyKey
                 )
 
                 when(transactionResult){
                     is TransactionResult.Success -> {
-                        sharedTransactionViewModel.assignTransactionId((transactionResult as TransactionResult.Success).transactionId)
-                        sharedTransactionViewModel.actionState = ActionState.SUCCESS
+                        authorizationViewModel.assignTransactionId((transactionResult as TransactionResult.Success).transactionId)
+                        authorizationViewModel.actionState = ActionState.SUCCESS
                     }
                     is TransactionResult.Error -> {
                         val reason = (transactionResult as TransactionResult.Error).message
-                        sharedTransactionViewModel.actionState = ActionState.FAILURE
-                        sharedTransactionViewModel.failureReason = reason
+                        authorizationViewModel.actionState = ActionState.FAILURE
+                        authorizationViewModel.failureReason = reason
                     }
                     else -> {
-                        sharedTransactionViewModel.actionState = ActionState.FAILURE
+                        authorizationViewModel.actionState = ActionState.FAILURE
                     }
                 }
             }
             catch (e: Exception){
                 e.printStackTrace()
-                sharedTransactionViewModel.actionState = ActionState.FAILURE
+                authorizationViewModel.actionState = ActionState.FAILURE
             }
             finally {
                 idempotencyKey = UUID.randomUUID().toString()
@@ -106,19 +106,47 @@ class TransactionResultViewModel(
         }
     }
 
-    fun AddBeneficiary(addBeneficiaryFlowData: FlowData.AddBeneficiary){
+    fun InternationalTransfer(data: AuthorizationIntent.InternationalTransfer) {
         viewModelScope.launch {
             try {
-              val result =  beneficiaryRepository.addBeneficiary(userId = addBeneficiaryFlowData.myUserId, beneficiaryUserId = addBeneficiaryFlowData.otherUserId,)
+                transactionResult = transactionRepository.internationalTransfer(
+                    fromAccountNo = data.fromAccNo,
+                    toAccountNo = data.toAccNo,
+                    amount = data.baseAmount,
+                    targetCurrency = data.targetCurrency,
+                    exchangeRate = data.exchangeRate,
+                    idempotencyKey = idempotencyKey
+                )
+
+                if (transactionResult is TransactionResult.Success) {
+                    authorizationViewModel.assignTransactionId((transactionResult as TransactionResult.Success).transactionId)
+                    authorizationViewModel.actionState = ActionState.SUCCESS
+                } else {
+                    val reason = (transactionResult as TransactionResult.Error).message
+                    authorizationViewModel.actionState = ActionState.FAILURE
+                    authorizationViewModel.failureReason = reason
+                }
+            } catch (e: Exception) {
+                authorizationViewModel.actionState = ActionState.FAILURE
+            } finally {
+                idempotencyKey = UUID.randomUUID().toString()
+            }
+        }
+    }
+
+    fun AddBeneficiary(addBeneficiaryAuthorizationIntent: AuthorizationIntent.AddBeneficiary){
+        viewModelScope.launch {
+            try {
+              val result =  beneficiaryRepository.addBeneficiary(userId = addBeneficiaryAuthorizationIntent.myUserId, beneficiaryUserId = addBeneficiaryAuthorizationIntent.otherUserId,)
               if(result== (-1).toLong()){
-                  sharedTransactionViewModel.actionState = ActionState.FAILURE
+                  authorizationViewModel.actionState = ActionState.FAILURE
               }
               else{
-                  sharedTransactionViewModel.actionState = ActionState.SUCCESS
+                  authorizationViewModel.actionState = ActionState.SUCCESS
               }
             }
             catch (_: Exception){
-                sharedTransactionViewModel.actionState = ActionState.FAILURE
+                authorizationViewModel.actionState = ActionState.FAILURE
             }
 
         }

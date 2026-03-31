@@ -49,6 +49,7 @@ import com.example.bankapp.ui.components.PasswordErrorTextBuilder
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
+import com.example.bankapp.ui.components.navigators.RECOVERY_KEY_DISPLAY_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.LocalDeviceSpec
@@ -77,7 +78,7 @@ fun RegisterScreen(
 
     LaunchedEffect(viewModel.isSubmitSuccessful) {
         if (viewModel.isSubmitSuccessful) {
-            navController.navigate("success-register")
+            navController.navigate("$RECOVERY_KEY_DISPLAY_ROUTE/${viewModel.recoveryKey}")
             viewModel.reset()
         }
     }

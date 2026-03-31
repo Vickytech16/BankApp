@@ -15,7 +15,7 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=/Users/vignesh-24604/.android/avd/Pixel_Tablet.avd" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=/Users/vignesh-24604/.android/avd/Pixel_2.avd" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">

@@ -3,6 +3,8 @@ package com.example.bankapp.entities
 import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.entities.uimodels.AccountUiModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 
 sealed class SessionState {
@@ -13,7 +15,7 @@ sealed class SessionState {
 
     sealed class Authenticated() : SessionState() {
 
-        data class AccountRegistered(val user: User, val account: AccountUiModel) : SessionState()
+        data class AccountRegistered(val user: StateFlow<User>, val account: StateFlow<AccountUiModel>) : SessionState()
 
         data class AccountNotRegistered(val user: User): SessionState()
     }

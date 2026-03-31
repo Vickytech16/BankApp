@@ -19,12 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.entities.types.transaction.LedgerDirection
+import com.example.bankapp.ui.components.AutoResizeText
 import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.amountGreenColor
-import com.example.bankapp.utilities.RUPEE_SYMBOL
-import com.example.bankapp.utilities.getCurrencySymbol
+import com.example.bankapp.utilities.CurrencyUtils
+import java.math.BigDecimal
 
 @Composable
 fun TransactionListItem(
@@ -86,10 +87,11 @@ fun TransactionListItem(
                 )
             }
 
-            Text(
-                text = "$amountPrefix${getCurrencySymbol(countryCode)}$amount",
-                style = deviceSpec.transactionListItemMoneyStyle(),
-                fontWeight = FontWeight.Bold,
+            AutoResizeText(
+                text = "$amountPrefix${CurrencyUtils.formatCurrency(amount.toBigDecimalOrNull() ?: BigDecimal.ZERO, countryCode)} ${CurrencyUtils.getCurrencySymbol(countryCode)}",
+                style = deviceSpec.transactionListItemMoneyStyle().copy(
+                    fontWeight = FontWeight.Bold
+                ),
                 color = amountColor
             )
         }

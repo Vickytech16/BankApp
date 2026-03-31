@@ -13,7 +13,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -36,10 +35,9 @@ import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.screenModifier
-import com.example.bankapp.ui.components.navigators.AUTH_OTP
 import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
-import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
+import com.example.bankapp.ui.components.navigators.RECOVERY_KEY_AUTH_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.LocalDeviceSpec
@@ -50,7 +48,6 @@ import com.example.bankapp.viewmodels.authviewmodels.ForgotPasswordViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgetPasswordScreen(
-    windowSizeClass: WindowSizeClass,
     forgotPasswordViewModelFactory: ForgotPasswordViewModelFactory,
     navController: NavController,
 ) {
@@ -65,7 +62,7 @@ fun ForgetPasswordScreen(
 
     LaunchedEffect(viewModel.isVerificationSuccessful) {
         if (viewModel.isVerificationSuccessful) {
-            navController.navigate("$AUTH_OTP/$FORGOT_PASSWORD_ROUTE")
+            navController.navigate(RECOVERY_KEY_AUTH_ROUTE)
         }
     }
 

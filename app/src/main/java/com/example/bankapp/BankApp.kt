@@ -19,7 +19,5 @@ class BankApp : Application() {
 private fun initializeNotification(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         NotificationInitializer.init(context)
-    } else {
-
-    }
+    } else {}
 }

@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.bankapp.R
+import com.example.bankapp.entities.SessionState
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.navigators.TRANSACTIONS_LOG_ROUTE
@@ -37,15 +38,17 @@ fun TransactionDetailsScreen(
     navController: NavController,
     transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory,
     transactionId: String,
-    accNo: Long,
     windowSizeClass: WindowSizeClass,
-    countryCode: String,
-    backRoute: String
+    backRoute: String,
+    sessionState: SessionState.Authenticated.AccountRegistered
 ){
     val viewModel: TransactionDetailsViewModel = viewModel(factory = transactionDetailsViewModelFactory)
 
+    val account = sessionState.account.collectAsState()
+    val user = sessionState.user.collectAsState()
+
     LaunchedEffect(transactionId) {
-        viewModel.loadTransaction(transactionId, accNo)
+        viewModel.loadTransaction(transactionId, account.value.accNo)
     }
 
     val detailItem = viewModel.transaction.collectAsState(null).value
@@ -82,7 +85,7 @@ fun TransactionDetailsScreen(
                     transactionItem = detailItem,
                     paddingValues = paddingValues,
                     windowSizeClass = windowSizeClass,
-                    countryCode = countryCode
+                    countryCode = user.value.countryCode
                 )
             }
         } else {

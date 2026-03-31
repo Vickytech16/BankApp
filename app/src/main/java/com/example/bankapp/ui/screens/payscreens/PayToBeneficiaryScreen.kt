@@ -40,6 +40,7 @@ import com.example.bankapp.ui.components.appbar.Appbar
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.SearchBarComponent
 import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.utilities.uiAccNo
 import com.example.bankapp.viewmodels.PayToBeneficiaryViewModel
 import kotlinx.coroutines.launch
@@ -58,7 +59,7 @@ fun PayToBeneficiaryScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val deviceSpec = LocalDeviceSpec.current
 
     val isLoading = viewModel.isLoading
 

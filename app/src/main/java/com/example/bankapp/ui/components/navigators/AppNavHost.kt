@@ -1,6 +1,6 @@
 package com.example.bankapp.ui.components.navigators
 
-import SharedTransactionViewModel
+import AuthorizationViewModel
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,8 +13,12 @@ import com.example.bankapp.di.ViewModelContainer
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
+import com.example.bankapp.repositories.CountryRepository
+import com.example.bankapp.repositories.CurrencyExchangeRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
+import com.example.bankapp.services.TransactionExportService
+import com.example.bankapp.usecases.ChangePasswordUseCase
 import com.example.bankapp.viewmodels.LoggedInSessionViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 
@@ -26,12 +30,18 @@ fun AppNavHost(
     accountRepository: AccountRepository,
     beneficiaryRepository: BeneficiaryRepository,
     userRepository: UserRepository,
-    themeViewModel: ThemeViewModel
+    themeViewModel: ThemeViewModel,
+    currencyExchangeRepository: CurrencyExchangeRepository,
+    countryRepository: CountryRepository,
+    changePasswordUseCase: ChangePasswordUseCase,
+    transactionExportService: TransactionExportService
 ) {
     val navController = rememberNavController()
 
     val sessionViewModel: LoggedInSessionViewModel =
         viewModel(factory = viewModelContainer.loggedInSessionViewModelFactory)
+
+    val authorizationViewModel: AuthorizationViewModel = viewModel(factory = viewModelContainer.authorizationViewModelFactory)
 
     LaunchedEffect(sessionViewModel.sessionState) {
         sessionViewModel.restoreSession()
@@ -54,7 +64,7 @@ fun AppNavHost(
             MAIN_ROUTE
     }
 
-    val sharedTransactionViewModel: SharedTransactionViewModel = viewModel()
+
 
     NavHost(
         navController = navController,
@@ -69,6 +79,7 @@ fun AppNavHost(
             changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
             otpViewModelFactory = viewModelContainer.otpViewModelFactory,
             notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
+            recoveryKeyViewModelFactory = viewModelContainer.recoveryKeyViewModelFactory ,
             restoreSession = { sessionViewModel.restoreSession() }
         )
 
@@ -80,15 +91,20 @@ fun AppNavHost(
             accountRepository = accountRepository,
             otpViewModelFactory = viewModelContainer.otpViewModelFactory,
             notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
-            logoutAction = {
-                sessionViewModel.logout()
-            },
             beneficiaryRepository = beneficiaryRepository,
             userRepository = userRepository,
             filterViewModelFactory = viewModelContainer.filterViewModelFactory,
             transactionDetailsViewModelFactory = viewModelContainer.transactionDetailsViewModelFactory,
             themeViewModel = themeViewModel,
-            sharedTransactionViewModel = sharedTransactionViewModel
+            authorizationViewModel = authorizationViewModel,
+            currencyExchangeRepository = currencyExchangeRepository,
+            sessionViewModel = sessionViewModel,
+            forgotPasswordViewModelFactory = viewModelContainer.forgotPasswordViewModelFactory,
+            changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
+            recoveryKeyViewModelFactory = viewModelContainer.recoveryKeyViewModelFactory,
+            countryRepository = countryRepository,
+            changePasswordUseCase = changePasswordUseCase,
+            transactionExportService = transactionExportService
         )
 
         splashNavGraph()
@@ -98,18 +114,5 @@ fun AppNavHost(
             loggedInSessionViewModel = sessionViewModel
         )
     }
-
-//    LaunchedEffect(startDestination) {
-//        if (sessionState !is SessionState.Loading &&
-//            navController.currentDestination?.route != startDestination) {
-//            navController.navigate(startDestination) {
-//                popUpTo(navController.graph.startDestinationId) {
-//                    saveState = false
-//                }
-//                launchSingleTop = true
-//                restoreState = false
-//            }
-//        }
-//    }
 
 }

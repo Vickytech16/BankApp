@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.core.datecompatability.BankDateFactory
+import com.example.bankapp.entities.AuthorizationIntent
 import com.example.bankapp.entities.types.ActionState
 import com.example.bankapp.entities.types.ui.ResultButton
 import com.example.bankapp.entities.types.ui.ResultContent
@@ -12,57 +13,72 @@ import com.example.bankapp.entities.types.ui.ResultUiText
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
+import com.example.bankapp.utilities.CurrencyUtils
 import java.math.BigDecimal
 
+class AuthorizationViewModel : ViewModel() {
 
-class SharedTransactionViewModel : ViewModel() {
-
-    var flowData by mutableStateOf<FlowData?>(null)
+    var authorizationIntent by mutableStateOf<AuthorizationIntent?>(null)
         private set
 
     var actionState by mutableStateOf(ActionState.LOADING)
 
-    fun initializeCashTransfer(fromAccNo: Long, toAccNo: Long, amount: BigDecimal, friend: Boolean) {
-        flowData = FlowData.CashTransfer(
+    fun initializeCashTransfer(fromAccNo: Long, toAccNo: Long, amount: BigDecimal, friend: Boolean, countryCode: String) {
+        authorizationIntent = AuthorizationIntent.CashTransfer(
             fromAccNo = fromAccNo,
             toAccNo = toAccNo,
             amount = amount,
-            isFriend = friend
+            isFriend = friend,
+            countryCode = countryCode
         )
     }
 
     fun initializeAddBeneficiary(fromUserId: Long, toUserId: Long, nickname: String) {
-        flowData = FlowData.AddBeneficiary(
+        authorizationIntent = AuthorizationIntent.AddBeneficiary(
             fromUserId,
             toUserId,
             nickname
         )
     }
 
-    fun initializeDeposit(accNo: Long, amount: BigDecimal) {
-        flowData = FlowData.Deposit(
-            accNo,
-            amount
+    fun initializeDeposit(accNo: Long, amount: BigDecimal, countryCode: String) {
+        authorizationIntent = AuthorizationIntent.Deposit(
+            userAccNo = accNo,
+            amount = amount,
+            countryCode = countryCode
+        )
+    }
+
+    fun initializeInternationalTransfer(fromAccNo: Long, toAccNo: Long, amount: BigDecimal, baseCurrency: String, targetCurrency: String, rate: BigDecimal) {
+        authorizationIntent = AuthorizationIntent.InternationalTransfer(
+            fromAccNo,
+            toAccNo,
+            amount,
+            baseCurrency,
+            targetCurrency,
+            rate
         )
     }
 
     fun assignTransactionId(transactionId: String){
-        when(flowData) {
-          is FlowData.CashTransfer -> {
-                flowData = (flowData as FlowData.CashTransfer).copy(transactionId = transactionId)
+        when(authorizationIntent) {
+          is AuthorizationIntent.CashTransfer -> {
+                authorizationIntent = (authorizationIntent as AuthorizationIntent.CashTransfer).copy(transactionId = transactionId)
             }
-          is FlowData.Deposit -> {
-                flowData = (flowData as FlowData.Deposit).copy(transactionId = transactionId)
+          is AuthorizationIntent.Deposit -> {
+                authorizationIntent = (authorizationIntent as AuthorizationIntent.Deposit).copy(transactionId = transactionId)
           }
-            else -> {
-            }
+          is AuthorizationIntent.InternationalTransfer -> {
+              authorizationIntent = (authorizationIntent as AuthorizationIntent.InternationalTransfer).copy(transactionId = transactionId)
+          }
+            else -> {}
         }
     }
 
     fun proceedAfterOtp(navController: NavController) {
-        when (flowData) {
-            is FlowData.CashTransfer  -> {
-                if ((flowData as FlowData.CashTransfer).isFriend) {
+        when (authorizationIntent) {
+            is AuthorizationIntent.CashTransfer  -> {
+                if ((authorizationIntent as AuthorizationIntent.CashTransfer).isFriend) {
                     navController.navigate(TRANSACTION_RESULT_ROUTE)
                 } else {
                     navController.navigate("$PASSWORD_CONFIRMATION_ROUTE/$HOME_ROUTE")
@@ -83,26 +99,27 @@ class SharedTransactionViewModel : ViewModel() {
     fun getResultContent(onDone: () -> Unit, onRetry: () -> Unit): ResultContent {
         val isSuccess = actionState == ActionState.SUCCESS
 
-        when(flowData) {
-            is FlowData.CashTransfer -> {
+        when(authorizationIntent) {
+            is AuthorizationIntent.CashTransfer -> {
                 successMessage = R.string.transaction_success
+                val  authorizationIntent = authorizationIntent as AuthorizationIntent.CashTransfer
             return if (isSuccess) {
                 ResultContent(
                     text1 = ResultUiText.StringResource(successMessage),
-                    text2 = ResultUiText.DynamicString((flowData as FlowData.CashTransfer).amount.toString()),
-                    text3 = ResultUiText.DynamicString(BankDateFactory.now().toString()),
+                    text2 = ResultUiText.DynamicString(CurrencyUtils.formatCurrency(authorizationIntent.amount, authorizationIntent.countryCode) + " " + CurrencyUtils.getCurrencySymbol(authorizationIntent.countryCode) ),
+                    text3 = ResultUiText.DynamicString(BankDateFactory.now().toFullDateTimeDisplay()),
                     primaryButton = ResultButton(ResultUiText.StringResource(R.string.done), onDone)
                 )
               }    else {
                 ResultContent(
                     text1 = ResultUiText.StringResource(R.string.transaction_failed),
                     text2 = ResultUiText.StringResource(failureReason),
-                    text3 = ResultUiText.DynamicString(BankDateFactory.now().toString()),
+                    text3 = ResultUiText.DynamicString(BankDateFactory.now().toFullDateTimeDisplay()),
                     primaryButton = ResultButton(ResultUiText.StringResource(R.string.try_again), onRetry)
                 )
             }
         }
-            is FlowData.AddBeneficiary -> {
+            is AuthorizationIntent.AddBeneficiary -> {
                 successMessage = R.string.beneficiary_added_successfully
              return  if(isSuccess){
                     ResultContent(
@@ -116,17 +133,42 @@ class SharedTransactionViewModel : ViewModel() {
                     )
                 }
             }
-            is FlowData.Deposit -> {
+            is AuthorizationIntent.Deposit -> {
+                val authorizationIntent = authorizationIntent as AuthorizationIntent.Deposit
                 successMessage = R.string.transaction_success
                return if (isSuccess) {
                     ResultContent(
                         text1 = ResultUiText.StringResource(R.string.transaction_success),
-                        text2 = ResultUiText.DynamicString((flowData as FlowData.Deposit).amount.toString()),
-                        text3 = ResultUiText.DynamicString(BankDateFactory.now().toString()),
+                        text2 = ResultUiText.DynamicString(CurrencyUtils.formatCurrency(authorizationIntent.amount, authorizationIntent.countryCode) +" "+ CurrencyUtils.getCurrencySymbol(authorizationIntent.countryCode) ),
+                        text3 = ResultUiText.DynamicString(BankDateFactory.now().toFullDateTimeDisplay()),
                         primaryButton = ResultButton(text = ResultUiText.StringResource(R.string.done), onDone),
                     )
                 }
                 else {
+                    ResultContent(
+                        text1 = ResultUiText.StringResource(R.string.transaction_failed),
+                        text2 = ResultUiText.StringResource(failureReason),
+                        primaryButton = ResultButton(text = ResultUiText.StringResource(R.string.try_again), onClick = onRetry),
+                    )
+                }
+            }
+
+            is AuthorizationIntent.InternationalTransfer ->
+            {
+                val data = authorizationIntent as AuthorizationIntent.InternationalTransfer
+                val converted = data.baseAmount.multiply(data.exchangeRate)
+                return if (isSuccess) {
+                    ResultContent(
+                        text1 = ResultUiText.StringResource(R.string.transaction_success),
+                        text2 = ResultUiText.DynamicString("${data.baseAmount} ${data.baseCurrency} -> $converted ${data.targetCurrency}"),
+                        text3 = ResultUiText.DynamicString(BankDateFactory.now().toFullDateTimeDisplay()),
+                        primaryButton = ResultButton(
+                            ResultUiText.StringResource(R.string.done),
+                            onDone
+                        )
+                    )
+                }
+                else{
                     ResultContent(
                         text1 = ResultUiText.StringResource(R.string.transaction_failed),
                         text2 = ResultUiText.StringResource(failureReason),
@@ -144,25 +186,3 @@ class SharedTransactionViewModel : ViewModel() {
     }
 }
 
-sealed interface FlowData {
-    data class CashTransfer(
-        val fromAccNo: Long,
-        val toAccNo: Long,
-        val amount: BigDecimal,
-        val isFriend: Boolean,
-        val transactionId: String? = null
-    ) : FlowData
-
-    data class Deposit(
-        val userAccNo: Long,
-        val amount: BigDecimal,
-        val transactionId: String? = null
-    ) : FlowData
-
-    data class AddBeneficiary(
-        val myUserId: Long,
-        val otherUserId: Long,
-        val nickname: String
-    ) : FlowData
-
-}

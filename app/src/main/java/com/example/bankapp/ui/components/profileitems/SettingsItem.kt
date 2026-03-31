@@ -53,7 +53,8 @@ import com.example.bankapp.viewmodels.ThemeViewModel
 fun ProfileSettingsCard(
     title: String,
     deviceSpec: DeviceSpec,
-    themeViewModel: ThemeViewModel
+    themeViewModel: ThemeViewModel,
+    forgotPasswordClickAction: ()->Unit
 ) {
     val currentTheme by themeViewModel.currentTheme.collectAsState()
 
@@ -76,15 +77,10 @@ fun ProfileSettingsCard(
             )
 
             ProfileActionRow(
-                icon = Icons.Outlined.Lock,
-                label = stringResource(R.string.change_password_label)
-            )
-
-            ProfileDivider()
-
-            ProfileActionRow(
                 icon = Icons.AutoMirrored.Outlined.Help,
-                label = stringResource(R.string.forgot_password_label)
+                label = stringResource(R.string.forgot_password_label),
+                isClickable = true,
+                onValueClick = { forgotPasswordClickAction() }
             )
 
             ProfileDivider()

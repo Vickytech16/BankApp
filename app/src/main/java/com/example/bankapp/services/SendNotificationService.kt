@@ -8,7 +8,7 @@ import com.example.bankapp.entities.Notification
 
 object SendNotificationService {
     private const val OTP_NOTIFICATION_ID = 1001
-    fun showNotification(
+    fun showOtpNotification(
         context: Context,
         notification: Notification,
         isOtp: Boolean = true

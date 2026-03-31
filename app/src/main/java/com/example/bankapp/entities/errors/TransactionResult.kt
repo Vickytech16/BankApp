@@ -20,5 +20,7 @@ sealed class TransactionResult(val message: Int) {
 
         object UnKnown : Error(R.string.generic_transaction_error)
 
+        object LimitExceeded: Error(R.string.limit_exceeded)
+
     }
 }

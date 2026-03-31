@@ -1,26 +1,19 @@
 package com.example.bankapp.ui.screens.payscreens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,19 +28,22 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
 import com.example.bankapp.entities.types.transaction.TransactionType
+import com.example.bankapp.ui.components.BalanceStatusCard
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.utilities.AmountFieldStrategy
+import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.viewmodels.authviewmodels.DepositViewModel
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DepositScreen(
     depositViewModelFactory: DepositViewModelFactory,
-    windowSizeClass: WindowSizeClass,
     navController: NavController,
 ) {
     val viewModel: DepositViewModel = viewModel(factory = depositViewModelFactory)
@@ -56,13 +52,15 @@ fun DepositScreen(
 
     val illustrationHeight = dimensionResource(R.dimen.illustration_height).value.toInt()
 
-    LaunchedEffect(windowSizeClass.heightSizeClass) {
-        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
+    val deviceSpec = LocalDeviceSpec.current
+
+    val balanceAfter = viewModel.account.balance.toString()
+
+    LaunchedEffect(deviceSpec) {
+        if (deviceSpec is DeviceSpec.MobileLandscape) {
             scrollState.animateScrollTo(illustrationHeight + 300)
         }
     }
-
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
 
     val textFieldColumnWidth =
         deviceSpec.textFieldWidth
@@ -85,28 +83,23 @@ fun DepositScreen(
     {
         contentPadding ->
         Column(
-            modifier = Modifier.fillMaxHeight().screenModifier(contentPadding, scrollState),
+            modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.signup_illustration),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensionResource(R.dimen.illustration_height))
-                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
-                contentScale = ContentScale.Fit
-            )
-
-            MediumSpacer()
-
             Text(
                 text = stringResource(R.string.enter_transaction_details),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.ExtraBold
+            )
+
+            LargeSpacer()
+
+            BalanceStatusCard(
+                modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
+                balanceValue = CurrencyUtils.formatCurrency(balanceAfter.toBigDecimalOrNull() ?: BigDecimal.ZERO,viewModel. user.countryCode) + " " + CurrencyUtils.getCurrencyCode(viewModel.user.countryCode),
             )
 
             LargeSpacer()

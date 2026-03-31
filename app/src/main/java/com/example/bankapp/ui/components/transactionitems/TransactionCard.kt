@@ -18,19 +18,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
-import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.utilities.uiAccNo
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import com.example.bankapp.ui.components.AutoResizeText
 import com.example.bankapp.ui.components.SmallSpacer
-import com.example.bankapp.utilities.getCurrencySymbol
-import java.util.Locale
+import com.example.bankapp.ui.theme.LocalDeviceSpec
+import com.example.bankapp.utilities.CurrencyUtils
+import java.math.BigDecimal
 
 @Composable
 fun TransactionDetailsCard(
@@ -40,7 +40,7 @@ fun TransactionDetailsCard(
     countryCode: String
 ) {
 
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val deviceSpec = LocalDeviceSpec.current
     val dividerGradient = 0.3f
 
     Card(
@@ -197,16 +197,15 @@ fun BalanceAfterSectionCard(balanceAfter: String, countryCode: String) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = getCurrencySymbol(countryCode = countryCode),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-                Text(
-                    text = balanceAfter,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
+                AutoResizeText(
+                    text = "${CurrencyUtils.formatCurrency(balanceAfter.toBigDecimalOrNull() ?: BigDecimal.ZERO, countryCode)} ${
+                        CurrencyUtils.getCurrencySymbol(
+                            countryCode
+                        )
+                    }",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
                     color = MaterialTheme.colorScheme.onSecondary
                 )
             }

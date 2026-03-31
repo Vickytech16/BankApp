@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -27,14 +28,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
-import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.entities.uimodels.AccountUiModel
+import com.example.bankapp.ui.components.AutoResizeText
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
-import com.example.bankapp.utilities.RUPEE_SYMBOL
-import com.example.bankapp.utilities.getCurrencySymbol
+import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.utilities.uiAccNo
 
 @Composable
@@ -47,6 +47,14 @@ fun HomeScreenCard(
 ) {
     val maskedAccNo = "**** ${account.accNo.uiAccNo.takeLast(4)}"
     val accNoCardGradient = 0.12f
+
+    val formattedBalance = remember(account.balance, countryCode, isBalanceVisible) {
+        if (isBalanceVisible) {
+            CurrencyUtils.formatCurrency(account.balance, countryCode)
+        } else {
+            "••••••"
+        }
+    }
 
     Card(
         shape = RoundedCornerShape(size = dimensionResource(deviceSpec.homeScreenCardRoundedCorner)),
@@ -90,22 +98,13 @@ fun HomeScreenCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = getCurrencySymbol(countryCode),
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
 
-                    XSSpacer()
-
-                    Text(
-                        text = if (isBalanceVisible)
-                            account.balance.toString()
-                        else
-                            "••••••",
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.Bold,
+                    AutoResizeText(
+                        text = CurrencyUtils.getCurrencySymbol(countryCode) + " " + formattedBalance,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
 

@@ -238,7 +238,7 @@ private fun openAppSettings(context: Context) {
 
 private fun sendOtp(otpViewModel: OtpViewModel, context: Context, title: String, message: String) {
     otpViewModel.generateOtp()
-    SendNotificationService.showNotification(
+    SendNotificationService.showOtpNotification(
         context,
         Notification(title = title, message = "$message ${otpViewModel.generatedOtp}")
     )

@@ -22,14 +22,16 @@ import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
 import com.example.bankapp.entities.types.transaction.LedgerDirection
 import com.example.bankapp.entities.types.transaction.TransactionType
+import com.example.bankapp.ui.components.AutoResizeText
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpecProvider
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.ui.theme.amountGreenColor
-import com.example.bankapp.utilities.getCurrencySymbol
-import java.util.Locale
+import com.example.bankapp.utilities.CurrencyUtils
+import java.math.BigDecimal
 
 @Composable
 fun TransactionDetailBody(
@@ -39,7 +41,8 @@ fun TransactionDetailBody(
     countryCode: String
 ) {
     val transactionType = transactionItem.transactionType
-    val deviceSpec = DeviceSpecProvider.getCurrentDeviceSpec(windowSizeClass)
+    val deviceSpec = LocalDeviceSpec.current
+
     val isCredit = transactionItem.ledgerDirection == LedgerDirection.CREDIT
     val amountColor = if (isCredit) amountGreenColor else MaterialTheme.colorScheme.error
     val amountPrefix = if (isCredit) "+" else "-"
@@ -96,22 +99,15 @@ fun TransactionDetailBody(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = amountPrefix,
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Bold,
-                color = amountColor
-            )
-            Text(
-                text = getCurrencySymbol(countryCode),
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Bold,
-                color = amountColor
-            )
-            Text(
-                text = transactionItem.amount,
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Bold,
+            AutoResizeText(
+                text = "$amountPrefix${CurrencyUtils.formatCurrency(transactionItem.amount.toBigDecimalOrNull() ?: BigDecimal.ZERO, countryCode)} ${
+                    CurrencyUtils.getCurrencySymbol(
+                        countryCode
+                    )
+                }",
+                style = MaterialTheme.typography.displayLarge.copy(
+                    fontWeight = FontWeight.Bold
+                ),
                 color = amountColor
             )
         }
