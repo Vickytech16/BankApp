@@ -25,48 +25,57 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
-import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
 import com.example.bankapp.entities.Notification
 import com.example.bankapp.services.SendNotificationService
 import com.example.bankapp.ui.components.*
-import com.example.bankapp.ui.components.appbar.Appbar
+import com.example.bankapp.ui.components.appbar.RegularAppBar
 import com.example.bankapp.ui.components.buttons.SubmitButton
+import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE_AUTH
+import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.OtpInputField
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.viewmodels.NotificationViewmodel
 import com.example.bankapp.viewmodels.authviewmodels.OtpViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtpScreen(
     navController: NavController,
-    notificationViewModelFactory: NotificationViewModelFactory,
     otpViewModelFactory: OtpViewModelFactory,
     backRoute: String,
+    popUpRoute: String,
     onOtpSuccess: () -> Unit,
-    onDismiss: () -> Unit = {},
 ) {
     val otpViewModel: OtpViewModel = viewModel(factory = otpViewModelFactory)
-    val notificationViewModel: NotificationViewmodel = viewModel(factory = notificationViewModelFactory)
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val title = stringResource(R.string.your_otp)
     val message = stringResource(R.string.otp_field_name)
 
-    BackButtonHandler(navController, backRoute)
+    var showExitDialog by remember { mutableStateOf(false) }
+
+   BackHandlerWithWarning(
+       onConfirm = {
+           navController.navigate(backRoute) {
+               popUpTo(popUpRoute) {
+                   inclusive = false
+               }
+           }
+       },
+       onShowDialogConfirm = { showExitDialog = true},
+       onDismiss = { showExitDialog = false },
+       showDialog = showExitDialog
+   )
 
     var permissionGranted by remember { mutableStateOf(checkPermission(context)) }
 
     val triggerPermissionRequest = notificationPermissionHandler(
         onPermissionGranted = {
             permissionGranted = true
-            notificationViewModel.onPermissionResult()
         },
         onPermissionDenied = {
             permissionGranted = false
-            notificationViewModel.onPermissionResult()
         }
     )
 
@@ -79,7 +88,6 @@ fun OtpScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
-            otpViewModel.resetOtpState()
         }
     }
 
@@ -105,7 +113,12 @@ fun OtpScreen(
 
     Scaffold(
         topBar = {
-            Appbar(title = "", navBehaviour = { navController.popBackStack() }, scrollBehavior = null)
+            RegularAppBar(
+                title = "",
+                navBehaviour = {
+                    showExitDialog = true
+                },
+                scrollBehavior = null)
         }
     ) { paddingValues ->
         if (!permissionGranted) {
@@ -129,7 +142,7 @@ fun OtpScreen(
 }
 
 @Composable
-fun OtpInputScreen(
+private fun OtpInputScreen(
     otpViewModel: OtpViewModel,
     paddingValues: PaddingValues,
     resend: () -> Unit
@@ -166,7 +179,7 @@ fun OtpInputScreen(
             )
         }
 
-            ErrorTextBuilder(otpViewModel.submitError)
+        ErrorTextBuilder(otpViewModel.submitError)
 
         SubmitButton(
             onClick = { otpViewModel.submitOtp() },
@@ -198,25 +211,52 @@ fun OtpInputScreen(
 }
 
 @Composable
-fun NotificationPermissionScreen(
+private fun NotificationPermissionScreen(
     modifier: Modifier = Modifier,
     onEnableClick: () -> Unit
 ) {
     val context = LocalContext.current
     Column(
-        modifier = modifier.fillMaxSize().padding(dimensionResource(R.dimen.screen_padding)),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(dimensionResource(R.dimen.screen_padding)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = stringResource(R.string.enable_notifications_title), style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+
+        Text(
+            text = stringResource(R.string.enable_notifications_title),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center
+        )
+
         MediumSpacer()
-        Text(text = stringResource(R.string.enable_notifications_text), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+        Text(
+            text = stringResource(R.string.enable_notifications_text),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
         XLSpacer()
-        Button(onClick = onEnableClick, modifier = Modifier.fillMaxWidth(0.8f)) {
+
+        Button(
+            onClick = onEnableClick,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
             Text(stringResource(R.string.enable_button_text))
         }
-        TextButton(onClick = { openAppSettings(context) }) {
-            Text(stringResource(R.string.open_settings_manually))
+
+        TextButton(
+            onClick = { openAppSettings(context) },
+            modifier = Modifier.padding(top = AppSpacing.sm)
+        ) {
+            Text(
+                text = stringResource(R.string.open_settings_manually),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }

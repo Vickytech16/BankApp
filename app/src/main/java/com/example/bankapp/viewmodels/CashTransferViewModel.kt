@@ -87,15 +87,11 @@ class CashTransferViewModel(
         private set
     private var recieverCountryCode by mutableStateOf("")
 
-    private var recieverCurrencyCode  by mutableStateOf("")
-
-
     var exchangeRate by mutableStateOf(java.math.BigDecimal.ONE)
     var showInternetAlert by mutableStateOf(false)
 
     var lastUpdatedTime by mutableStateOf("---")
         private set
-
 
     val convertedAmountDisplay: String
         get() {
@@ -232,7 +228,8 @@ class CashTransferViewModel(
                             amount = amount.toBigDecimal(),
                             baseCurrency = CurrencyUtils.getCurrencySymbol(user.value.countryCode),
                             targetCurrency = CurrencyUtils.getCurrencySymbol(recieverCountryCode),
-                            rate = exchangeRate
+                            rate = exchangeRate,
+                            isFriend = isFriend
                         )
                     }
                     else {

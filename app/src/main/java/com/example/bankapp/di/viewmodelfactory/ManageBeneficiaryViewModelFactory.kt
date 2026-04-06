@@ -6,7 +6,7 @@ import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.usecases.SharedPreferenceHelper
+import com.example.bankapp.utilities.SharedPreferenceHelper
 import com.example.bankapp.viewmodels.AccountCreationViewModel
 import com.example.bankapp.viewmodels.ManageBeneficiaryViewModel
 

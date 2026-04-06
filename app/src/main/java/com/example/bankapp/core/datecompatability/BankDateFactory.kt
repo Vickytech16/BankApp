@@ -1,7 +1,6 @@
 package com.example.bankapp.core.datecompatability
 
 object BankDateFactory {
-
     private var activeTimeZone: String = "UTC"
 
     fun initialize(timeZoneId: String) {

@@ -13,6 +13,9 @@ sealed class FormError(override val message: Int): UiError {
     class TooLongData(val fieldNameRes: Int, val characterLimitRes: Int):
             FormError(R.string.data_too_long_error)
 
+    class TooShortData(val fieldNameRes: Int, val characterLimitRes: Int):
+        FormError(R.string.data_too_short_error)
+
     object InvalidEmailFormat:
             FormError(R.string.invalid_email_format_error)
 
@@ -64,6 +67,15 @@ sealed class FormError(override val message: Int): UiError {
 
     object UserDoesNotHaveAccountError:
             FormError(R.string.user_doesnt_have_account_error)
+
+    object InvalidPhoneNumber:
+            FormError(R.string.invalid_phone_number)
+
+    object RecoveryKeyMustBe10DigitsLong:
+            FormError(R.string.recovery_key_expectaton)
+
+    object RecoveryKeyDoesNotMatch:
+            FormError(R.string.recovery_key_no_match)
 
 
 }

@@ -7,13 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.services.PasswordHashingService
-import com.example.bankapp.usecases.ChangePasswordUseCase
+import com.example.bankapp.entities.ChangePasswordState
 import kotlinx.coroutines.launch
 
 class RecoveryKeyViewModel(
-    private val changePasswordUseCase: ChangePasswordUseCase
+    private val changePasswordState: ChangePasswordState
 ) : ViewModel() {
-
     var recoveryKey by mutableStateOf("")
         private set
 
@@ -35,18 +34,18 @@ class RecoveryKeyViewModel(
 
     fun onSubmit() {
         if (recoveryKey.length < 10) {
-            recoveryKeyError = FormError.InvalidData
+            recoveryKeyError = FormError.RecoveryKeyMustBe10DigitsLong
             return
         }
 
         viewModelScope.launch {
             isLoading = true
             try {
-                val isValid = PasswordHashingService.matches(recoveryKey, changePasswordUseCase.user!!.recoveryKey)
+                val isValid = PasswordHashingService.matches(recoveryKey, changePasswordState.user!!.recoveryKey)
                 if (isValid) {
                     isVerified = true
                 } else {
-                    recoveryKeyError = FormError.InvalidData
+                    recoveryKeyError = FormError.RecoveryKeyDoesNotMatch
                 }
             } catch (e: Exception) {
                 recoveryKeyError = FormError.UnknownError

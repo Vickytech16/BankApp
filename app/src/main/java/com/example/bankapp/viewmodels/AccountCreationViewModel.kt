@@ -1,7 +1,5 @@
 package com.example.bankapp.viewmodels
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,21 +7,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
 import com.example.bankapp.core.datecompatability.BankDateFactory
-import com.example.bankapp.entities.dbtables.Account
+import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.TransactionResult
 import com.example.bankapp.entities.types.account.AccountType
-import com.example.bankapp.entities.uimodels.AccountUiModel
+import com.example.bankapp.entities.uientities.uimodels.AccountUiModel
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.services.PasswordHashingService
 
-import com.example.bankapp.usecases.SharedPreferenceHelper
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.amountFieldValidator
 import com.example.bankapp.utilities.depositAmountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
-import com.example.bankapp.utilities.mappers.toUiModel
 
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
 
@@ -32,18 +28,19 @@ import java.util.UUID
 
 class AccountCreationViewModel(
     private val accountRepository: AccountRepository,
-    private val sharedPreferenceHelper: SharedPreferenceHelper,
-    private val transactionRepository: TransactionRepository
+    private val sessionState: SessionState.Authenticated.AccountNotRegistered,
+    private val transactionRepository: TransactionRepository,
+    private val sessionViewModel: SessionViewModel
 ): ViewModel() {
 
-    var accountType by mutableStateOf(AccountType.SAVINGS)
+    var accountType by mutableStateOf<AccountType>(AccountType.Savings)
         private set
 
     fun onAccountTypeChange(newAccountType: AccountType){
         accountType = newAccountType
     }
 
-    var amount by mutableStateOf<String>("")
+    var amount by mutableStateOf("")
         private set
 
     var amountError by mutableStateOf<FormError?>(null)
@@ -52,9 +49,8 @@ class AccountCreationViewModel(
     fun onAmountChange(newAmount: String){
         if(newAmount.isEmpty() || newAmount.matches(depositAmountRegex))
             amount = newAmount
-        amountError =
-            newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
-                    newAmount.amountFieldValidator(depositAmountRegex)
+        amountError = newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
+                      newAmount.amountFieldValidator(depositAmountRegex)
         onSubmitErrorReset()
     }
 
@@ -110,7 +106,7 @@ class AccountCreationViewModel(
 
         isLoading = true
 
-        onAmountChange(amount.toString())
+        onAmountChange(amount)
         onPasswordChange(password)
 
         onSubmitErrorReset()
@@ -131,35 +127,31 @@ class AccountCreationViewModel(
 
                 if (submitError == null) {
 
-                    val user = sharedPreferenceHelper.getUserFromSharedPreferences()
+                    val user = sessionState.user
+                    if (PasswordHashingService.matches(password, user.passwordHashed)) {
+                        isSubmitSuccessful = true
+                        val account = AccountUiModel(
+                            userId = user.userId,
+                            accountType = accountType,
+                            createdAt = BankDateFactory.now(),
+                            updatedAt = BankDateFactory.now(),
+                            lastInterestDate = BankDateFactory.now()
+                        )
 
-                    if (user == null) {
-                        submitError = FormError.UnknownError
+                        val accNo =
+                            accountRepository.createAccount(account)
+                        val result =
+                            transactionRepository.deposit(accNo, convertedAmount, idempotencyKey)
+
+                        if (result is TransactionResult.Error.RepeatedTransaction)
+                            idempotencyKey = UUID.randomUUID().toString()
+
+                        sessionViewModel.handlePasswordAttempt(true)
                     }
-
                     else {
-                        if (PasswordHashingService.matches(password, user.passwordHashed)) {
-                            isSubmitSuccessful = true
-                            val account = AccountUiModel(
-                                userId = user.userId,
-                                accountType = accountType,
-                                createdAt = BankDateFactory.now(),
-                                updatedAt = BankDateFactory.now()
-                            )
-
-                            val accNo =
-                                accountRepository.createAccount(account)
-                            val result =
-                                transactionRepository.deposit(accNo, convertedAmount, idempotencyKey)
-
-                            if (result is TransactionResult.Error.RepeatedTransaction)
-                                idempotencyKey = UUID.randomUUID().toString()
-                            println("Result is..................${result.message}")
-                        }
-                        else {
-                            passwordError = FormError.PasswordDoesntMatch
-                            submitError = FormError.PasswordDoesntMatch
-                        }
+                        passwordError = FormError.PasswordDoesntMatch
+                        submitError = FormError.PasswordDoesntMatch
+                        sessionViewModel.handlePasswordAttempt(false)
                     }
                 }
             } catch (_: Exception) {

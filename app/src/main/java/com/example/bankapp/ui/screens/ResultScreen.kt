@@ -37,8 +37,8 @@ import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.entities.types.ActionState
-import com.example.bankapp.entities.types.ui.ResultContent
+import com.example.bankapp.entities.AuthorizationctionState
+import com.example.bankapp.entities.uientities.uidata.ResultContent
 import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
@@ -46,7 +46,7 @@ import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_R
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
 
-import com.example.bankapp.viewmodels.TransactionResultViewModel
+import com.example.bankapp.viewmodels.ResultViewModel
 import kotlinx.coroutines.delay
 
 
@@ -56,16 +56,16 @@ fun TransactionResultScreen(
     navController: NavController,
     authorizationViewModel: AuthorizationViewModel
 ) {
-    val viewModel: TransactionResultViewModel = viewModel(factory = transactionResultViewModelFactory)
+    val viewModel: ResultViewModel = viewModel(factory = transactionResultViewModelFactory)
 
-    val actionState = authorizationViewModel.actionState
+    val actionState = authorizationViewModel.authorizationActionState
 
     LaunchedEffect(Unit) {
         if(!viewModel.actionExecuted) {
             viewModel.actionExecuted = true
             when(authorizationViewModel.authorizationIntent){
                 is AuthorizationIntent.CashTransfer -> viewModel.cashTransfer(authorizationViewModel.authorizationIntent as AuthorizationIntent.CashTransfer)
-                is AuthorizationIntent.AddBeneficiary -> viewModel.AddBeneficiary(authorizationViewModel.authorizationIntent as AuthorizationIntent.AddBeneficiary)
+                is AuthorizationIntent.AddBeneficiary -> viewModel.addBeneficiary(authorizationViewModel.authorizationIntent as AuthorizationIntent.AddBeneficiary)
                 is AuthorizationIntent.Deposit -> viewModel.Deposit(authorizationViewModel.authorizationIntent as AuthorizationIntent.Deposit)
                 is AuthorizationIntent.InternationalTransfer -> viewModel.InternationalTransfer(authorizationViewModel.authorizationIntent as AuthorizationIntent.InternationalTransfer)
                 else -> {}
@@ -171,7 +171,7 @@ fun TransactionResultScreen(
     )
 
     LaunchedEffect(actionState) {
-        if (actionState == ActionState.SUCCESS || actionState == ActionState.FAILURE) {
+        if (actionState == AuthorizationctionState.SUCCESS || actionState == AuthorizationctionState.FAILURE) {
             delay(800)
             showContent.value = true
         }
@@ -191,12 +191,12 @@ fun TransactionResultScreen(
             XLSpacer()
 
             when (actionState) {
-                ActionState.LOADING -> {
+                AuthorizationctionState.LOADING -> {
                     CircularProgressIndicator()
                 }
-                ActionState.SUCCESS,
-                ActionState.FAILURE -> {
-                    val isSuccess = actionState == ActionState.SUCCESS
+                AuthorizationctionState.SUCCESS,
+                AuthorizationctionState.FAILURE -> {
+                    val isSuccess = actionState == AuthorizationctionState.SUCCESS
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top,
@@ -261,7 +261,6 @@ fun TransactionResultScreen(
                                 }
 
                                 XLSpacer()
-                                LargeSpacer()
 
                                 if (resultContent.secondaryButton == null && resultContent.primaryButton != null) {
                                     resultContent.primaryButton.let { button ->
@@ -295,6 +294,9 @@ fun TransactionResultScreen(
                                     }
                                 }
 
+                                XLSpacer()
+                                XLSpacer()
+                                XLSpacer()
                                 XLSpacer()
                             }
                         }

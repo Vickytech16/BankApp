@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +26,6 @@ import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.ui.theme.amountGreenColor
 import com.example.bankapp.utilities.CurrencyUtils
@@ -37,8 +35,9 @@ import java.math.BigDecimal
 fun TransactionDetailBody(
     transactionItem: TransactionHistoryItemDto,
     paddingValues: PaddingValues,
-    windowSizeClass: WindowSizeClass,
-    countryCode: String
+    countryCode: String,
+    showTimeZOne: Boolean = false,
+    timezone: String? = null
 ) {
     val transactionType = transactionItem.transactionType
     val deviceSpec = LocalDeviceSpec.current
@@ -47,10 +46,11 @@ fun TransactionDetailBody(
     val amountColor = if (isCredit) amountGreenColor else MaterialTheme.colorScheme.error
     val amountPrefix = if (isCredit) "+" else "-"
 
-    val displayName = when (transactionType) {
-        TransactionType.DEPOSIT -> transactionItem.myUserName
-        else -> transactionItem.counterpartyName
-            ?: stringResource(R.string.other_person_name_if_null)
+    val displayName = when {
+        transactionItem.transactionType == TransactionType.DEPOSIT -> "You (Deposit)"
+        !transactionItem.counterpartyNickname.isNullOrEmpty() ->
+            "${transactionItem.counterpartyNickname} (${transactionItem.counterpartyName})"
+        else -> transactionItem.counterpartyName ?: "Bank"
     }
 
     val labelRes = when (transactionType) {
@@ -129,6 +129,14 @@ fun TransactionDetailBody(
             textAlign = TextAlign.Center
         )
 
+        if(showTimeZOne && timezone!=null){
+            Text(
+                text = "Timezone: $timezone",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
+        }
+
         LargeSpacer()
 
         Box(
@@ -137,12 +145,10 @@ fun TransactionDetailBody(
         ) {
             TransactionDetailsCard(
                 historyItem = transactionItem,
-                windowSizeClass = windowSizeClass,
                 isDeposit = transactionType == TransactionType.DEPOSIT,
                 countryCode = countryCode
             )
         }
-
         MediumSpacer()
     }
 }

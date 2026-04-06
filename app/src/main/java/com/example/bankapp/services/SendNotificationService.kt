@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.Notification
 
 object SendNotificationService {
@@ -24,7 +25,7 @@ object SendNotificationService {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val notificationId = if (isOtp) OTP_NOTIFICATION_ID else System.currentTimeMillis().toInt()
+        val notificationId = if (isOtp) OTP_NOTIFICATION_ID else BankDateFactory.now().epochMillis.toInt()
 
         notificationManager.notify(
             notificationId,

@@ -34,7 +34,6 @@ fun HomeAppBar(
     deviceSpec: DeviceSpec
 ) {
     val scope = rememberCoroutineScope()
-
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -61,8 +60,7 @@ fun HomeAppBar(
                         drawerState.open()
                     }
                 },
-                modifier = Modifier.padding(horizontal = deviceSpec.homeAppBarHorizontalPadding)
-                                   .size(dimensionResource(deviceSpec.homeAppBarMenuButtonSize))
+                modifier = Modifier.padding(horizontal = deviceSpec.homeAppBarHorizontalPadding).size(dimensionResource(deviceSpec.homeAppBarMenuButtonSize))
                  ) {
                 Icon(
                     Icons.Outlined.Menu,

@@ -19,7 +19,7 @@ import com.example.bankapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Appbar(
+fun RegularAppBar(
     title: String,
     navBehaviour: (() -> Unit)? = null,
     scrollBehavior: TopAppBarScrollBehavior?,

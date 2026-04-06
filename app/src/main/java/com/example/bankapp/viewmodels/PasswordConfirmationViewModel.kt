@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 class PasswordConfirmationViewModel(
     sessionState: SessionState.Authenticated.AccountRegistered,
-    private val loggedInSessionViewModel: LoggedInSessionViewModel
+    private val sessionViewModel: SessionViewModel
 ) : ViewModel() {
 
     private val user = sessionState.user
@@ -88,10 +88,10 @@ class PasswordConfirmationViewModel(
 
                 if (PasswordHashingService.matches(password, user.value.passwordHashed)) {
                     isPasswordVerified = true
-                    loggedInSessionViewModel.handlePasswordAttempt(true)
+                    sessionViewModel.handlePasswordAttempt(true)
                 } else {
                     submitError = FormError.PasswordDoesntMatch
-                    loggedInSessionViewModel.handlePasswordAttempt(false)
+                    sessionViewModel.handlePasswordAttempt(false)
                 }
             } catch (_: Exception) {
                 submitError = FormError.UnknownError

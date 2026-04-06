@@ -29,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 import com.example.bankapp.entities.types.account.AccountType
-import com.example.bankapp.entities.uimodels.AccountUiModel
+import com.example.bankapp.entities.uientities.uimodels.AccountUiModel
 import com.example.bankapp.ui.components.AutoResizeText
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
@@ -152,8 +152,8 @@ fun HomeScreenCard(
                         Text(
                             text =
                                 when (account.accountType) {
-                                    AccountType.SAVINGS -> stringResource(R.string.savings_account)
-                                    AccountType.CURRENT -> stringResource(R.string.current_account)
+                                    is AccountType.Savings-> stringResource(R.string.savings_account)
+                                    is AccountType.Current -> stringResource(R.string.current_account)
                                 },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimary,

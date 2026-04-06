@@ -16,7 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,16 +25,14 @@ import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.PasswordConfirmationViewModelFactory
 import com.example.bankapp.entities.errors.FormError
-import com.example.bankapp.ui.components.AlertButtonConfig
+import com.example.bankapp.entities.uientities.uidata.AlertButtonConfig
 import com.example.bankapp.ui.components.AlertDialogBox
 import com.example.bankapp.ui.components.ErrorTextBuilder
-import com.example.bankapp.ui.components.appbar.Appbar
-import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
+import com.example.bankapp.ui.components.appbar.RegularAppBar
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.usecases.TransactionSessionHolder
-import com.example.bankapp.utilities.PasswordFieldStrategy
-import com.example.bankapp.viewmodels.LoggedInSessionViewModel
+import com.example.bankapp.entities.uientities.uidata.PasswordFieldStrategy
+import com.example.bankapp.viewmodels.SessionViewModel
 import com.example.bankapp.viewmodels.PasswordConfirmationViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -46,7 +43,7 @@ fun PasswordConfirmationScreen(
     passwordConfirmationViewModelFactory: PasswordConfirmationViewModelFactory,
     onDismissRoute: String,
     onPasswordVerificationSuccess: () -> Unit,
-    sessionViewModel: LoggedInSessionViewModel
+    sessionViewModel: SessionViewModel
 ) {
     val viewModel: PasswordConfirmationViewModel =
         viewModel(factory = passwordConfirmationViewModelFactory)
@@ -125,7 +122,7 @@ fun PasswordConfirmationScreen(
 
     Scaffold(
         topBar = {
-            Appbar(
+            RegularAppBar(
                 title = stringResource(R.string.verify_pass),
                 navBehaviour = {
                     if (viewModel.showPasswordDialog) {
@@ -179,7 +176,7 @@ private fun ConfirmCancellationDialog(
 }
 
 @Composable
-fun PasswordVerificationDialog(
+private fun PasswordVerificationDialog(
     onDismiss:  () -> Unit,
     onSubmit: (password: String) -> Unit,
     isLoading: Boolean = false,

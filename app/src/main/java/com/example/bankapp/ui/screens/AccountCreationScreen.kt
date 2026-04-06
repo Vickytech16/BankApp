@@ -20,7 +20,7 @@ import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.ErrorTextBuilder
-import com.example.bankapp.ui.components.LogoutButton
+import com.example.bankapp.ui.components.RedLogoutButton
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.RadioButtonSelector
@@ -29,24 +29,40 @@ import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.LocalDeviceSpec
-import com.example.bankapp.utilities.AmountFieldStrategy
-import com.example.bankapp.utilities.PasswordFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.AmountFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.PasswordFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.AlertButtonConfig
+import com.example.bankapp.ui.components.AlertDialogBox
 import com.example.bankapp.viewmodels.AccountCreationViewModel
-import com.example.bankapp.viewmodels.LoggedInSessionViewModel
+import com.example.bankapp.viewmodels.SessionViewModel
 
 
 @Composable
 fun AccountCreationScreen(
     accountCreationViewModelFactory: AccountCreationViewModelFactory,
-    loggedInSessionViewModel: LoggedInSessionViewModel)
+    sessionViewModel: SessionViewModel)
 {
     val accountCreationViewModel: AccountCreationViewModel = viewModel(factory = accountCreationViewModelFactory)
-
     val scrollState = rememberScrollState()
-
     val deviceSpec = LocalDeviceSpec.current
-
     val textFieldColumnWidth = deviceSpec.textFieldWidth
+
+
+    LaunchedEffect(accountCreationViewModel.isSubmitSuccessful) {
+        if(accountCreationViewModel.isSubmitSuccessful)
+            sessionViewModel.restoreSession()
+    }
+
+    val ok = stringResource(R.string.ok)
+
+    if(sessionViewModel.shouldLogoutOnPasswordFailure){
+        AlertDialogBox(
+            onDismissRequest = {sessionViewModel.logout()},
+            confirmButton = AlertButtonConfig(ok,{sessionViewModel.logout()}),
+            content =  {Text(stringResource(R.string.password_security_error))},
+            title = stringResource(R.string.password_security_breach)
+        )
+    }
 
     Scaffold() {
         contentPadding ->
@@ -80,13 +96,15 @@ fun AccountCreationScreen(
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
+
+
                 RadioButtonSelector(
                     title = stringResource(R.string.select_your_account_type_label),
-                    options = AccountType.entries.toList(),
+                    options = listOf(AccountType.Savings, AccountType.Current),
                     selected = accountCreationViewModel.accountType,
                     onSelectionChange = accountCreationViewModel::onAccountTypeChange,
-                    labelFor =  { accountType ->
-                        accountType.name.lowercase().replaceFirstChar { it.uppercase() }
+                    labelFor =  { accountTypes ->
+                       stringResource(accountTypes.nameRes)
                     },
                     fontWeight = FontWeight.Medium
                 )
@@ -129,19 +147,14 @@ fun AccountCreationScreen(
 
                 XLSpacer()
 
-                LogoutButton(accountCreationViewModel.showLogoutAction, accountCreationViewModel::onShowLogoutActionChange) {
-                    loggedInSessionViewModel.logout()
+                RedLogoutButton(accountCreationViewModel.showLogoutAction, accountCreationViewModel::onShowLogoutActionChange) {
+                    sessionViewModel.logout()
                 }
 
                 XLSpacer()
-
-
-                LaunchedEffect(accountCreationViewModel.isSubmitSuccessful) {
-                    if(accountCreationViewModel.isSubmitSuccessful)
-                        loggedInSessionViewModel.restoreSession()
-                }
+                XLSpacer()
             }
         }
     }
-
 }
+

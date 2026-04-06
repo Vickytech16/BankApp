@@ -3,7 +3,7 @@ package com.example.bankapp.di.viewmodelfactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.usecases.SharedPreferenceHelper
+import com.example.bankapp.utilities.SharedPreferenceHelper
 import com.example.bankapp.viewmodels.authviewmodels.LoginViewModel
 
 

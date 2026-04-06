@@ -43,16 +43,13 @@ class OtpViewModel : ViewModel() {
     }
 
     fun generateOtp() {
-
         submitError = null
         isOtpValid = null
-
         otpExpiryJob?.cancel()
         generatedOtp = (100000..999999).random()
         otpExpiresAt = 60
         isOtpSent = true
         resetOtpInputs()
-
         otpExpiryJob = viewModelScope.launch {
             while (otpExpiresAt > 0) {
                 delay(1000)
@@ -103,6 +100,4 @@ class OtpViewModel : ViewModel() {
         isOtpProcessStarted = false
         resetOtpInputs()
     }
-
-
 }

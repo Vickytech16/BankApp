@@ -35,6 +35,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.bankapp.R
+import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.SmallSpacer
 
 
 @Composable
@@ -59,7 +61,8 @@ fun SplashScreen() {
         label = "content_slide"
     )
 
-    Scaffold { innerPadding ->
+    Scaffold {
+        innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -101,6 +104,7 @@ fun SplashScreen() {
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
+                SmallSpacer()
                 Text(
                     text = stringResource(R.string.splash_quote),
                     style = MaterialTheme.typography.bodyMedium,
@@ -110,7 +114,8 @@ fun SplashScreen() {
                 )
             }
 
-            // Bottom: Lottie animation
+            LargeSpacer()
+
             LottieAnimation(
                 composition = composition,
                 progress = { progress },

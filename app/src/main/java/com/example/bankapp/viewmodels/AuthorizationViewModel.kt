@@ -6,10 +6,10 @@ import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.AuthorizationIntent
-import com.example.bankapp.entities.types.ActionState
-import com.example.bankapp.entities.types.ui.ResultButton
-import com.example.bankapp.entities.types.ui.ResultContent
-import com.example.bankapp.entities.types.ui.ResultUiText
+import com.example.bankapp.entities.AuthorizationctionState
+import com.example.bankapp.entities.uientities.uidata.ResultButton
+import com.example.bankapp.entities.uientities.uidata.ResultContent
+import com.example.bankapp.entities.uientities.uidata.ResultUiText
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PASSWORD_CONFIRMATION_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
@@ -21,7 +21,7 @@ class AuthorizationViewModel : ViewModel() {
     var authorizationIntent by mutableStateOf<AuthorizationIntent?>(null)
         private set
 
-    var actionState by mutableStateOf(ActionState.LOADING)
+    var authorizationActionState by mutableStateOf(AuthorizationctionState.LOADING)
 
     fun initializeCashTransfer(fromAccNo: Long, toAccNo: Long, amount: BigDecimal, friend: Boolean, countryCode: String) {
         authorizationIntent = AuthorizationIntent.CashTransfer(
@@ -49,10 +49,11 @@ class AuthorizationViewModel : ViewModel() {
         )
     }
 
-    fun initializeInternationalTransfer(fromAccNo: Long, toAccNo: Long, amount: BigDecimal, baseCurrency: String, targetCurrency: String, rate: BigDecimal) {
+    fun initializeInternationalTransfer(fromAccNo: Long, toAccNo: Long, amount: BigDecimal,isFriend: Boolean, baseCurrency: String, targetCurrency: String, rate: BigDecimal) {
         authorizationIntent = AuthorizationIntent.InternationalTransfer(
             fromAccNo,
             toAccNo,
+            isFriend,
             amount,
             baseCurrency,
             targetCurrency,
@@ -97,7 +98,7 @@ class AuthorizationViewModel : ViewModel() {
     var successMessage by mutableStateOf(R.string.action_success)
 
     fun getResultContent(onDone: () -> Unit, onRetry: () -> Unit): ResultContent {
-        val isSuccess = actionState == ActionState.SUCCESS
+        val isSuccess = authorizationActionState == AuthorizationctionState.SUCCESS
 
         when(authorizationIntent) {
             is AuthorizationIntent.CashTransfer -> {
@@ -155,12 +156,12 @@ class AuthorizationViewModel : ViewModel() {
 
             is AuthorizationIntent.InternationalTransfer ->
             {
-                val data = authorizationIntent as AuthorizationIntent.InternationalTransfer
-                val converted = data.baseAmount.multiply(data.exchangeRate)
+                val authorizationIntent = authorizationIntent as AuthorizationIntent.InternationalTransfer
+                val converted = authorizationIntent.baseAmount.multiply(authorizationIntent.exchangeRate)
                 return if (isSuccess) {
                     ResultContent(
                         text1 = ResultUiText.StringResource(R.string.transaction_success),
-                        text2 = ResultUiText.DynamicString("${data.baseAmount} ${data.baseCurrency} -> $converted ${data.targetCurrency}"),
+                        text2 = ResultUiText.DynamicString("${authorizationIntent.baseAmount} ${authorizationIntent.baseCurrency} -> ${CurrencyUtils.formatDecimal(converted)} ${authorizationIntent.targetCurrency}"),
                         text3 = ResultUiText.DynamicString(BankDateFactory.now().toFullDateTimeDisplay()),
                         primaryButton = ResultButton(
                             ResultUiText.StringResource(R.string.done),

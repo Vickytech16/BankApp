@@ -2,7 +2,7 @@ package com.example.bankapp.utilities.mappers
 
 import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.dbtables.Transaction
-import com.example.bankapp.entities.uimodels.TransactionUiModel
+import com.example.bankapp.entities.uientities.uimodels.TransactionUiModel
 
 fun Transaction.toUiModel(): TransactionUiModel {
     return TransactionUiModel(

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.bankapp.entities.dbtables.Ledger
+import java.math.BigDecimal
 
 @Dao
 interface LedgerDao {
@@ -11,10 +12,25 @@ interface LedgerDao {
     @Insert
     suspend fun insertAll(entries: List<Ledger>): List<Long>
 
-    @Query("select * from ledger_entries WHERE accNo = :accNo ORDER BY ledgerId DESC")
-    suspend fun getLedgersForAccount(accNo: Long): List<Ledger>
+    @Query("""
+    SELECT SUM(le.amountInUsd) 
+    FROM ledger_entries le
+    INNER JOIN transactions t ON le.transactionId = t.transactionId
+    WHERE le.accNo = :accNo 
+      AND le.direction = 'DEBIT' 
+      AND t.transactionStatus = 'COMPLETED'
+      AND le.createdAt > :timestamp
+""")
+    suspend fun getTotalSpentInUsdSince(accNo: Long, timestamp: Long): BigDecimal?
 
-    @Query("SELECT * FROM ledger_entries WHERE transactionId = :transactionId")
-    suspend fun getByTransactionId(transactionId: String): List<Ledger>
-
+    @Query("""
+    SELECT COUNT(le.ledgerId) 
+    FROM ledger_entries le
+    INNER JOIN transactions t ON le.transactionId = t.transactionId
+    WHERE le.accNo = :accNo 
+      AND le.direction = 'DEBIT' 
+      AND t.transactionStatus = 'COMPLETED'
+      AND le.createdAt > :timestamp
+""")
+    suspend fun getTransactionCountSince(accNo: Long, timestamp: Long): Int
 }

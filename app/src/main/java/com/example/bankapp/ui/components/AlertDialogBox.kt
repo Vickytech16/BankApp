@@ -7,6 +7,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import com.example.bankapp.entities.uientities.uidata.AlertButtonConfig
+import com.example.bankapp.entities.uientities.uitypes.AlertButtonStyle
 
 @Composable
 fun AlertDialogBox(
@@ -24,7 +26,7 @@ fun AlertDialogBox(
         text = content,
         confirmButton = {
             when (confirmButton.style) {
-                ButtonStyle.PRIMARY -> {
+                AlertButtonStyle.PRIMARY -> {
                     Button(
                         onClick = {
                             confirmButton.onClick()
@@ -34,7 +36,7 @@ fun AlertDialogBox(
                         Text(confirmButton.label)
                     }
                 }
-                ButtonStyle.ERROR -> {
+                AlertButtonStyle.ERROR -> {
                     Button(
                         onClick = {
                             confirmButton.onClick()
@@ -65,13 +67,3 @@ fun AlertDialogBox(
     )
 }
 
-data class AlertButtonConfig(
-    val label: String,
-    val onClick: () -> Unit = {},
-    val style: ButtonStyle = ButtonStyle.PRIMARY
-)
-
-enum class ButtonStyle {
-    PRIMARY,
-    ERROR
-}

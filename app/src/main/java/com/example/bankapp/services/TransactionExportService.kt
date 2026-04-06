@@ -1,20 +1,23 @@
 package com.example.bankapp.services
 
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
 import com.example.bankapp.entities.dtos.ExportMetadata
 import com.example.bankapp.entities.dtos.TransactionExportDto
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import java.io.File
 import kotlin.collections.take
 import java.io.FileOutputStream
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TransactionExportService(private val context: Context) {
-
     fun createCsvFile(
         metadata: ExportMetadata,
         transactions: List<TransactionExportDto>,
@@ -143,9 +146,33 @@ class TransactionExportService(private val context: Context) {
 
         return file
     }
+
+    suspend fun shareBitmap(bitmap: Bitmap) {
+        withContext(Dispatchers.IO) {
+            try {
+                val cachePath = File(context.cacheDir, "shared_images")
+                cachePath.mkdirs()
+                val file = File(cachePath, "transaction_receipt.png")
+                FileOutputStream(file).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    file
+                )
+
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "image/png"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(Intent.createChooser(intent, "Share Receipt"))
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
 
-enum class ExportType{
-    CSV,
-    PDF
-}

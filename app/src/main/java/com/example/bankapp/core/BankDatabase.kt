@@ -18,7 +18,7 @@ import com.example.bankapp.entities.dbtables.Transaction
 
 @Database(
     entities = [User::class, Account::class, Ledger::class, Transaction::class, Beneficiary::class, CurrencyRates::class],
-    version = 9,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(DbTypeConvertors::class)

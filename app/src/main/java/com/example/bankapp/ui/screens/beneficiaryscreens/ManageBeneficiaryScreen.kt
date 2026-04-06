@@ -1,29 +1,17 @@
 package com.example.bankapp.ui.screens.beneficiaryscreens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -31,26 +19,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.ManageBeneficiaryViewModelFactory
-import com.example.bankapp.ui.components.AlertButtonConfig
+import com.example.bankapp.entities.uientities.uidata.AlertButtonConfig
 import com.example.bankapp.ui.components.AlertDialogBox
-import com.example.bankapp.ui.components.ButtonStyle
+import com.example.bankapp.entities.uientities.uitypes.AlertButtonStyle
 import com.example.bankapp.ui.components.ErrorTextBuilder
-import com.example.bankapp.ui.components.FriendListItem
-import com.example.bankapp.ui.components.appbar.Appbar
+import com.example.bankapp.ui.components.BeneficiaryItem
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.components.SearchBarComponent
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.utilities.UserNameFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.UserNameFieldStrategy
+import com.example.bankapp.ui.components.appbar.SearchAppBar
 import com.example.bankapp.viewmodels.ManageBeneficiaryViewModel
-import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageBeneficiaryScreen(
     manageBeneficiaryViewModelFactory: ManageBeneficiaryViewModelFactory,
-    navController: NavController,
-    windowSizeClass: WindowSizeClass
+    navController: NavController
 ) {
     val viewModel: ManageBeneficiaryViewModel = viewModel(factory = manageBeneficiaryViewModelFactory)
     val friends by viewModel.friends.collectAsState()
@@ -61,11 +46,13 @@ fun ManageBeneficiaryScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val showDeleteDialog = viewModel.showDeleteDialog
     val showEditDialog = viewModel.showEditDialog
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val filteredFriends = friends.filter { friend ->
-        friend.friendName.contains(query, ignoreCase = true)
+    val filteredFriends = remember(friends, query) {
+        friends.filter { friend ->
+            friend.beneficiaryName.contains(query, ignoreCase = true)
+        }
     }
-
 
     if (showDeleteDialog) {
         AlertDialogBox(
@@ -74,17 +61,13 @@ fun ManageBeneficiaryScreen(
             confirmButton = AlertButtonConfig(
                 label = stringResource(R.string.delete),
                 onClick = { viewModel.onDelete() },
-                style = ButtonStyle.ERROR
+                style = AlertButtonStyle.ERROR
             ),
             dismissButton = AlertButtonConfig(
                 label = stringResource(R.string.cancel_label),
-                onClick = {
-                    viewModel.onShowDeleteDialogChange(false)
-                }
+                onClick = { viewModel.onShowDeleteDialogChange(false) }
             ),
-            content = {
-                Text(stringResource(R.string.delete_beneficiary_confirmation))
-            }
+            content = { Text(stringResource(R.string.delete_beneficiary_confirmation)) }
         )
     }
 
@@ -94,9 +77,7 @@ fun ManageBeneficiaryScreen(
             title = stringResource(R.string.edit_beneficiary),
             confirmButton = AlertButtonConfig(
                 label = stringResource(R.string.save_button),
-                onClick = {
-                    viewModel.onNicknameSubmit()
-                }
+                onClick = { viewModel.onNicknameSubmit() }
             ),
             dismissButton = AlertButtonConfig(
                 label = stringResource(R.string.cancel_label),
@@ -106,18 +87,27 @@ fun ManageBeneficiaryScreen(
                 }
             ),
             content = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
-                ) {
+                Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.md)) {
                     UnifiedOutlinedTextField(
-                        value = viewModel.nickname,
+                        value = viewModel.nickname ?: "",
                         onValueChange = viewModel::onNicknameChange,
                         labelText = stringResource(R.string.nickname_field_name),
                         isError = viewModel.nicknameError != null,
-                        supportingText = {
-                            ErrorTextBuilder(viewModel.nicknameError)
-                        },
-                        strategy = UserNameFieldStrategy
+                        supportingText = { ErrorTextBuilder(viewModel.nicknameError) },
+                        strategy = UserNameFieldStrategy,
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                viewModel.onNicknameChange("")
+                                viewModel.onNicknameSubmit()
+                                viewModel.onShowEditDialogChange(false)
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Clear and Close",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
                     )
                     ErrorTextBuilder(viewModel.submitError)
                 }
@@ -126,84 +116,76 @@ fun ManageBeneficiaryScreen(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            Appbar(
-                stringResource(R.string.manage_beneficiaries),
-                navBehaviour = {
-                    navController.popBackStack()
-                },
-                scrollBehavior = null
+            SearchAppBar(
+                scrollBehavior = scrollBehavior,
+                searchContent = {
+                    SearchBarComponent(
+                        query = query,
+                        onQueryChange = viewModel::onQueryChange,
+                        onSearch = { keyboardController?.hide() },
+                        onCancel = { viewModel.onQueryChange("") },
+                        placeholderText = stringResource(R.string.search_friend_hint),
+                        leadingContent = {
+                            IconButton(onClick = {
+                                if (query.isNotEmpty()) {
+                                    viewModel.onQueryChange("")
+                                } else {
+                                    navController.popBackStack()
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    )
+                }
             )
         },
-        contentWindowInsets = WindowInsets.systemBars
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            SearchBarComponent(
-                query,
-                viewModel::onQueryChange,
-                {
-                    keyboardController?.hide()
-                    scope.launch {
-                        lazyListState.animateScrollToItem(0)
-                    }
-                },
-                {
-                    viewModel.onQueryChange("")
-                    keyboardController?.hide()
-                },
-                placeholderText = stringResource(R.string.search_friend_hint)
-            )
-
             if (isLoading) {
-                Box(
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (filteredFriends.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_beneficiaries_found),
+                    modifier = Modifier.align(Alignment.Center),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentPadding = PaddingValues(
+                        horizontal = dimensionResource(R.dimen.screen_padding),
+                        vertical = dimensionResource(R.dimen.screen_padding)
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding)),
+                    state = lazyListState
                 ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            if (!isLoading && filteredFriends.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.no_beneficiaries_found),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentPadding = PaddingValues(
-                    horizontal = dimensionResource(R.dimen.screen_padding),
-                    vertical = dimensionResource(R.dimen.screen_padding)
-                ),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding)),
-                state = lazyListState
-            ) {
-                items(filteredFriends) { friend ->
-                    FriendListItem(
-                        friendName = friend.friendName,
-                        friendPfp = friend.friendPfp,
-                        onEditClick = {
-                            viewModel.onSelectFriend(friend)
-                            viewModel.onShowEditDialogChange(true)
-                        },
-                        onDeleteClick = {
-                            viewModel.onSelectFriend(friend)
-                            viewModel.onShowDeleteDialogChange(true)
-                        }
-                    )
+                    items(filteredFriends) { friend ->
+                        BeneficiaryItem(
+                            beneficiaryName = friend.beneficiaryName,
+                            beneficiaryPfp = friend.beneficiaryPfp,
+                            onEditClick = {
+                                viewModel.onSelectFriend(friend)
+                                viewModel.onShowEditDialogChange(true)
+                            },
+                            onDeleteClick = {
+                                viewModel.onSelectFriend(friend)
+                                viewModel.onShowDeleteDialogChange(true)
+                            }
+                        )
+                    }
                 }
             }
         }

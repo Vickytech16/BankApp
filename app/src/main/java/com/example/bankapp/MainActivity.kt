@@ -19,9 +19,9 @@ import com.example.bankapp.di.ViewModelContainer
 import com.example.bankapp.services.TransactionExportService
 import com.example.bankapp.ui.components.navigators.AppNavHost
 import com.example.bankapp.ui.theme.BankAppTheme
-import com.example.bankapp.ui.theme.DeviceSpecProviderTemp
+import com.example.bankapp.di.providers.DeviceSpecProvider
 import com.example.bankapp.ui.theme.LocalDeviceSpec
-import com.example.bankapp.viewmodels.ThemeType
+import com.example.bankapp.entities.types.ThemeType
 import com.example.bankapp.viewmodels.ThemeViewModel
 import kotlinx.coroutines.launch
 
@@ -36,18 +36,19 @@ class MainActivity : ComponentActivity() {
         val viewModelContainer: ViewModelContainer = appContainer.viewModelContainer
 
         WorkManagerInitializer.scheduleCurrencyExchangeSync(this)
+        WorkManagerInitializer.scheduleDailyInterest(this)
 
         lifecycleScope.launch {
             appContainer.currencyExchangeRepository.getLatestRates()
         }
 
-        val transactionExportService: TransactionExportService = TransactionExportService(this)
+        val transactionExportService = TransactionExportService(this)
 
         setContent {
             val themeViewModel: ThemeViewModel = viewModel(factory = viewModelContainer.themeViewModelFactory)
             val currentTheme = themeViewModel.currentTheme.collectAsState()
 
-            val useDarkTheme = when (currentTheme.value) {
+            val useDarkTheme =  when (currentTheme.value) {
                 ThemeType.DARK -> true
                 ThemeType.LIGHT -> false
                 ThemeType.SYSTEM_DEFAULT -> isSystemInDarkTheme()
@@ -57,7 +58,7 @@ class MainActivity : ComponentActivity() {
             val windowSizeClass = calculateWindowSizeClass(this)
 
             val deviceSpec = remember(configuration, windowSizeClass) {
-                DeviceSpecProviderTemp.getCurrentDeviceSpec(configuration)
+                DeviceSpecProvider.getCurrentDeviceSpec(configuration)
             }
 
             CompositionLocalProvider(LocalDeviceSpec provides deviceSpec) {
@@ -72,7 +73,7 @@ class MainActivity : ComponentActivity() {
                         themeViewModel = themeViewModel,
                         currencyExchangeRepository = appContainer.currencyExchangeRepository,
                         countryRepository = appContainer.countryRepository,
-                        changePasswordUseCase = appContainer.useCaseContainer.changePasswordUseCase,
+                        changePasswordState = appContainer.changePasswordState,
                         transactionExportService = transactionExportService
                     )
                 }

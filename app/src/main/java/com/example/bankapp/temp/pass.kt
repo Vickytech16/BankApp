@@ -35,7 +35,7 @@ import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.usecases.TransactionSessionHolder
-import com.example.bankapp.utilities.PasswordFieldStrategy
+import com.example.bankapp.entities.types.ui.PasswordFieldStrategy
 import com.example.bankapp.viewmodels.PasswordConfirmationViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

@@ -4,8 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.bankapp.entities.types.ui.FilterState
-import com.example.bankapp.entities.types.ui.SortOptions
+import com.example.bankapp.entities.uientities.uidata.FilterState
+import com.example.bankapp.entities.uientities.uitypes.SortOptions
 
 class FilterViewModel: ViewModel() {
     var filterState by mutableStateOf(FilterState())
@@ -15,6 +15,13 @@ class FilterViewModel: ViewModel() {
 
     var filterShowSheet by mutableStateOf(false)
         private set
+
+    var showDatePicker by mutableStateOf(false)
+        private set
+
+    fun onShowDatePickerChange(newValue: Boolean){
+        showDatePicker = newValue
+    }
 
     fun onFilterShowSheetChange(newValue: Boolean){
         if (newValue) {
@@ -28,14 +35,23 @@ class FilterViewModel: ViewModel() {
     }
 
     fun onFilterApply() {
-        filterState = pendingState
+        val validatedState =
+            if (pendingState.startDate == null || pendingState.endDate == null) {
+            pendingState.copy(startDate = null, endDate = null)
+        } else {
+            pendingState
+        }
+
+        filterState = validatedState
         filterShowSheet = false
+        showDatePicker = false
     }
 
     fun onFilterReset() {
         pendingState = FilterState()
         filterState = FilterState()
         filterShowSheet = false
+        showDatePicker = false
     }
 
     var sortState by mutableStateOf(SortOptions.NEWEST_FIRST)

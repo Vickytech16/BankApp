@@ -23,9 +23,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
-import com.example.bankapp.entities.uimodels.AccountUiModel
+import com.example.bankapp.entities.uientities.uimodels.AccountUiModel
+import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.components.XSSpacer
-import com.example.bankapp.ui.screens.ProfileDivider
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.utilities.CurrencyUtils
@@ -65,18 +65,18 @@ fun ProfileAccountCard(
                 onVisibilityChange = viewModel::onAccNoVisibilityChange
             )
 
-            ProfileDivider()
+            SmallSpacer()
 
             ProfileAccountRow(
                 label = stringResource(R.string.account_type_label),
                 value = account.accountType.toString()
             )
 
-            ProfileDivider()
+            SmallSpacer()
 
             ProfileAccountRow(
                 label = stringResource(R.string.balance_label),
-                value = "${CurrencyUtils.getCurrencySymbol(countryCode)} ${account.balance}"
+                value = CurrencyUtils.formatCurrency(amount = account.balance, countryCode) + " " + CurrencyUtils.getCurrencySymbol(countryCode)
             )
         }
     }

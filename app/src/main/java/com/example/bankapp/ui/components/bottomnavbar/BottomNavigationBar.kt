@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import com.example.bankapp.entities.uientities.uitypes.BottomNavItem
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 
@@ -30,7 +31,7 @@ fun BottomNavigationBar(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .padding(
-                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
+                bottom = WindowInsets.navigationBars.asPaddingValues().`calculateBottomPadding`(),
                 start = AppSpacing.sm,
                 end = AppSpacing.sm
             )

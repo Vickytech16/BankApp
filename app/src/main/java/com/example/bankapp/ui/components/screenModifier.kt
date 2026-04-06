@@ -30,6 +30,5 @@ fun Modifier.screenModifier(contentPadding: PaddingValues, scrollState: ScrollSt
             .padding(screenPadding)
             .fillMaxHeight()
             .verticalScroll(scrollState)
-
     }
 }

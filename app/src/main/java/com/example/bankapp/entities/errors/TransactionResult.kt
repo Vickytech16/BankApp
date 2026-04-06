@@ -1,6 +1,7 @@
 package com.example.bankapp.entities.errors
 
 import com.example.bankapp.R
+import java.math.BigDecimal
 
 sealed class TransactionResult(val message: Int) {
 
@@ -20,7 +21,13 @@ sealed class TransactionResult(val message: Int) {
 
         object UnKnown : Error(R.string.generic_transaction_error)
 
-        object LimitExceeded: Error(R.string.limit_exceeded)
+        object ExchangeRatesNotFound: Error(R.string.exchange_rates_not_found)
+
+        sealed class LimitExceeded(msg: Int) : Error(msg) {
+            data class DailyLimitExceeded(val limit: BigDecimal) : LimitExceeded(R.string.daily_limit_exceeded)
+            data class DailyCountExceeded(val maxCount: Int) : LimitExceeded(R.string.daily_count_exceeded)
+            data class SingleTransactionLimitExceeded(val maxAmount: BigDecimal) : LimitExceeded(R.string.single_tx_limit_exceeded)
+        }
 
     }
 }

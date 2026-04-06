@@ -7,35 +7,34 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.CashTransferViewModelFactory
 import com.example.bankapp.entities.types.account.AccountStatus
-import com.example.bankapp.ui.components.appbar.Appbar
+import com.example.bankapp.ui.components.appbar.RegularAppBar
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.XLSpacer
@@ -44,17 +43,18 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_OTP
 import com.example.bankapp.entities.types.transaction.TransactionType
-import com.example.bankapp.ui.components.AlertButtonConfig
+import com.example.bankapp.entities.uientities.uidata.AlertButtonConfig
 import com.example.bankapp.ui.components.AlertDialogBox
 import com.example.bankapp.ui.components.BalanceStatusCard
-import com.example.bankapp.ui.components.ExchangeDisplayData
+import com.example.bankapp.entities.uientities.uidata.BalanceCardExchangeDisplayData
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.textfields.AccountNumberOutlinedTextField
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.LocalDeviceSpec
-import com.example.bankapp.utilities.AmountFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.AmountFieldStrategy
+import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.utilities.toDbAccNo
 import com.example.bankapp.viewmodels.CashTransferViewModel
@@ -90,12 +90,13 @@ fun CashTransferScreen(
     }
 
     val scrollState = rememberScrollState()
+    val deviceSpec = LocalDeviceSpec.current
 
-    val illustrationHeight = dimensionResource(R.dimen.illustration_height).value.toInt()
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
 
-    LaunchedEffect(windowSizeClass.heightSizeClass) {
-        if (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) {
-            scrollState.animateScrollTo(illustrationHeight + 400)
+    LaunchedEffect(deviceSpec) {
+        if (deviceSpec is DeviceSpec.MobileLandscape) {
+            bringIntoViewRequester.bringIntoView()
         }
     }
 
@@ -105,13 +106,12 @@ fun CashTransferScreen(
         }
     }
 
-    val deviceSpec = LocalDeviceSpec.current
 
     val textFieldColumnWidth = deviceSpec.textFieldWidth
 
     Scaffold(
         topBar = {
-            Appbar(
+            RegularAppBar(
                 stringResource(R.string.transfer_to_account_label),
                 navBehaviour = {
                     navController.popBackStack()
@@ -132,7 +132,7 @@ fun CashTransferScreen(
             val exchangeInfo = if (viewModel.isInternational &&
                 viewModel.amount.isNotEmpty() &&
                 viewModel.accountExistsStatus == AccountStatus.EXISTS) {
-                ExchangeDisplayData(
+                BalanceCardExchangeDisplayData(
                     convertedAmount = viewModel.convertedAmountDisplay,
                     lastUpdated = viewModel.lastUpdatedTime
                 )
@@ -192,7 +192,8 @@ fun CashTransferScreen(
                     onClick = {
                         viewModel.onCredentialsSubmit()
                     },
-                    isLoading = viewModel.isLoading
+                    isLoading = viewModel.isLoading,
+                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
                 )
 
                 ErrorTextBuilder(viewModel.submitError)
@@ -227,7 +228,7 @@ private fun AccountVerificationMessage(accountExistsStatus: AccountStatus?) {
                     AccountStatus.EXISTS -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.error
                 },
-                modifier = Modifier.size(AppSpacing.xl)
+                modifier = Modifier.size(AppSpacing.xxl)
             )
 
             Text(

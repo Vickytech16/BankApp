@@ -15,7 +15,6 @@ interface UserRepository{
 
     suspend fun createNewUser(user: User): Long
 
-    suspend fun getAllUsers(): List<User>
 
     suspend fun ping()
 
@@ -49,12 +48,6 @@ class UserRepositoryImpl(
       return withContext(Dispatchers.IO){
           userDao.createUser(user)
       }
-    }
-
-    override suspend fun getAllUsers(): List<User> {
-        return withContext(Dispatchers.IO){
-            userDao.getAllUsers()
-        }
     }
 
     override suspend fun ping() {

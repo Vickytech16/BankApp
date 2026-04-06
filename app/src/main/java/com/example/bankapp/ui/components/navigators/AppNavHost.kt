@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.bankapp.di.ViewModelContainer
+import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.BeneficiaryRepository
@@ -18,8 +19,8 @@ import com.example.bankapp.repositories.CurrencyExchangeRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.TransactionExportService
-import com.example.bankapp.usecases.ChangePasswordUseCase
-import com.example.bankapp.viewmodels.LoggedInSessionViewModel
+import com.example.bankapp.entities.ChangePasswordState
+import com.example.bankapp.viewmodels.SessionViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 
 @Composable
@@ -33,12 +34,12 @@ fun AppNavHost(
     themeViewModel: ThemeViewModel,
     currencyExchangeRepository: CurrencyExchangeRepository,
     countryRepository: CountryRepository,
-    changePasswordUseCase: ChangePasswordUseCase,
+    changePasswordState: ChangePasswordState,
     transactionExportService: TransactionExportService
 ) {
     val navController = rememberNavController()
 
-    val sessionViewModel: LoggedInSessionViewModel =
+    val sessionViewModel: SessionViewModel =
         viewModel(factory = viewModelContainer.loggedInSessionViewModelFactory)
 
     val authorizationViewModel: AuthorizationViewModel = viewModel(factory = viewModelContainer.authorizationViewModelFactory)
@@ -63,22 +64,17 @@ fun AppNavHost(
         is SessionState.Authenticated.AccountRegistered ->
             MAIN_ROUTE
     }
-
-
-
     NavHost(
         navController = navController,
         startDestination = startDestination
     )  {
         authNavGraph(
             navController = navController,
-            windowSizeClass = windowSizeClass,
             loginViewModelFactory = viewModelContainer.loginViewModelFactory,
             registerViewModelFactory = viewModelContainer.registerViewModelFactory,
             forgotPasswordViewModelFactory = viewModelContainer.forgotPasswordViewModelFactory,
             changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
             otpViewModelFactory = viewModelContainer.otpViewModelFactory,
-            notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
             recoveryKeyViewModelFactory = viewModelContainer.recoveryKeyViewModelFactory ,
             restoreSession = { sessionViewModel.restoreSession() }
         )
@@ -90,29 +86,27 @@ fun AppNavHost(
             transactionRepository = transactionRepository,
             accountRepository = accountRepository,
             otpViewModelFactory = viewModelContainer.otpViewModelFactory,
-            notificationViewModelFactory = viewModelContainer.notificationViewModelFactory,
             beneficiaryRepository = beneficiaryRepository,
             userRepository = userRepository,
             filterViewModelFactory = viewModelContainer.filterViewModelFactory,
-            transactionDetailsViewModelFactory = viewModelContainer.transactionDetailsViewModelFactory,
             themeViewModel = themeViewModel,
             authorizationViewModel = authorizationViewModel,
             currencyExchangeRepository = currencyExchangeRepository,
             sessionViewModel = sessionViewModel,
-            forgotPasswordViewModelFactory = viewModelContainer.forgotPasswordViewModelFactory,
             changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
             recoveryKeyViewModelFactory = viewModelContainer.recoveryKeyViewModelFactory,
             countryRepository = countryRepository,
-            changePasswordUseCase = changePasswordUseCase,
+            changePasswordState = changePasswordState,
             transactionExportService = transactionExportService
         )
 
         splashNavGraph()
 
         accountNavGraph(
-            accountCreationViewModelFactory = viewModelContainer.accountCreationViewModelFactory,
-            loggedInSessionViewModel = sessionViewModel
+            sessionViewModel = sessionViewModel,
+            transactionRepository = transactionRepository,
+            accountRepository = accountRepository,
+            sessionState = sessionState
         )
     }
-
 }

@@ -23,6 +23,9 @@ interface AccountDao {
     @Query("update accounts set balance = balance + :amount, updatedAt = :updateAt where accNo =:accNo")
     suspend fun deposit(amount: BigDecimal, updateAt: Long, accNo: Long) : Int
 
+    @Query("update accounts set balance = balance + :amount, lastInterestDate = :newInterestDate, updatedAt = :updateAt  where accNo = :accNo")
+    suspend fun updateBalanceAndInterestDate(accNo: Long, amount: BigDecimal, newInterestDate: Long, updateAt: Long) : Int
+
     @Query("select * from accounts where accNo = :accNo")
     fun getAccountAsFlowByAccNo(accNo: Long): Flow<Account?>
 
@@ -32,4 +35,6 @@ interface AccountDao {
     @Query("select userId from accounts where accNo = :accNo")
     fun getUserIdByAccNo(accNo: Long): Long
 
+    @Query("select * from accounts where accountType = 'SAVINGS'")
+    suspend fun getAllSavingsAccounts(): List<Account>
 }

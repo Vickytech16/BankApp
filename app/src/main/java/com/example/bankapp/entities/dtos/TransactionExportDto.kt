@@ -16,6 +16,6 @@ data class TransactionExportDto(
 data class ExportMetadata(
     val userName: String,
     val accountNo: String,
-    val dateGenerated: String = BankDateFactory.now().toFullDisplay()
+    val dateGenerated: String = BankDateFactory.now().toFullDateTimeDisplay()
 )
 

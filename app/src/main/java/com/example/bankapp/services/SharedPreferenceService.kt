@@ -22,9 +22,6 @@ class SharedPreferenceService(context: Context) {
         private const val KEY_USER_ID = "logged_in_user_id"
         private const val THEME_KEY = "app_theme"
         private const val DEFAULT_THEME = "SYSTEM_DEFAULT"
-
-        private const val KEY_USER_TIMEZONE = "user_timezone"
-        private const val DEFAULT_TIMEZONE = "UTC"
     }
 
     fun saveUserId(userId: String) {
@@ -38,7 +35,6 @@ class SharedPreferenceService(context: Context) {
     fun clearSession() {
         prefs.edit {
             remove(KEY_USER_ID)
-            remove(KEY_USER_TIMEZONE)
         }
     }
 
@@ -50,16 +46,4 @@ class SharedPreferenceService(context: Context) {
         }
         _themeFlow.value = theme
     }
-
-    fun saveUserTimezone(userId: String, timezone: String) {
-        prefs.edit {
-            putString(KEY_USER_ID, userId)
-            putString(KEY_USER_TIMEZONE, timezone)
-        }
-    }
-
-    fun getUserTimezone(): String {
-        return prefs.getString(KEY_USER_TIMEZONE, DEFAULT_TIMEZONE) ?: DEFAULT_TIMEZONE
-    }
-
 }

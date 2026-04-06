@@ -23,9 +23,7 @@ import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.ui.theme.DeviceSpecProvider
 import com.example.bankapp.utilities.uiAccNo
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import com.example.bankapp.ui.components.AutoResizeText
 import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.theme.LocalDeviceSpec
@@ -35,7 +33,6 @@ import java.math.BigDecimal
 @Composable
 fun TransactionDetailsCard(
     historyItem: TransactionHistoryItemDto,
-    windowSizeClass: WindowSizeClass,
     isDeposit: Boolean = false,
     countryCode: String
 ) {

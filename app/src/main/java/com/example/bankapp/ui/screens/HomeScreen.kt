@@ -28,13 +28,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.HomeViewModelFactory
-import com.example.bankapp.ui.components.HomeDrawer
+import com.example.bankapp.ui.components.homeitems.HomeDrawer
 import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.appbar.HomeAppBar
 import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
 import com.example.bankapp.ui.components.buttons.ActionButton
-import com.example.bankapp.ui.components.buttons.ButtonDimensions
-import com.example.bankapp.ui.components.homeitems.HomeScreenCard
+import com.example.bankapp.entities.uientities.uidata.QuickActionButtonDimensions
+import com.example.bankapp.ui.components.homeitems.HomeCardCarousel
 import com.example.bankapp.ui.components.homeitems.HomeTransactionSection
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
@@ -45,9 +46,6 @@ import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.viewmodels.HomeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
-
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,17 +69,18 @@ fun HomeScreen(
     val deviceSpec = LocalDeviceSpec.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val actionButtonDimensions = ButtonDimensions(
+    val actionQuickActionButtonDimensions = QuickActionButtonDimensions(
         buttonSize = deviceSpec.qabButtonSize,
         iconSize = deviceSpec.qabButtonIconSize,
         spacing = deviceSpec.qabButtonSpacing,
-        labelStyle =deviceSpec.qabButtonLabelSize(),
+        labelStyle = deviceSpec.qabButtonLabelSize(),
     )
 
    HomeDrawer(
         drawerState = drawerState,
         logoutAction = logoutAction,
         username = user.userName,
+       userPfpUrl = user.pfpURL,
         showLogoutDialog = homeViewModel.showLogoutDialog,
         onShowLogOutDialogChange = homeViewModel::onLogoutClickChange,
         modifier = Modifier.fillMaxWidth(deviceSpec.drawerWidth),
@@ -95,7 +94,8 @@ fun HomeScreen(
                 BottomNavigationBar(
                     currentRoute = currentRoute,
                     deviceSpec = deviceSpec,
-                    onNavigate = { route ->
+                    onNavigate = {
+                        route ->
                         navController.navigate(route) {
                             popUpTo(HOME_ROUTE) {
                                 saveState = true
@@ -107,7 +107,8 @@ fun HomeScreen(
                 )
             },
             contentWindowInsets = WindowInsets(0, 0, 0, 0)
-        ) { innerPadding ->
+        ) {
+            innerPadding ->
             Column(
                 modifier = Modifier.screenModifier(contentPadding = innerPadding, scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -117,16 +118,22 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    HomeScreenCard(
+                    HomeCardCarousel(
                         account = account,
+                        velocityStatus = homeViewModel.velocityStatus,
+                        currentPage = homeViewModel.currentCardPage,
                         isBalanceVisible = homeViewModel.isBalanceVisible,
-                        onIsBalanceVisibleChange = homeViewModel::onIsBalanceVisibleChange,
+                        isVelocityVisible = homeViewModel.isVelocityToggleVisible,
+                        onBalanceToggle = homeViewModel::onIsBalanceVisibleChange,
+                        onVelocityToggle = homeViewModel::onVelocityToggleVisibleChange,
+                        onNext = homeViewModel::onNextCard,
+                        onPrevious = homeViewModel::onPreviousCard,
                         deviceSpec = deviceSpec,
                         countryCode = user.countryCode
                     )
                 }
 
-                LargeSpacer()
+                XLSpacer()
 
                 Row(
                     modifier = Modifier
@@ -139,7 +146,7 @@ fun HomeScreen(
                         icon = Icons.Outlined.AccountBalance,
                         label = stringResource(R.string.pay_to_friend),
                         modifier = Modifier.weight(1f),
-                        dimensions = actionButtonDimensions
+                        dimensions = actionQuickActionButtonDimensions
 
                     )
                    ActionButton(
@@ -147,14 +154,14 @@ fun HomeScreen(
                         icon = Icons.Outlined.SwapHoriz,
                         label = stringResource(R.string.pay_anyone),
                         modifier = Modifier.weight(1f),
-                        dimensions = actionButtonDimensions
+                        dimensions = actionQuickActionButtonDimensions
                     )
                    ActionButton(
                         onClickAction = { navController.navigate(DEPOSIT_ROUTE) },
                         icon = Icons.Outlined.AccountBalanceWallet,
                         label = stringResource(R.string.deposit_button),
                         modifier = Modifier.weight(1f),
-                        dimensions = actionButtonDimensions
+                        dimensions = actionQuickActionButtonDimensions
                     )
                 }
 
@@ -175,5 +182,5 @@ fun HomeScreen(
             }
         }
     }
-    )
+   )
 }

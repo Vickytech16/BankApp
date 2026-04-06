@@ -31,15 +31,15 @@ interface BeneficiaryDao {
 
     @Query("""
     SELECT 
-        b.beneficiaryId,
+        b.beneficiaryId as beneficiaryEntryId,
         b.userId,
         CASE 
-            WHEN b.nickname != '' THEN b.nickname
+            WHEN b.nickname IS NOT NULL AND b.nickname != '' THEN b.nickname
             ELSE u.userName
-        END as friendName,
-        b.beneficiaryUserId as friendUserId,
-        u.pfpURL as friendPfp,
-        a.accNo as friendPrimaryAccNo
+        END as beneficiaryName,
+        b.beneficiaryUserId as beneficiaryUserId,
+        u.pfpURL as beneficiaryPfp,
+        a.accNo as beneficiaryPrimaryAccNo
     FROM beneficiaries b
     INNER JOIN users u ON b.beneficiaryUserId = u.userId
     INNER JOIN accounts a ON u.userId = a.userId
@@ -50,15 +50,15 @@ interface BeneficiaryDao {
 
     @Query("""
     SELECT 
-        b.beneficiaryId,
+        b.beneficiaryId as beneficiaryEntryId,
         b.userId,
         CASE 
-            WHEN b.nickname != '' THEN b.nickname
+            WHEN b.nickname IS NOT NULL AND b.nickname != '' THEN b.nickname
             ELSE u.userName
-        END as friendName,
-        b.beneficiaryUserId as friendUserId,
-        u.pfpURL as friendPfp,
-        a.accNo as friendPrimaryAccNo
+        END as beneficiaryName,
+        b.beneficiaryUserId as beneficiaryUserId,
+        u.pfpURL as beneficiaryPfp,
+        a.accNo as beneficiaryPrimaryAccNo
     FROM beneficiaries b
     INNER JOIN users u ON b.beneficiaryUserId = u.userId
     INNER JOIN accounts a ON u.userId = a.userId

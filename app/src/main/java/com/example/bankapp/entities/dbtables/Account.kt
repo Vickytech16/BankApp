@@ -28,5 +28,6 @@ data class Account(
     val accountType: AccountType,
     val balance: BigDecimal = BigDecimal.ZERO,
     val createdAt: Long,
-    var updatedAt: Long
+    var updatedAt: Long,
+    val lastInterestDate: Long
 )

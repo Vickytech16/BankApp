@@ -2,8 +2,7 @@ package com.example.bankapp.entities.errors
 
 import com.example.bankapp.R
 
-sealed class PasswordError(
-    override val message: Int): UiError {
+sealed class PasswordError(override val message: Int): UiError {
 
     object PasswordTooShort :
             PasswordError(R.string.password_too_short)

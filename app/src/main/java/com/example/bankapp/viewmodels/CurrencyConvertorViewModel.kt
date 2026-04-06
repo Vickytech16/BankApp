@@ -10,7 +10,9 @@ import com.example.bankapp.entities.dbtables.CurrencyRates
 import com.example.bankapp.entities.dtos.Country
 import com.example.bankapp.repositories.CountryRepository
 import com.example.bankapp.repositories.CurrencyExchangeRepository
+import com.example.bankapp.utilities.COUNTRY_MAX_SIZE
 import com.example.bankapp.utilities.CurrencyUtils
+import com.example.bankapp.utilities.depositAmountRegex
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -19,9 +21,18 @@ import kotlinx.coroutines.launch
 
 class CurrencyConvertorViewModel(
     private val currencyExchangeRepository: CurrencyExchangeRepository,
-    private val sessionState: SessionState.Authenticated.AccountRegistered,
-    private val countryRepository: CountryRepository
+    sessionState: SessionState.Authenticated.AccountRegistered,
+    countryRepository: CountryRepository
 ) : ViewModel() {
+
+    var lastUpdated by mutableStateOf<String?>(null)
+        private set
+
+    init {
+        viewModelScope.launch {
+            lastUpdated = currencyExchangeRepository.getLastUpdated()
+        }
+    }
 
     private val user = sessionState.user.value
 
@@ -36,9 +47,23 @@ class CurrencyConvertorViewModel(
 
     var showTopSheet by mutableStateOf(false)
     var topSearchQuery by mutableStateOf("")
+        private set
+
+
+
+    fun ontOpSearchQueryChange(newValue: String){
+        if(newValue.length <= COUNTRY_MAX_SIZE)
+            topSearchQuery = newValue
+    }
 
     var showBottomSheet by mutableStateOf(false)
     var bottomSearchQuery by mutableStateOf("")
+        private set
+
+    fun onBottomSearchQueryChange(newValue: String){
+        if(newValue.length <= COUNTRY_MAX_SIZE)
+            bottomSearchQuery = newValue
+    }
 
     val countries: StateFlow<List<Country>> = countryRepository.getCountries()
         .stateIn(
@@ -78,12 +103,11 @@ class CurrencyConvertorViewModel(
         )
 
     fun onConverterInputChange(newValue: String) {
-        if (newValue.isEmpty() || newValue.all { it.isDigit() || it == '.' }) {
-            if (newValue.count { it == '.' } <= 1) {
-                converterInput = newValue
-            }
+        if (newValue.isEmpty() || newValue.matches(depositAmountRegex)) {
+            converterInput = newValue
         }
     }
+
 
     fun onCurrencySwap() {
         val temp = topCurrency
@@ -91,6 +115,10 @@ class CurrencyConvertorViewModel(
         bottomCurrency = temp
     }
 
-    fun onTopCurrencySelected(country: Country) { topCurrency = country }
-    fun onBottomCurrencySelected(country: Country) { bottomCurrency = country }
+    fun onTopCurrencySelected(country: Country) {
+        topCurrency = country
+    }
+    fun onBottomCurrencySelected(country: Country) {
+        bottomCurrency = country
+    }
 }

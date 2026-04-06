@@ -4,10 +4,10 @@ import android.util.Patterns
 import com.example.bankapp.services.PasswordValidationService
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.PasswordError
+import com.example.bankapp.ui.theme.userNameWithSpacesRegex
 import java.math.BigDecimal
 
-val cashTransferAmountRegex = Regex("^(0|[1-9]\\d{0,5})(\\.\\d{0,2})?$")
-val depositAmountRegex = Regex("^(0|[1-9]\\d{0,8})(\\.\\d{0,2})?$")
+
 
 fun String.emptyTextFieldErrorMessageBuilder(fieldNameRes: Int) : FormError?{
     return if(this.isBlank())
@@ -23,18 +23,26 @@ fun String.maxAllowedCharacterErrorMessageBuilder(fieldName: Int, characterLimit
         null
 }
 
-fun String.invalidUserNameErrorMessageBuilder(): FormError? {
-    return if (this.any { !it.isLetter() && !it.isWhitespace() })
-        FormError.InvalidUsername
+fun String.minRequiredCharacterErrorMessageBuilder(fieldName: Int, characterLimit: Int): FormError?{
+    return if(this.length < characterLimit)
+        FormError.TooShortData(fieldName, characterLimit)
     else
         null
+
+}
+
+fun String.invalidUserNameErrorMessageBuilder(): FormError? {
+    return if (this.matches(userNameWithSpacesRegex))
+        null
+    else
+        FormError.InvalidUsername
 }
 
 fun String.invalidEmailErrorMessageBuilder(): FormError? {
-    return if(!Patterns.EMAIL_ADDRESS.matcher(this).matches())
-        FormError.InvalidEmailFormat
-    else
+    return if(Patterns.EMAIL_ADDRESS.matcher(this).matches() && this.substringAfterLast('.').length >= 2)
         null
+    else
+        FormError.InvalidEmailFormat
 }
 
 fun String.invalidNumericalFieldErrorMessageBuilder(fieldNameRes: Int): FormError? {
@@ -43,9 +51,6 @@ fun String.invalidNumericalFieldErrorMessageBuilder(fieldNameRes: Int): FormErro
     else
         null
 }
-
-
-
 
 fun String.invalidPasswordErrorMessageBuilder(): List<PasswordError> {
     return PasswordValidationService.validatePassword(this)

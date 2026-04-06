@@ -46,9 +46,6 @@ fun AccountNumberOutlinedTextField(
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(formatAccountNumber(accountNumber)))
     }
-
-
-
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
@@ -59,10 +56,10 @@ fun AccountNumberOutlinedTextField(
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
-
-        TextField(
+        OutlinedTextField(
             value = textFieldValue,
-            onValueChange = { newValue ->
+            onValueChange = {
+                newValue ->
                 val digitsOnly = newValue.text.replace(" ", "")
                 if (digitsOnly.length <= ACCOUNT_NUMBER_SIZE) {
                     onAccountNumberChange(digitsOnly)
@@ -76,10 +73,12 @@ fun AccountNumberOutlinedTextField(
                 .height(dimensionResource(R.dimen.amount_textfield_height)),
             shape = RoundedCornerShape(dimensionResource(R.dimen.amount_input_corner_radius)),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 errorIndicatorColor = MaterialTheme.colorScheme.error,
                 errorContainerColor = MaterialTheme.colorScheme.errorContainer
             ),

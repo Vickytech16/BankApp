@@ -10,7 +10,7 @@ import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
-import com.example.bankapp.usecases.SharedPreferenceHelper
+import com.example.bankapp.utilities.SharedPreferenceHelper
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
@@ -62,10 +62,10 @@ class LoginViewModel (
             password = newPassword
         passwordError =
             newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name) ?:
-            newPassword.maxAllowedCharacterErrorMessageBuilder(
-                R.string.password_field_name,
-                PASSWORD_MAX_SIZE
-            )
+                    newPassword.maxAllowedCharacterErrorMessageBuilder(
+                        R.string.password_field_name,
+                        PASSWORD_MAX_SIZE
+                    )
         resetSubmitError()
     }
 
@@ -74,7 +74,7 @@ class LoginViewModel (
     }
 
     fun resetSubmitError(){
-        if(userIdentifierError==null && passwordError==null)
+        if(userIdentifierError == null && passwordError == null)
             submitError = null
     }
 
@@ -87,11 +87,10 @@ class LoginViewModel (
     var isLoading by mutableStateOf(false)
         private set
 
+    var checkedByPhone = false
+
     fun onSubmit() {
-
-        if (isLoading)
-            return
-
+        if (isLoading) return
         isLoading = true
 
         onPasswordChange(password)
@@ -99,15 +98,20 @@ class LoginViewModel (
 
         viewModelScope.launch {
             try {
-
-                if ( userIdentifierError != null || passwordError != null)
+                if (userIdentifierError != null || passwordError != null) {
                     submitError = FormError.AllFieldsAreRequired
-                else {
-                    val user: User? =
-                        if(userIdentifier.all { it.isDigit() })
-                            userRepository.getUserByPhoneNumber(userIdentifier)
-                        else
-                            userRepository.getUserByEmail(userIdentifier)
+                } else {
+                    var user: User? =
+                     if (userIdentifier.any { it.isDigit() } || userIdentifier.startsWith("+")) {
+                         checkedByPhone = true
+                        userRepository.getUserByPhoneNumber(userIdentifier)
+                    } else {
+                        userRepository.getUserByEmail(userIdentifier)
+                    }
+
+                    if(checkedByPhone && user == null){
+                        user = userRepository.getUserByEmail(userIdentifier)
+                    }
 
                     if (user == null) {
                         submitError = FormError.InvalidCredentials
@@ -115,9 +119,9 @@ class LoginViewModel (
                         if (PasswordHashingService.matches(password, user.passwordHashed)) {
                             sharedPreferenceHelper.saveUserOnSharedPreferences(user.userId.uiUserId)
                             isLoginSuccessful = true
-
-                        } else
+                        } else {
                             submitError = FormError.InvalidCredentials
+                        }
                     }
                 }
             } catch (_: Exception) {

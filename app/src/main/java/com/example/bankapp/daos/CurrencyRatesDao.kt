@@ -16,7 +16,7 @@ interface CurrencyRatesDao {
     suspend fun insertRates(cache: CurrencyRates)
 
     @Query("DELETE FROM exchange_rates")
-    suspend fun clearCache()
+    suspend fun clearRates()
 
     @Query("SELECT lastUpdatedMillis from EXCHANGE_RATES WHERE ID = 1 LIMIT 1")
     suspend fun getLastUpdatedTime(): Long

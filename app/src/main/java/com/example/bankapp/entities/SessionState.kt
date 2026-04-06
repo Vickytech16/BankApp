@@ -1,9 +1,7 @@
 package com.example.bankapp.entities
 
-import com.example.bankapp.entities.dbtables.Account
 import com.example.bankapp.entities.dbtables.User
-import com.example.bankapp.entities.uimodels.AccountUiModel
-import kotlinx.coroutines.flow.Flow
+import com.example.bankapp.entities.uientities.uimodels.AccountUiModel
 import kotlinx.coroutines.flow.StateFlow
 
 

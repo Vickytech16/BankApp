@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.bankapp.core.datecompatability.BankDateFactory
 
 @Entity(
     tableName = "beneficiaries",
@@ -34,7 +35,7 @@ data class Beneficiary(
     val beneficiaryId: Long = 0,
     val userId: Long,
     val beneficiaryUserId: Long,
-    val nickname: String = "",
+    val nickname: String? = null,
     val isFavorite: Boolean = false,
-    val addedDate: Long
+    val addedDate: Long = BankDateFactory.now().epochMillis
 )

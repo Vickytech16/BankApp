@@ -14,10 +14,14 @@ import com.example.bankapp.repositories.CountryRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
 import com.example.bankapp.services.RecoverKeyGenerationService
+import com.example.bankapp.utilities.COUNTRY_MAX_SIZE
 import com.example.bankapp.utilities.EMAIL_MAX_SIZE
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
+import com.example.bankapp.utilities.PhoneUtils
+import com.example.bankapp.utilities.TIMEZONE_MAX_SIZE
 import com.example.bankapp.utilities.USERNAME_MAX_SIZE
+import com.example.bankapp.utilities.USERNAME_MIN_SIZE
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidConfirmPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.invalidEmailErrorMessageBuilder
@@ -25,6 +29,7 @@ import com.example.bankapp.utilities.invalidNumericalFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidPasswordErrorMessageBuilder
 import com.example.bankapp.utilities.invalidUserNameErrorMessageBuilder
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
+import com.example.bankapp.utilities.minRequiredCharacterErrorMessageBuilder
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -33,9 +38,7 @@ import kotlinx.coroutines.launch
 class RegisterViewModel(
     private val userRepository: UserRepository,
     countryRepository: CountryRepository
-): ViewModel()
-{
-
+): ViewModel() {
     var recoveryKey = ""
         private set
 
@@ -46,16 +49,28 @@ class RegisterViewModel(
         private set
 
     fun onUserNameChange(newUserName: String) {
-        if(newUserName.length <= USERNAME_MAX_SIZE)
+        if(newUserName.length <= USERNAME_MAX_SIZE && newUserName != " ")
             userName = newUserName
         userNameError =
                     newUserName.emptyTextFieldErrorMessageBuilder(R.string.username_field_name) ?:
-                    newUserName.maxAllowedCharacterErrorMessageBuilder(
-                        R.string.username_field_name,
-                        USERNAME_MAX_SIZE
-                    ) ?:
+                    newUserName.minRequiredCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MIN_SIZE) ?:
+                    newUserName.maxAllowedCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MAX_SIZE) ?:
                     newUserName.invalidUserNameErrorMessageBuilder()
         submitErrorReset()
+    }
+
+    var hasUserNameFieldEverFocused by mutableStateOf(false)
+        private set
+
+    var hasUserNameFieldEverUnFocused by mutableStateOf(false)
+        private set
+
+    fun onHasUserNameFieldEverFocusedChange(value: Boolean) {
+        hasUserNameFieldEverFocused = value
+    }
+
+    fun onHasUserNameFieldEverUnFocusedChange(value: Boolean) {
+        hasUserNameFieldEverUnFocused = value
     }
 
     var email by mutableStateOf("")
@@ -76,14 +91,10 @@ class RegisterViewModel(
             email = newEmail.lowercase()
         emailError =
                     newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
-                    newEmail.maxAllowedCharacterErrorMessageBuilder(
-                        R.string.email_field_name,
-                        EMAIL_MAX_SIZE
-                    ) ?:
+                    newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE) ?:
                     newEmail.invalidEmailErrorMessageBuilder()
         submitErrorReset()
     }
-
 
     var phoneNumber by mutableStateOf("")
         private set
@@ -92,18 +103,37 @@ class RegisterViewModel(
         private set
 
     fun onPhoneNumberChange(newPhoneNumber: String) {
-        if (newPhoneNumber.length <= PHONE_NUMBER_MAX_SIZE)
-            phoneNumber = newPhoneNumber
-        phoneNumberError =
-            newPhoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name) ?:
-                    newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(
-                        R.string.phone_number_field_name,
-                        PHONE_NUMBER_MAX_SIZE
-                    ) ?:
-                    newPhoneNumber.invalidNumericalFieldErrorMessageBuilder(R.string.phone_number_field_name)
+        val digitsOnly = newPhoneNumber.filter { it.isDigit() }
+
+        if (digitsOnly.length <= PHONE_NUMBER_MAX_SIZE) {
+            phoneNumber = digitsOnly
+        }
+
+        val iso = selectedCountry?.countryCode ?: ""
+        phoneNumberError = when {
+            phoneNumber.isBlank() ->
+                phoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name)
+            iso.isNotEmpty() && !PhoneUtils.isValidMobileNumber(phoneNumber, iso) ->
+                FormError.InvalidPhoneNumber
+            newPhoneNumber.length >= PHONE_NUMBER_MAX_SIZE -> newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE)
+            else -> null
+        }
         submitErrorReset()
     }
 
+
+    var hasPhoneFieldEverFocused by mutableStateOf(false)
+        private set
+    var hasPhoneFieldEverUnFocused by mutableStateOf(false)
+        private set
+
+    fun onHasPhoneFieldEverFocusedChange(value: Boolean) {
+        hasPhoneFieldEverFocused = value
+    }
+
+    fun onHasPhoneFieldEverUnFocusedChange(value: Boolean) {
+        hasPhoneFieldEverUnFocused = value
+    }
     var password by mutableStateOf("")
         private set
 
@@ -128,11 +158,8 @@ class RegisterViewModel(
             password = newPassword
         passwordError = listOfNotNull(
             newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
-                        newPassword.maxAllowedCharacterErrorMessageBuilder(
-                            R.string.password_field_name, PASSWORD_MAX_SIZE
-            )
-        ) + newPassword.invalidPasswordErrorMessageBuilder()
-
+                        newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
+                        ) + newPassword.invalidPasswordErrorMessageBuilder()
         if(confirmPassword.isNotBlank())
             confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(newPassword)
 
@@ -157,11 +184,8 @@ class RegisterViewModel(
             confirmPassword = newConfirmPassword
         confirmPasswordError =
                     newConfirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
-                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(
-                        R.string.confirm_password_field_name,
-                        PASSWORD_MAX_SIZE
-                    ) ?:
-                    newConfirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
+                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE
+                    ) ?: newConfirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
         submitErrorReset()
     }
 
@@ -178,16 +202,6 @@ class RegisterViewModel(
     var isSubmitSuccessful by mutableStateOf(false)
         private set
 
-    fun reset(){
-        isSubmitSuccessful = false
-    }
-
-    private fun submitErrorReset()
-    {
-        if(userNameError==null && passwordError.isEmpty()  && emailError==null && phoneNumberError==null && confirmPasswordError==null)
-            submitError=null
-    }
-
     val countries: StateFlow<List<Country>> = countryRepository.getCountries()
         .stateIn(
             scope = viewModelScope,
@@ -203,22 +217,34 @@ class RegisterViewModel(
     var isCountrySheetVisible by mutableStateOf(false)
 
     var countrySearchQuery by mutableStateOf("")
+        private set
 
+    fun onCountrySearchQueryChange(newQuery: String){
+        if(newQuery.length <= COUNTRY_MAX_SIZE)
+            countrySearchQuery = newQuery
+    }
 
     var isTimezoneSheetVisible by mutableStateOf(false)
 
     var timezoneSearchQuery by mutableStateOf("")
+        private set
 
+    fun onTimeZoneSearchQueryChange(newQuery: String){
+        if(newQuery.length <= TIMEZONE_MAX_SIZE)
+            timezoneSearchQuery = newQuery
+    }
 
     var isTimezoneFieldVisible by mutableStateOf(false)
 
-
     fun onCountrySelected(country: Country) {
+        if (selectedCountry?.countryCode != country.countryCode) {
+            phoneNumber = ""
+            phoneNumberError = null
+        }
         selectedCountry = country
         countrySearchQuery = ""
         countryError = null
         selectedTimezone = null
-
         if (country.timezones.size == 1) {
             selectedTimezone = country.timezones.first()
             isTimezoneFieldVisible = false
@@ -241,6 +267,37 @@ class RegisterViewModel(
     var timezoneError by mutableStateOf<FormError?>(null)
         private set
 
+    fun reset(){
+        isSubmitSuccessful = false
+    }
+
+    private fun submitErrorReset()
+    {
+        if(userNameError==null && passwordError.isEmpty()  && emailError==null && phoneNumberError==null && confirmPasswordError==null && countryError==null)
+            submitError=null
+    }
+
+    val isUserNameValidForTick: Boolean
+        get() = userName.isNotEmpty() &&
+                userName.minRequiredCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MIN_SIZE) == null &&
+                userName.invalidUserNameErrorMessageBuilder() == null
+
+    val isEmailValidForTick: Boolean
+        get() = email.isNotEmpty() &&
+                email.invalidEmailErrorMessageBuilder() == null
+
+    val isPasswordValidForTick: Boolean
+        get() = password.isNotEmpty() &&
+                password.invalidPasswordErrorMessageBuilder().isEmpty()
+
+    val isConfirmPasswordValidForTick: Boolean
+        get() = confirmPassword.isNotEmpty() &&
+                confirmPassword == password
+
+    val isPhoneValidForTick: Boolean
+        get() = selectedCountry != null &&
+                PhoneUtils.isValidMobileNumber(phoneNumber, selectedCountry!!.countryCode)
+
     var isLoading by mutableStateOf(false)
         private set
 
@@ -256,6 +313,12 @@ class RegisterViewModel(
 
         hasPasswordFieldEverFocused = true
         hasPasswordFieldEverUnFocused = true
+
+        hasUserNameFieldEverFocused = true
+        hasUserNameFieldEverUnFocused = true
+
+        hasPhoneFieldEverUnFocused = true
+        hasPhoneFieldEverFocused = true
 
         onUserNameChange(userName)
         onEmailChange(email)
@@ -277,28 +340,31 @@ class RegisterViewModel(
                     submitError = FormError.InvalidData
                     return@launch
                 } else {
+
                     if (userRepository.getUserByEmail(email) != null)
                         submitError = FormError.UserAlreadyExists(R.string.email_field_name)
                     else if (userRepository.getUserByPhoneNumber(phoneNumber) != null)
                         submitError =
                             FormError.UserAlreadyExists(R.string.phone_number_field_name)
                     else {
+                        val countryCode = selectedCountry?.countryCode
+                        val timeZone = selectedTimezone
+
+                        if(countryCode==null || timeZone==null){
+                            submitError = FormError.UnknownError
+                            return@launch
+                        }
                         submitError = null
-
                         recoveryKey = RecoverKeyGenerationService.generateRecoveryKey()
-
                         isSubmitSuccessful = true
-
                         userRepository.createNewUser(
                             User(
                                 email = email.trim(),
                                 passwordHashed = PasswordHashingService.hash(password),
-                                userName = userName
-                                    .trim()
-                                    .replace(Regex("\\s+"), " "),
-                                phoneNumber = phoneNumber.trim(),
-                                countryCode = selectedCountry?.countryCode ?: "IN",
-                                timeZone = selectedTimezone ?: "UTC",
+                                userName = userName.trim().replace(Regex("\\s+"), " "),
+                                phoneNumber =  "${selectedCountry?.phonePrefix ?: ""}${phoneNumber.trim()}",
+                                countryCode = countryCode,
+                                timeZone = timeZone,
                                 recoveryKey = PasswordHashingService.hash(recoveryKey)
                             )
                         )

@@ -75,12 +75,14 @@ fun HomeTransactionSection(
 
         SmallSpacer()
 
-        transactions.take(3).forEach { transaction ->
-            val displayName =
-                if (transaction.transactionType == TransactionType.DEPOSIT)
-                    transaction.myUserName
-                else
-                    transaction.counterpartyName
+        transactions.take(3).forEach {
+            transaction ->
+            val displayName = when {
+                transaction.transactionType == TransactionType.DEPOSIT -> "You (Deposit)"
+                !transaction.counterpartyNickname.isNullOrEmpty() ->
+                    "${transaction.counterpartyNickname} (${transaction.counterpartyName})"
+                else -> transaction.counterpartyName ?: "Bank"
+            }
 
             val displayPfp =
                 if (transaction.transactionType == TransactionType.DEPOSIT)
@@ -89,7 +91,7 @@ fun HomeTransactionSection(
                     transaction.counterpartyPfpUrl
 
             TransactionListItem(
-                counterPartyName = displayName ?: "?",
+                counterPartyName = displayName,
                 transactionDirection = transaction.ledgerDirection,
                 amount = transaction.amount.uiAmountDisplay(),
                 transactionDate = transaction.transactionDate,

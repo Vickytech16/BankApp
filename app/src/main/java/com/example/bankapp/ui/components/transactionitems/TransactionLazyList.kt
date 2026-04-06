@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,15 +39,19 @@ fun TransactionLazyList(
     deviceSpec: DeviceSpec,
     countryCode: String
 ) {
-    val groupedTransactions = transactions.groupBy { transaction ->
-        val transactionDate = transaction.transactionDate
-        val today = BankDateFactory.now()
-        val yesterday = today.minusDays(1)
+    val todayLabel = stringResource(R.string.today)
+    val yesterdayLabel = stringResource(R.string.yesterday)
+    val groupedTransactions = remember(transactions) {
+        transactions.groupBy { transaction ->
+            val transactionDate = transaction.transactionDate
+            val today = BankDateFactory.now()
+            val yesterday = today.minusDays(1)
 
-        when {
-            transactionDate.isSameDay(today) -> stringResource(R.string.today)
-            transactionDate.isSameDay(yesterday) -> stringResource(R.string.yesterday)
-            else -> transactionDate.toMonthDayDisplay()
+            when {
+                transactionDate.isSameDay(today) -> todayLabel
+                transactionDate.isSameDay(yesterday) -> yesterdayLabel
+                else -> transactionDate.toMonthDayDisplay()
+            }
         }
     }
 
@@ -70,12 +75,12 @@ fun TransactionLazyList(
             }
 
             items(transactionsForDate) { transaction ->
-                val counterPartyName =
-                    if (transaction.transactionType == TransactionType.DEPOSIT)
-                        "${transaction.myUserName}(Deposit)"
-                    else
-                        transaction.counterpartyName
-
+                val displayName = when {
+                    transaction.transactionType == TransactionType.DEPOSIT -> "You (Deposit)"
+                    !transaction.counterpartyNickname.isNullOrEmpty() ->
+                        "${transaction.counterpartyNickname} (${transaction.counterpartyName})"
+                    else -> transaction.counterpartyName ?: "Bank"
+                }
                 val counterPartyPfp =
                     if (transaction.transactionType == TransactionType.DEPOSIT)
                         transaction.myPfpUrl
@@ -83,7 +88,7 @@ fun TransactionLazyList(
                         transaction.counterpartyPfpUrl
 
                 TransactionListItem(
-                    counterPartyName = counterPartyName ?: "?",
+                    counterPartyName = displayName,
                     transactionDirection = transaction.ledgerDirection,
                     amount = transaction.amount.uiAmountDisplay(),
                     transactionDate = transaction.transactionDate,

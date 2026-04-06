@@ -1,143 +1,69 @@
 package com.example.bankapp.ui.screens
 
-import android.graphics.BitmapFactory
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Help
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Phone
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
-import com.example.bankapp.ui.components.UserAvatar
-import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
-import com.example.bankapp.ui.theme.AppSpacing
-import com.example.bankapp.ui.theme.DeviceSpecProvider
-import com.example.bankapp.viewmodels.ProfileViewModel
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import com.example.bankapp.di.viewmodelfactory.ProfileViewModelFactory
-import com.example.bankapp.entities.dbtables.Account
-import com.example.bankapp.ui.components.AlertButtonConfig
-import com.example.bankapp.ui.components.AlertDialogBox
-import com.example.bankapp.ui.components.ButtonStyle
-import com.example.bankapp.ui.components.LargeSpacer
-import com.example.bankapp.ui.components.LogoutButton
-import com.example.bankapp.ui.components.MediumSpacer
-import com.example.bankapp.ui.components.RadioButtonSelector
-import com.example.bankapp.ui.components.XLSpacer
-import com.example.bankapp.ui.components.XSSpacer
-import com.example.bankapp.ui.components.appbar.Appbar
+import com.example.bankapp.ui.components.*
+import com.example.bankapp.ui.components.appbar.RegularAppBar
+import com.example.bankapp.ui.components.bottomnavbar.BottomNavigationBar
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.PROFILE_ROUTE
 import com.example.bankapp.ui.components.navigators.RECOVERY_KEY_HOME_ROUTE
 import com.example.bankapp.ui.components.profileitems.ProfileAccountCard
 import com.example.bankapp.ui.components.profileitems.ProfileSettingsCard
 import com.example.bankapp.ui.components.profileitems.UserInfoCard
-import com.example.bankapp.ui.components.profileitems.UserInfoRow
-import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.components.profileitems.UserPfpAndNameEditable
+import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.LocalDeviceSpec
-import com.example.bankapp.viewmodels.ThemeType
+import com.example.bankapp.viewmodels.ProfileViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    windowSizeClass: WindowSizeClass,
     navController: NavController,
     profileViewModelFactory: ProfileViewModelFactory,
     logoutAction: () -> Unit,
     themeViewModel: ThemeViewModel
 ) {
-
     val viewModel: ProfileViewModel = viewModel(factory = profileViewModelFactory)
     val scrollState = rememberScrollState()
     val deviceSpec = LocalDeviceSpec.current
-
     val account by viewModel.account.collectAsState()
-    val currentRoute = remember { PROFILE_ROUTE }
     val user by viewModel.user.collectAsState()
-
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val context = LocalContext.current
-
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            try {
-                val inputStream = context.contentResolver.openInputStream(it)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                viewModel.updateProfileImage(bitmap, context)
-                inputStream?.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     Scaffold(
-        topBar = {
-            Appbar(stringResource(R.string.profile_screen_title), scrollBehavior = scrollBehavior)
-        },
+        topBar = { RegularAppBar(stringResource(R.string.profile_screen_title), scrollBehavior = scrollBehavior) },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
             BottomNavigationBar(
-                currentRoute = currentRoute,
+                currentRoute = PROFILE_ROUTE,
                 onNavigate = { route ->
                     navController.navigate(route) {
-                        popUpTo(HOME_ROUTE) {
-                            saveState = true
-                        }
+                        popUpTo(HOME_ROUTE) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
@@ -147,93 +73,65 @@ fun ProfileScreen(
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { contentPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding),
-            contentAlignment = Alignment.TopCenter
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(contentPadding), contentAlignment = Alignment.TopCenter) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth(deviceSpec.profileScreenWidthFaction)
-                    .verticalScroll(scrollState)
-                    .padding(top = AppSpacing.md, bottom = AppSpacing.xl),
+                modifier = Modifier.fillMaxWidth(deviceSpec.profileScreenWidthFaction).verticalScroll(scrollState).padding(top = AppSpacing.md, bottom = AppSpacing.xxl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                UserAvatar(
-                    name = user.userName,
-                    pfpUrl =user.pfpURL,
-                    size = dimensionResource(deviceSpec.profileAvatarSize),
-                    editable = true,
-                    editAction = {
-                            imagePickerLauncher.launch("image/*")
-                    },
-                    imageUpdateKey = viewModel.imageUpdateTrigger
-                )
-
-                MediumSpacer()
-
-                Text(
-                    text = user.userName,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                XLSpacer()
-
-                UserInfoCard(
-                    title = stringResource(R.string.contact_info_label),
-                    deviceSpec = deviceSpec
-                ) {
-                    UserInfoRow(
-                        icon = Icons.Outlined.Email,
-                        label = stringResource(R.string.email_label),
-                        value = user.email,
-                    )
-
-                    ProfileDivider()
-
-                    UserInfoRow(
-                        icon = Icons.Outlined.Phone,
-                        label = stringResource(R.string.phone_label),
-                        value = user.phoneNumber,
+                Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        modifier = Modifier
+                            .size(dimensionResource(deviceSpec.profileAvatarSize))
+                            .clip(CircleShape)
+                            .clickable { viewModel.onShowEnlargedImageChange(true) }
+                    ) {
+                        UserAvatar(
+                            name = user.userName,
+                            pfpUrl = user.pfpURL,
+                            size = dimensionResource(deviceSpec.profileAvatarSize),
+                            editable = false,
+                            imageUpdateKey = viewModel.imageUpdateTrigger
+                        )
+                    }
+                    MediumSpacer()
+                    Text(text = user.userName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = stringResource(R.string.tap_to_edit_profile),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.clickable { viewModel.onShowEditSheetChange(true) }.padding(AppSpacing.sm)
                     )
                 }
-
-                LargeSpacer()
-
-                ProfileAccountCard(
-                    title = stringResource(R.string.account_details_label),
-                    deviceSpec = deviceSpec,
-                    viewModel = viewModel,
-                    account = account,
-                    countryCode = user.countryCode
-                )
-
-                LargeSpacer()
-
-                ProfileSettingsCard(
-                    title = stringResource(R.string.settings_support_label),
-                    deviceSpec = deviceSpec,
-                    themeViewModel = themeViewModel,
-                    { navController.navigate(RECOVERY_KEY_HOME_ROUTE) }
-                )
-
                 XLSpacer()
-
-                LogoutButton(logoutAction = logoutAction, showLogoutAction = viewModel.showLogoutDialog, onShowLogoutActionChange = viewModel::onShowLogoutDialogChange)
-
+                UserInfoCard(title = stringResource(R.string.contact_info_label), deviceSpec = deviceSpec, user = user)
+                LargeSpacer()
+                ProfileAccountCard(title = stringResource(R.string.account_details_label), deviceSpec = deviceSpec, viewModel = viewModel, account = account, countryCode = user.countryCode)
+                LargeSpacer()
+                ProfileSettingsCard(title = stringResource(R.string.settings_support_label), deviceSpec = deviceSpec, themeViewModel = themeViewModel, forgotPasswordClickAction = { navController.navigate(RECOVERY_KEY_HOME_ROUTE) })
+                XLSpacer()
+                RedLogoutButton(logoutAction = logoutAction, showLogoutAction = viewModel.showLogoutDialog, onShowLogoutActionChange = viewModel::onShowLogoutDialogChange)
+                XLSpacer()
                 XLSpacer()
             }
         }
+
+        BankAppBottomSheet(showSheet = viewModel.showEditSheet, onDismissRequest = { viewModel.onShowEditSheetChange(false) }, fullHeight = false) {
+            UserPfpAndNameEditable(viewModel = viewModel, user = user, deviceSpec = deviceSpec)
+        }
+
+        if (viewModel.showEnlargedImage) {
+            Dialog(onDismissRequest = { viewModel.onShowEnlargedImageChange(false) }) {
+                Box(modifier = Modifier.size(300.dp).background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp)).padding(AppSpacing.md)) {
+                    UserAvatar(name = user.userName, pfpUrl = user.pfpURL, size = 300.dp, editable = false, imageUpdateKey = viewModel.imageUpdateTrigger)
+                    IconButton(
+                        onClick = { viewModel.onShowEnlargedImageChange(false) },
+                        modifier = Modifier.align(Alignment.TopEnd).background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
+                    }
+                }
+            }
+        }
     }
-}
-
-
-
-
-@Composable
-fun ProfileDivider() {
-    Spacer(modifier = Modifier.height(AppSpacing.sm))
 }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -15,12 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -36,16 +31,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
-import com.example.bankapp.ui.components.AlertButtonConfig
-import com.example.bankapp.ui.components.AlertDialogBox
-import com.example.bankapp.ui.components.ButtonStyle
 import com.example.bankapp.ui.components.RadioButtonSelector
-import com.example.bankapp.ui.screens.ProfileDivider
+
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
-import com.example.bankapp.viewmodels.ThemeType
+import com.example.bankapp.entities.types.ThemeType
+import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.viewmodels.ThemeViewModel
 
 
@@ -83,7 +75,7 @@ fun ProfileSettingsCard(
                 onValueClick = { forgotPasswordClickAction() }
             )
 
-            ProfileDivider()
+            SmallSpacer()
 
             ProfileActionRow(
                 icon = Icons.Outlined.Palette,
@@ -180,7 +172,7 @@ private fun ProfileActionRow(
                     .size(dimensionResource(R.dimen.profile_icon_wrap_size))
                     .background(
                         color = MaterialTheme.colorScheme.secondary,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(AppSpacing.md)
                     ),
                 contentAlignment = Alignment.Center
             ) {

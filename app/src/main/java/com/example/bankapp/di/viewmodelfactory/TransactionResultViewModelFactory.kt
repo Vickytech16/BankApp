@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.repositories.BeneficiaryRepository
 import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.viewmodels.TransactionResultViewModel
+import com.example.bankapp.viewmodels.ResultViewModel
 
 class TransactionResultViewModelFactory(
     private val transactionRepository: TransactionRepository,
@@ -15,8 +15,8 @@ class TransactionResultViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TransactionResultViewModel::class.java)) {
-            return TransactionResultViewModel(
+        if (modelClass.isAssignableFrom(ResultViewModel::class.java)) {
+            return ResultViewModel(
                 transactionRepository = transactionRepository,
                 beneficiaryRepository = beneficiaryRepository,
                 authorizationViewModel = authorizationViewModel

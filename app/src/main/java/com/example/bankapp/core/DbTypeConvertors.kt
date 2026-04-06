@@ -20,11 +20,18 @@ class DbTypeConvertors {
     fun toBigDecimal(value: String): BigDecimal = BigDecimal(value)
 
     @TypeConverter
-    fun fromAccountType(type: AccountType): String = type.name
+    fun fromAccountType(type: AccountType): String {
+        return type.code
+    }
 
     @TypeConverter
-    fun toAccountType(value: String): AccountType = AccountType.valueOf(value)
-
+    fun toAccountType(value: String): AccountType {
+        return when (value.uppercase()) {
+            "SAVINGS" -> AccountType.Savings
+            "CURRENT" -> AccountType.Current
+            else -> AccountType.Savings
+        }
+    }
     @TypeConverter
     fun fromLedgerDirection(direction: LedgerDirection): String = direction.name
 

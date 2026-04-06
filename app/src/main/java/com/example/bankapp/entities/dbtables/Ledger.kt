@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.types.transaction.LedgerDirection
 import java.math.BigDecimal
 
@@ -34,5 +35,7 @@ data class Ledger(
     val accNo: Long,
     val direction: LedgerDirection,
     val amount: BigDecimal,
-    val balanceAfter: BigDecimal
+    val balanceAfter: BigDecimal,
+    val amountInUsd: BigDecimal,
+    val createdAt: Long = BankDateFactory.now().epochMillis
 )

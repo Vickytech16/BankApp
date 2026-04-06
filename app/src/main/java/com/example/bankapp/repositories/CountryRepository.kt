@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.serialization.json.Json
 
-class CountryRepository(
-    private val context: Context, ) {
+class CountryRepository(private val context: Context ) {
     private val json: Json = Json {
         ignoreUnknownKeys = true
         isLenient = true

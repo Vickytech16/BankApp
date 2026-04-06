@@ -11,15 +11,23 @@ interface BankDateTime {
 
     val activeTimeZone: String
 
-    fun plusDays(days: Int): BankDateTime
+    val startOfDayMillis: Long
+    val endOfDayMillis: Long
+
     fun minusDays(days: Int): BankDateTime
 
-    fun toFullDisplay(): String
     fun toIsoString(): String
 
     fun toMonthDayDisplay(): String
 
     fun toFullDateTimeDisplay(): String
 
-    fun getDateAndTime(millis: Long): String
+    fun fileNameDate(): String
+
+    companion object {
+        const val DAY_IN_MINUTES = 24 * 60 * 60 * 1000L
+    }
+
+
+
 }

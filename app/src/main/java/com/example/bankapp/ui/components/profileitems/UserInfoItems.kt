@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -19,17 +22,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
+import com.example.bankapp.entities.dbtables.User
+import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
-
+import com.example.bankapp.utilities.PhoneUtils
 
 @Composable
 fun UserInfoCard(
     title: String,
     deviceSpec: DeviceSpec,
-    content: @Composable () -> Unit
+    user: User
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -48,13 +54,25 @@ fun UserInfoCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = AppSpacing.md)
             )
-            content()
+            UserInfoRow(
+                icon = Icons.Outlined.Email,
+                label = stringResource(R.string.email_label),
+                value = user.email,
+            )
+
+            SmallSpacer()
+
+            UserInfoRow(
+                icon = Icons.Outlined.Phone,
+                label = stringResource(R.string.phone_label),
+                value = PhoneUtils.formatAsYouType(user.phoneNumber, user.countryCode),
+            )
         }
     }
 }
 
 @Composable
-fun UserInfoRow(
+private fun UserInfoRow(
     icon: ImageVector,
     label: String,
     value: String,

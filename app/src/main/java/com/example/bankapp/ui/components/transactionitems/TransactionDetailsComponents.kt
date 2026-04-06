@@ -105,7 +105,7 @@ fun StatusSection(transactionStatus: TransactionStatus?, deviceSpec: DeviceSpec)
             contentDescription = stringResource(R.string.vangi),
             modifier = Modifier
                 .size(dimensionResource(R.dimen.bank_logo_size_transaction_screen))
-                .padding(end = AppSpacing.md)
+
         )
         Text(
             text = stringResource(R.string.vangi),

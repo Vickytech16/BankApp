@@ -1,14 +1,12 @@
 package com.example.bankapp.viewmodels
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bankapp.R
-import com.example.bankapp.usecases.SharedPreferenceHelper
+import com.example.bankapp.entities.types.ThemeType
+import com.example.bankapp.utilities.SharedPreferenceHelper
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -39,29 +37,6 @@ class ThemeViewModel(
         viewModelScope.launch {
             sharedPreferenceHelper.saveTheme(theme.name)
             showThemeDialog = false
-        }
-    }
-}
-
-enum class ThemeType{
-    LIGHT,
-    DARK,
-    SYSTEM_DEFAULT;
-
-    @Composable
-    fun getDisplayName(): String = when (this) {
-        LIGHT -> stringResource(R.string.light_theme_label)
-        DARK -> stringResource(R.string.dark_theme_label)
-        SYSTEM_DEFAULT -> stringResource(R.string.system_default_theme_label)
-    }
-
-    companion object {
-        fun fromStringToThemeType(value: String): ThemeType {
-            return try {
-                valueOf(value)
-            } catch (e: IllegalArgumentException) {
-                SYSTEM_DEFAULT
-            }
         }
     }
 }

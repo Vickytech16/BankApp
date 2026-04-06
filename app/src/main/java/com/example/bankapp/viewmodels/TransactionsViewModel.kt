@@ -5,12 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bankapp.entities.types.ui.FilterState
+import com.example.bankapp.core.datecompatability.BankDateFactory
+import com.example.bankapp.entities.uientities.uidata.FilterState
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.dtos.ExportMetadata
 import com.example.bankapp.entities.dtos.TransactionExportDto
-import com.example.bankapp.entities.types.ui.SortOptions
-import com.example.bankapp.entities.types.ui.UiLedgerDirection
+import com.example.bankapp.entities.uientities.uitypes.SortOptions
+import com.example.bankapp.entities.uientities.uitypes.UiLedgerDirection
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.services.TransactionExportService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,7 +24,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.example.bankapp.entities.types.transaction.TransactionType
-import com.example.bankapp.services.ExportType
+import com.example.bankapp.entities.types.transaction.ExportType
 import com.example.bankapp.ui.screens.uiAmountDisplay
 import com.example.bankapp.utilities.CurrencyUtils
 import kotlinx.coroutines.Dispatchers
@@ -58,6 +59,14 @@ class TransactionsViewModel(
         _sortState
     ) {
         searchQuery, filters, sort ->
+
+        val startTime = filters.startDate?.let {
+            BankDateFactory.fromMillis(it).startOfDayMillis
+        } ?: 0L
+        val endTime = filters.endDate?.let {
+            BankDateFactory.fromMillis(it).endOfDayMillis
+        } ?: Long.MAX_VALUE
+
         transactionRepository.getFilteredTransactions(
             accNo = account.value.accNo,
             searchQuery = searchQuery.trim(),
@@ -68,7 +77,10 @@ class TransactionsViewModel(
             directionFilter = if (filters.selectedDirection == UiLedgerDirection.BOTH) 0 else 1,
             statuses = filters.selectedStatus.map { it.name },
             statusFilter = if (filters.selectedStatus.isEmpty()) 0 else 1,
-            sortOrder = sort.getSort()
+            sortOrder = sort.getSort(),
+            startDate = startTime,
+            endDate = endTime,
+            dateFilter = if (filters.startDate != null) 1 else 0
         )
     }
         .flatMapLatest { it }
@@ -120,7 +132,7 @@ class TransactionsViewModel(
     var showMenu by mutableStateOf(false)
         private set
 
-    fun onShwoMenuChange(newValue: Boolean){
+    fun onShowMenuChange(newValue: Boolean){
         showMenu = newValue
     }
 
@@ -135,7 +147,7 @@ class TransactionsViewModel(
             val currentList = transactions.value
             if (currentList.isEmpty()) return@launch
 
-            val exportedFile = withContext(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 val exportData = currentList.map { exportData ->
                     val description = if (exportData.transactionType == TransactionType.DEPOSIT) {
                         "${exportData.myUserName} (Deposit)"
@@ -165,14 +177,14 @@ class TransactionsViewModel(
                     exportService.createCsvFile(
                         metadata,
                         exportData,
-                        "Bank_Statement_${System.currentTimeMillis()}"
+                        "Bank_Statement_${BankDateFactory.now().fileNameDate()}"
                     )
                 }
                     ExportType.PDF -> {
                         exportService.createPdfFile(
                             metadata,
                             exportData,
-                            "Bank_Statement_${System.currentTimeMillis()}"
+                            "Bank_Statement_${BankDateFactory.now().fileNameDate()}"
                         )
                     }
                 }

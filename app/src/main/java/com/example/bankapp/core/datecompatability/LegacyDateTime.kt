@@ -14,11 +14,19 @@ class LegacyDateTime(override val epochMillis: Long, override val activeTimeZone
         timeInMillis = epochMillis
     }
 
-    override fun plusDays(days: Int): BankDateTime {
-        val newCal = calendar.clone() as Calendar
-        newCal.add(Calendar.DAY_OF_YEAR, days)
-        return BankDateFactory.fromMillis(newCal.timeInMillis)
-    }
+    override val startOfDayMillis: Long
+        get() {
+            val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                timeInMillis = epochMillis
+            }
+            return Calendar.getInstance(userTimeZone).apply {
+                set(utcCal.get(Calendar.YEAR), utcCal.get(Calendar.MONTH), utcCal.get(Calendar.DAY_OF_MONTH), 0, 0, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+        }
+
+    override val endOfDayMillis: Long
+        get() = startOfDayMillis + (24 * 60 * 60 * 1000L) - 1
 
     override fun minusDays(days: Int): BankDateTime {
         val newCal = calendar.clone() as Calendar
@@ -30,12 +38,6 @@ class LegacyDateTime(override val epochMillis: Long, override val activeTimeZone
         return SimpleDateFormat(pattern, Locale.getDefault()).apply {
             timeZone = userTimeZone
         }
-    }
-
-    override fun toFullDisplay(): String {
-        val format = DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault())
-        format.timeZone = userTimeZone
-        return format.format(calendar.time)
     }
 
     override fun toIsoString(): String {
@@ -54,9 +56,9 @@ class LegacyDateTime(override val epochMillis: Long, override val activeTimeZone
         return getFormatter("dd MMMM yyyy, hh:mm a").format(calendar.time)
     }
 
-    override fun getDateAndTime(millis: Long): String {
-        val date = java.util.Date(millis)
-        val formatter = SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault())
-        return formatter.format(date)
+    override fun fileNameDate(): String {
+        val sdf = SimpleDateFormat("yyyyMMdd_HHmm", Locale.US)
+        sdf.timeZone = userTimeZone
+        return sdf.format(calendar.time)
     }
 }

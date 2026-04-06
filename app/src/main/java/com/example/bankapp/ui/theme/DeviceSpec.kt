@@ -1,10 +1,7 @@
 package com.example.bankapp.ui.theme
 
-import android.content.res.Configuration
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import com.example.bankapp.R
@@ -85,6 +82,10 @@ sealed class DeviceSpec {
     abstract val profileCardPadding: Dp
     abstract val profileSectionSpacing: Dp
 
+    abstract val velocityBarHeight: Dp
+    abstract val velocityPipSize: Int
+    abstract val velocityCardPadding: Dp
+
     @Composable
     abstract fun profileSectionTitleStyle(): TextStyle
 
@@ -146,7 +147,7 @@ sealed class DeviceSpec {
         override val homeScreenCardWidth: Float = 1f,
         override val homeScreenCardAccountInfoPadding: Dp = AppSpacing.md,
         override val homeScreenCardAccountInfoRoundedCorner: Int = R.dimen.home_screen_card_account_info_rounded_corner,
-        override val homeScreenCardAccountSectionSpacing: Dp = AppSpacing.xl,
+        override val homeScreenCardAccountSectionSpacing: Dp = AppSpacing.xxl,
 
         override val transactionListItemAvatarSize: Int = R.dimen.transaction_list_item_avatar_size,
         override val transactionListItemHorizontalPadding: Dp = AppSpacing.md,
@@ -164,17 +165,22 @@ sealed class DeviceSpec {
         override val payScreenButtonSize: Int = R.dimen.pay_screen_button_size_mobile,
         override val payScreenButtonIconSize: Int = R.dimen.pay_screen_button_icon_size_mobile,
         override val payScreenCardPadding: Dp = AppSpacing.md,
-        override val payScreenSectionSpacing: Dp = AppSpacing.xl,
+        override val payScreenSectionSpacing: Dp = AppSpacing.xxl,
 
         override val profileAvatarSize: Int = R.dimen.profile_avatar_size_mobile,
         override val profileCardPadding: Dp = AppSpacing.md,
-        override val profileSectionSpacing: Dp = AppSpacing.xl,
+        override val profileSectionSpacing: Dp = AppSpacing.xxl,
 
         override val profileScreenWidthFaction: Float = 0.9f,
 
         override val beneficiaryGridColumnsSize: Int = 3,
         override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_mobile,
-        override val beneficiaryItemSpacing: Dp = AppSpacing.lg
+        override val beneficiaryItemSpacing: Dp = AppSpacing.lg,
+
+        override val velocityBarHeight: Dp = AppSpacing.xs,
+        override val velocityPipSize: Int = R.dimen.velocity_pip_size_mobile,
+        override val velocityCardPadding: Dp = AppSpacing.md
+
         ) : DeviceSpec() {
 
         @Composable
@@ -277,7 +283,11 @@ sealed class DeviceSpec {
 
         override val beneficiaryGridColumnsSize: Int = 4,
         override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_mobile,
-        override val beneficiaryItemSpacing: Dp = AppSpacing.md
+        override val beneficiaryItemSpacing: Dp = AppSpacing.md,
+
+        override val velocityBarHeight: Dp = AppSpacing.xs ,
+        override val velocityPipSize: Int = R.dimen.velocity_pip_size_mobile,
+        override val velocityCardPadding: Dp = AppSpacing.md
     ) : DeviceSpec() {
 
         @Composable
@@ -352,7 +362,7 @@ sealed class DeviceSpec {
         override val homeScreenCardWidth: Float = 0.80f,
         override val homeScreenCardAccountInfoPadding: Dp = AppSpacing.md,
         override val homeScreenCardAccountInfoRoundedCorner: Int = R.dimen.home_screen_card_account_info_rounded_corner,
-        override val homeScreenCardAccountSectionSpacing: Dp = AppSpacing.xl,
+        override val homeScreenCardAccountSectionSpacing: Dp = AppSpacing.xxl,
 
         override val transactionListItemAvatarSize: Int = R.dimen.transaction_list_item_avatar_size_tablet,
         override val transactionListItemHorizontalPadding: Dp = AppSpacing.md,
@@ -370,18 +380,22 @@ sealed class DeviceSpec {
         override val payScreenButtonSize: Int = R.dimen.pay_screen_button_size_tablet,
         override val payScreenButtonIconSize: Int = R.dimen.pay_screen_button_icon_size_tablet,
         override val payScreenCardPadding: Dp = AppSpacing.lg,
-        override val payScreenSectionSpacing: Dp = AppSpacing.xl,
+        override val payScreenSectionSpacing: Dp = AppSpacing.xxl,
 
 
         override val profileAvatarSize: Int = R.dimen.profile_avatar_size_tablet,
         override val profileCardPadding: Dp = AppSpacing.lg,
-        override val profileSectionSpacing: Dp = AppSpacing.xl,
+        override val profileSectionSpacing: Dp = AppSpacing.xxl,
 
         override val profileScreenWidthFaction: Float = 0.7f,
 
         override val beneficiaryGridColumnsSize: Int = 4,
         override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_tab,
-        override val beneficiaryItemSpacing: Dp = AppSpacing.lg
+        override val beneficiaryItemSpacing: Dp = AppSpacing.lg,
+
+        override val velocityBarHeight: Dp = AppSpacing.xs,
+        override val velocityPipSize: Int = R.dimen.velocity_pip_size_mobile,
+        override val velocityCardPadding: Dp = AppSpacing.md
     ) : DeviceSpec() {
         @Composable
         override fun qabButtonLabelSize(): TextStyle = MaterialTheme.typography.titleMedium
@@ -483,7 +497,11 @@ sealed class DeviceSpec {
 
         override val beneficiaryGridColumnsSize: Int = 4,
         override val beneficiaryAvatarSize: Int = R.dimen.beneficiary_avatar_size_tab,
-        override val beneficiaryItemSpacing: Dp = AppSpacing.lg
+        override val beneficiaryItemSpacing: Dp = AppSpacing.lg,
+
+        override val velocityBarHeight: Dp = AppSpacing.xs ,
+        override val velocityPipSize: Int = R.dimen.velocity_pip_size_mobile,
+        override val velocityCardPadding: Dp = AppSpacing.md
     ) : DeviceSpec() {
         @Composable
         override fun qabButtonLabelSize(): TextStyle = MaterialTheme.typography.bodyLarge
@@ -524,57 +542,3 @@ sealed class DeviceSpec {
 }
 
 
-object DeviceSpecProvider {
-
-    @Composable
-    fun getCurrentDeviceSpec(windowSizeClass: WindowSizeClass): DeviceSpec {
-        val configuration = LocalConfiguration.current
-
-        val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-
-        val isTablet = configuration.smallestScreenWidthDp >= 600
-
-        return when {
-            isTablet && isLandscape -> DeviceSpec.TabLandscape()
-            isTablet && !isLandscape -> DeviceSpec.TabPortrait()
-            !isTablet && isLandscape -> DeviceSpec.MobileLandscape()
-            else -> DeviceSpec.MobilePortrait()
-        }
-    }
-}
-
-object DeviceSpecProviderTemp {
-
-    fun getCurrentDeviceSpec(configuration: Configuration): DeviceSpec {
-
-        val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-        val isTablet = configuration.smallestScreenWidthDp >= 500
-
-        return when {
-            isTablet && isLandscape -> DeviceSpec.TabLandscape()
-            isTablet && !isLandscape -> DeviceSpec.TabPortrait()
-            !isTablet && isLandscape -> DeviceSpec.MobileLandscape()
-            else -> DeviceSpec.MobilePortrait()
-        }
-    }
-}
-
-/*
- @Composable
-        fun getCurrentDeviceSpec(windowSizeClass: WindowSizeClass): DeviceSpec {
-
-            val configuration = LocalConfiguration.current
-            val isTablet = configuration.smallestScreenWidthDp >= 600
-
-            val isLandscape =
-                windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
-
-            return when {
-                isTablet && isLandscape -> DeviceSpec.TabLandscape()
-                isTablet && !isLandscape -> DeviceSpec.TabPortrait()
-                !isTablet && isLandscape -> DeviceSpec.MobileLandscape()
-                else -> DeviceSpec.MobilePortrait()
-            }
-        }
- */

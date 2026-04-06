@@ -15,23 +15,21 @@ interface TransactionDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(transaction: Transaction): Long
 
-    @Query("select * from transactions where transactionId = :transactionId")
-    suspend fun getTransactionById(transactionId: String): Transaction?
-
     @Update
     suspend fun update(transaction: Transaction)
 
-    @Query("select * from transactions where idempotencyKey = :idempotencyKey")
-    suspend fun getTransactionByIdempotencyKey(idempotencyKey: String): Transaction?
-
-    @Query("""
+    @Query(
+        """
     SELECT
         t.transactionType AS transaction_type,
         t.createdAt AS transaction_date,
         te.direction AS direction,
         te.amount AS amount,
-        COALESCE(u2.userName, u1.userName) AS counterpartyName,
-        u2.pfpURL AS counterpartyPfp,
+        
+        -- Logic for Counterparty Name vs Nickname
+        b.nickname AS counterparty_nickname,
+        COALESCE(u2.userName, 'Bank') AS counterparty_name,
+        u2.pfpURL AS counterparty_pfp,
         
         t.transactionId AS transaction_id,
         t.referenceNumber AS reference_number,
@@ -47,68 +45,80 @@ interface TransactionDao {
         u1.pfpURL AS my_pfp_url,
         
         a2.accNo AS counterparty_account_no,
-        a2.ifscCode AS counterparty_ifsc_code,
-        u2.userName AS counterparty_name,
-        u2.pfpURL AS counterparty_pfp
+        a2.ifscCode AS counterparty_ifsc_code
 
     FROM ledger_entries te
+    JOIN transactions t ON te.transactionId = t.transactionId
+    JOIN accounts a1 ON te.accNo = a1.accNo
+    JOIN users u1 ON a1.userId = u1.userId
     
-    JOIN transactions t 
-        ON te.transactionId = t.transactionId
     
-    JOIN accounts a1 
-        ON te.accNo = a1.accNo
+    LEFT JOIN ledger_entries te2 ON te.transactionId = te2.transactionId AND te.accNo != te2.accNo
+    LEFT JOIN accounts a2 ON te2.accNo = a2.accNo
+    LEFT JOIN users u2 ON a2.userId = u2.userId
     
-    JOIN users u1 
-        ON a1.userId = u1.userId
-    
-    LEFT JOIN ledger_entries te2 
-        ON te.transactionId = te2.transactionId 
-        AND te.accNo != te2.accNo
-    
-    LEFT JOIN accounts a2 
-        ON te2.accNo = a2.accNo
-    
-    LEFT JOIN users u2 
-        ON a2.userId = u2.userId
 
-   WHERE te.accNo = :accNo
+    LEFT JOIN beneficiaries b ON u1.userId = b.userId AND u2.userId = b.beneficiaryUserId
+
+    WHERE te.accNo = :accNo
+    
+    
+    AND (:dateFilter = 0 OR t.createdAt BETWEEN :startDate AND :endDate)
+    
+    
     AND (:searchQuery = '' 
-        OR (t.transactionType IN ('CASH_TRANSFER', 'SCHEDULED_TRANSFER') AND COALESCE(u2.userName, 'Bank') LIKE '%' || :searchQuery || '%')
-        OR (t.transactionType = 'DEPOSIT' AND u1.userName LIKE '%' || :searchQuery || '%')
+        OR (b.nickname LIKE '%' || :searchQuery || '%')
+        OR (u2.userName LIKE '%' || :searchQuery || '%')
+        OR (t.transactionType = 'DEPOSIT' AND (
+            'Deposit' LIKE '%' || :searchQuery || '%' OR 
+            'You' LIKE '%' || :searchQuery || '%' OR 
+            u1.userName LIKE '%' || :searchQuery || '%'
+        ))
         OR t.referenceNumber LIKE '%' || :searchQuery || '%'
-        OR t.transactionId LIKE '%' || :searchQuery || '%')
+        OR t.transactionId LIKE '%' || :searchQuery || '%'
+    )
          
-        AND (:typeFilter = 0 OR t.transactionType IN (:types))
-        AND (:directionFilter = 0 OR te.direction IN (:directions))
-        AND (:statusFilter = 0 OR t.transactionStatus IN (:statuses))
-        AND NOT (t.transactionStatus = 'FAILED' AND te.direction = 'CREDIT')
+    AND (:typeFilter = 0 OR t.transactionType IN (:types))
+    AND (:directionFilter = 0 OR te.direction IN (:directions))
+    AND (:statusFilter = 0 OR t.transactionStatus IN (:statuses))
+    AND NOT (t.transactionStatus = 'FAILED' AND te.direction = 'CREDIT')
     
     ORDER BY 
         CASE WHEN :sortOrder = 'NEWEST' THEN t.createdAt END DESC,
         CASE WHEN :sortOrder = 'OLDEST' THEN t.createdAt END ASC,
-        CASE WHEN :searchQuery != '' THEN INSTR(LOWER(COALESCE(u2.userName, u1.userName)), LOWER(:searchQuery)) END ASC, COALESCE(u2.userName, u1.userName) ASC
-        
-""")
+       
+        CASE 
+            WHEN :searchQuery != '' AND b.nickname LIKE :searchQuery || '%' THEN 1
+            WHEN :searchQuery != '' AND u2.userName LIKE :searchQuery || '%' THEN 2
+            ELSE 3 
+        END ASC
+"""
+    )
     fun getFilteredTransactions(
         accNo: Long,
         searchQuery: String = "",
-        types: List<String> = emptyList(),
-        typeFilter: Int = 0,
-        directions: List<String> = emptyList(),
-        directionFilter: Int = 0,
-        statuses: List<String> = emptyList(),
-        statusFilter: Int = 0,
-        sortOrder: String = "NEWEST"
+        types: List<String>,
+        typeFilter: Int,
+        directions: List<String>,
+        directionFilter: Int,
+        statuses: List<String>,
+        statusFilter: Int,
+        sortOrder: String,
+        startDate: Long,
+        endDate: Long,
+        dateFilter: Int
     ): Flow<List<TransactionHistoryItemDto>>
 
-    @Query("""
+    @Query(
+        """
     SELECT
         t.transactionType AS transaction_type,
         t.createdAt AS transaction_date,
         te.amount AS amount,
-        COALESCE(u2.userName, 'Bank') AS counterpartyName,
-        u2.pfpURL AS counterpartyPfp,
+
+        b.nickname AS counterparty_nickname,
+        COALESCE(u2.userName, 'Bank') AS counterparty_name,
+        u2.pfpURL AS counterparty_pfp,
         
         t.transactionId AS transaction_id,
         t.referenceNumber AS reference_number,
@@ -124,9 +134,7 @@ interface TransactionDao {
         u1.pfpURL AS my_pfp_url,
         
         a2.accNo AS counterparty_account_no,
-        a2.ifscCode AS counterparty_ifsc_code,
-        u2.userName AS counterparty_name,
-        u2.pfpURL AS counterparty_pfp
+        a2.ifscCode AS counterparty_ifsc_code
 
     FROM ledger_entries te
     
@@ -139,6 +147,7 @@ interface TransactionDao {
     JOIN users u1 
         ON a1.userId = u1.userId
     
+
     LEFT JOIN ledger_entries te2 
         ON te.transactionId = te2.transactionId 
         AND te.accNo != te2.accNo
@@ -149,10 +158,18 @@ interface TransactionDao {
     LEFT JOIN users u2 
         ON a2.userId = u2.userId
 
+
+    LEFT JOIN beneficiaries b 
+        ON u1.userId = b.userId 
+        AND u2.userId = b.beneficiaryUserId
+
     WHERE t.transactionId = :transactionId
     AND te.accNo = :accNo 
     AND NOT (t.transactionStatus = 'FAILED' AND te.direction = 'CREDIT')
-""")
-    suspend fun getTransactionHistoryItemById(transactionId: String, accNo: Long): TransactionHistoryItemDto?
-
+"""
+    )
+    suspend fun getTransactionHistoryItemById(
+        transactionId: String,
+        accNo: Long
+    ): TransactionHistoryItemDto?
 }

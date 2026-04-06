@@ -2,10 +2,13 @@ package com.example.bankapp.ui.components.filters
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -17,14 +20,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
-import com.example.bankapp.entities.types.ui.FilterState
-import com.example.bankapp.entities.types.transaction.LedgerDirection
+import com.example.bankapp.entities.uientities.uidata.FilterState
 import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.entities.types.transaction.TransactionType
-import com.example.bankapp.entities.types.ui.UiLedgerDirection
+import com.example.bankapp.entities.uientities.uitypes.UiLedgerDirection
 import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.RadioButtonSelector
-
 
 @Composable
 fun FilterSection(
@@ -32,11 +34,16 @@ fun FilterSection(
     onPendingStateChange: (FilterState) -> Unit,
     onApply: () -> Unit,
     onReset: () -> Unit,
-    onDismiss: () -> Unit
-){
+    onDismiss: () -> Unit,
+    showPicker: Boolean,
+    onShowPickerChange: (Boolean) -> Unit
+) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.filter_sheet_padding)),
-    ){
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(dimensionResource(R.dimen.filter_sheet_padding))
+    ) {
         Text(
             text = stringResource(R.string.filter_label),
             style = MaterialTheme.typography.titleMedium,
@@ -49,18 +56,16 @@ fun FilterSection(
             title = stringResource(R.string.status_label),
             options = TransactionStatus.entries.toSet(),
             selected = pendingState.selectedStatus,
-            onClick = {
-                transactionStatus  ->
+            onClick = { transactionStatus ->
                 val currentSelected = pendingState.selectedStatus.toMutableSet()
-                if(transactionStatus in currentSelected)
+                if (transactionStatus in currentSelected)
                     currentSelected.remove(transactionStatus)
                 else
                     currentSelected.add(transactionStatus)
-               onPendingStateChange(pendingState.copy(selectedStatus = currentSelected))
+                onPendingStateChange(pendingState.copy(selectedStatus = currentSelected))
             },
-            labelFor = {
-                status->
-                when(status) {
+            labelFor = { status ->
+                when (status) {
                     TransactionStatus.COMPLETED -> stringResource(R.string.completed_label)
                     TransactionStatus.PENDING -> stringResource(R.string.pending_label)
                     TransactionStatus.FAILED -> stringResource(R.string.failed_label)
@@ -74,8 +79,7 @@ fun FilterSection(
             title = stringResource(R.string.transaction_type_label),
             options = TransactionType.entries.toSet(),
             selected = pendingState.selectedTypes,
-            onClick = {
-                transactionType ->
+            onClick = { transactionType ->
                 val currentSelected = pendingState.selectedTypes.toMutableSet()
                 if (transactionType in currentSelected)
                     currentSelected.remove(transactionType)
@@ -83,15 +87,30 @@ fun FilterSection(
                     currentSelected.add(transactionType)
                 onPendingStateChange(pendingState.copy(selectedTypes = currentSelected))
             },
-            labelFor = {
-                transactionType ->
-                when(transactionType){
+            labelFor = { transactionType ->
+                when (transactionType) {
                     TransactionType.DEPOSIT -> stringResource(R.string.deposit_label)
-                    TransactionType.CASH_TRANSFER -> stringResource(R.string.cash_transfer_label)
+                    TransactionType.CASH_TRANSFER -> stringResource(R.string.domestic_transfer)
                     TransactionType.SCHEDULED_TRANSFER -> stringResource(R.string.scheduled_transfer_label)
                     TransactionType.INTERNATIONAL_TRANSFER -> stringResource(R.string.international_transfer_label)
+                    TransactionType.INTEREST_ADDITION -> stringResource(R.string.interest)
                 }
             },
+        )
+
+        LargeSpacer()
+
+        DateRangeSection(
+            startDate = pendingState.startDate,
+            endDate = pendingState.endDate,
+            onDatesSelected = { start, end ->
+                val (finalStart, finalEnd) = if (start != null && end != null && start > end) {
+                    end to start
+                } else {
+                    start to end
+                }
+                onPendingStateChange(pendingState.copy(startDate = finalStart, endDate = finalEnd))
+            }
         )
 
         LargeSpacer()
@@ -100,16 +119,11 @@ fun FilterSection(
             title = stringResource(R.string.direction_label),
             options = UiLedgerDirection.entries,
             selected = pendingState.selectedDirection,
-            onSelectionChange = {
-                uiLedgerDirection ->
-                var currentSelected = pendingState.selectedDirection
-                if(uiLedgerDirection != currentSelected)
-                    currentSelected = uiLedgerDirection
-              onPendingStateChange(pendingState.copy(selectedDirection = currentSelected))
+            onSelectionChange = { uiLedgerDirection ->
+                onPendingStateChange(pendingState.copy(selectedDirection = uiLedgerDirection))
             },
-            labelFor = {
-                uiLedgerDirection ->
-                when(uiLedgerDirection){
+            labelFor = { uiLedgerDirection ->
+                when (uiLedgerDirection) {
                     UiLedgerDirection.CREDIT -> stringResource(R.string.credit_label)
                     UiLedgerDirection.DEBIT -> stringResource(R.string.debit_label)
                     UiLedgerDirection.BOTH -> stringResource(R.string.both_label)
@@ -120,12 +134,12 @@ fun FilterSection(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing))
-        ){
+        ) {
             OutlinedButton(
                 onClick = {
                     onReset()
                     onDismiss()
-                    },
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Text(stringResource(R.string.reset_label))
@@ -134,17 +148,18 @@ fun FilterSection(
                 onClick = {
                     onApply()
                     onDismiss()
-                    },
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Text(stringResource(R.string.apply_label))
             }
         }
-        LargeSpacer()
+        MediumSpacer()
+        MediumSpacer()
     }
-
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun <T> FilterItem(
     title: String,

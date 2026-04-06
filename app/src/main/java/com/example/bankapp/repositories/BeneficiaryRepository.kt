@@ -6,34 +6,24 @@ import com.example.bankapp.entities.dbtables.Beneficiary
 import com.example.bankapp.daos.BeneficiaryDao
 import com.example.bankapp.entities.dtos.BeneficiaryDto
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 
-class BeneficiaryRepository(private val beneficiaryDao: BeneficiaryDao, private val userRepository: UserRepository) {
+class BeneficiaryRepository(private val beneficiaryDao: BeneficiaryDao) {
 
-    fun getAllBeneficiaries(userId: Long): Flow<List<Beneficiary>> =
-        beneficiaryDao.getAllBeneficiaries(userId)
-
-    suspend fun addBeneficiary(userId: Long, beneficiaryUserId: Long, nickname: String = ""): Long {
+    suspend fun addBeneficiary(userId: Long, beneficiaryUserId: Long, nickname: String? = null): Long {
        return withContext(Dispatchers.IO) {
 
-            val currentDate = BankDateFactory.now().epochMillis
+           val currentDate = BankDateFactory.now().epochMillis
 
            val beneficiary = Beneficiary(
                 userId = userId,
                 beneficiaryUserId = beneficiaryUserId,
-                nickname = nickname,
+                nickname = if(nickname.isNullOrEmpty()) null else nickname,
                 isFavorite = false,
                 addedDate = currentDate
             )
             beneficiaryDao.addBeneficiary(beneficiary)
-        }
-    }
-
-    suspend fun getBeneficiaryAccountNo(beneficiaryUserId: Long): Long? {
-       return withContext(Dispatchers.IO) {
-            beneficiaryDao.getBeneficiaryAccountNo(beneficiaryUserId)
         }
     }
 

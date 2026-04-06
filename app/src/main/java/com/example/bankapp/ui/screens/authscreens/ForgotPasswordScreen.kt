@@ -1,26 +1,32 @@
 package com.example.bankapp.ui.screens.authscreens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Login
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,7 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
-import com.example.bankapp.ui.components.appbar.Appbar
+import com.example.bankapp.ui.components.appbar.RegularAppBar
 import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
@@ -41,8 +47,11 @@ import com.example.bankapp.ui.components.navigators.RECOVERY_KEY_AUTH_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.LocalDeviceSpec
-import com.example.bankapp.utilities.EmailFieldStrategy
-import com.example.bankapp.utilities.PhoneNumberFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.EmailFieldStrategy
+import com.example.bankapp.ui.components.IllustrationComponent
+import com.example.bankapp.ui.components.navigators.AUTH_OTP
+import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE_AUTH
+import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.viewmodels.authviewmodels.ForgotPasswordViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,8 +62,14 @@ fun ForgetPasswordScreen(
 ) {
     val viewModel: ForgotPasswordViewModel = viewModel(factory = forgotPasswordViewModelFactory)
     val scrollState = rememberScrollState()
-
     val deviceSpec = LocalDeviceSpec.current
+    val isAnyFieldFocused = remember { mutableStateOf(false) }
+
+    val scrollBehavior = if (deviceSpec is DeviceSpec.MobileLandscape) {
+        TopAppBarDefaults.enterAlwaysScrollBehavior()
+    } else {
+        null
+    }
 
     val textFieldColumnWidth = deviceSpec.textFieldWidth
 
@@ -62,7 +77,7 @@ fun ForgetPasswordScreen(
 
     LaunchedEffect(viewModel.isVerificationSuccessful) {
         if (viewModel.isVerificationSuccessful) {
-            navController.navigate(RECOVERY_KEY_AUTH_ROUTE)
+            navController.navigate("$AUTH_OTP/$FORGOT_PASSWORD_ROUTE_AUTH")
         }
     }
 
@@ -70,31 +85,33 @@ fun ForgetPasswordScreen(
 
     LaunchedEffect(deviceSpec) {
         if (deviceSpec is DeviceSpec.MobileLandscape) {
-            bringIntoViewRequester.bringIntoView()
+            if (!isAnyFieldFocused.value) {
+                bringIntoViewRequester.bringIntoView()
+            }
         }
     }
 
     Scaffold(
         topBar = {
-            Appbar(stringResource(R.string.forgot_password),
+            RegularAppBar(stringResource(R.string.forgot_password),
                 { navController.navigate(AUTH_ROUTE) },
-                null)
+                scrollBehavior)
+        },
+        modifier = Modifier.then(
+            if (scrollBehavior != null) Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+            else Modifier),
+        contentWindowInsets = if (deviceSpec is DeviceSpec.MobileLandscape) {
+            WindowInsets(0, 0, 0, 0)
+        } else {
+            ScaffoldDefaults.contentWindowInsets
         }
     ) { contentPadding ->
         Column(
-            modifier = Modifier.screenModifier(contentPadding,scrollState),
+            modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.forgot_password_illustration),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensionResource(R.dimen.illustration_height))
-                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
-                contentScale = ContentScale.Fit
-            )
+            IllustrationComponent(R.drawable.forgot_password_illustration)
 
             MediumSpacer()
 
@@ -113,27 +130,42 @@ fun ForgetPasswordScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 UnifiedOutlinedTextField(
-                    value = viewModel.email,
-                    onValueChange = viewModel::onEmailChange,
-                    labelText = stringResource(R.string.email_field_name),
-                    isError = viewModel.emailError != null,
-                    supportingText = {
-                        ErrorTextBuilder(viewModel.emailError)
+                    value = viewModel.userIdentifier,
+                    onValueChange = viewModel::onIdentifierChange,
+                    labelText = stringResource(R.string.email_or_phone_number_label),
+                    isError = viewModel.userIdentifierError != null,
+                    showTickCondition = { false },
+                    leadingContent = {
+                        val icon = when {
+                            viewModel.userIdentifier.contains("@") -> Icons.Outlined.Email
+                            viewModel.userIdentifier.isNotEmpty() && (viewModel.userIdentifier.all { it.isDigit() } || viewModel.userIdentifier.startsWith("+")) -> Icons.Outlined.Phone
+                            else -> Icons.AutoMirrored.Outlined.Login
+                        }
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = if (viewModel.userIdentifierError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     },
-                    strategy = EmailFieldStrategy
-                )
-
-                MediumSpacer()
-
-                UnifiedOutlinedTextField(
-                    value = viewModel.phoneNumber,
-                    onValueChange = viewModel::onPhoneNumberChange,
-                    labelText = stringResource(R.string.phone_number_field_name),
-                    isError = viewModel.phoneNumberError != null,
                     supportingText = {
-                        ErrorTextBuilder(viewModel.phoneNumberError)
+                        Column {
+                            if (viewModel.userIdentifier.isNotEmpty() && viewModel.userIdentifier.all { it.isDigit() } && !viewModel.userIdentifier.startsWith("+")) {
+                                Text(
+                                    text = stringResource(R.string.phone_number_tip),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(bottom = AppSpacing.xs)
+                                )
+                            }
+                            ErrorTextBuilder(viewModel.userIdentifierError)
+                        }
                     },
-                    strategy = PhoneNumberFieldStrategy
+                    strategy = EmailFieldStrategy,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged {
+                            isAnyFieldFocused.value = it.isFocused
+                        }
                 )
 
                 XLSpacer()
@@ -147,6 +179,7 @@ fun ForgetPasswordScreen(
 
                 ErrorTextBuilder(viewModel.submitError)
 
+                XLSpacer()
                 XLSpacer()
             }
         }

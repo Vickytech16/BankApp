@@ -28,9 +28,9 @@ import com.example.bankapp.ui.theme.DeviceSpec
 
 
 @Composable
-fun FriendListItem(
-    friendName: String,
-    friendPfp: String? = null,
+fun BeneficiaryItem(
+    beneficiaryName: String,
+    beneficiaryPfp: String? = null,
     onEditClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
 ) {
@@ -47,12 +47,12 @@ fun FriendListItem(
             horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
         ) {
             UserAvatar(
-                name = friendName,
-                pfpUrl = friendPfp,
+                name = beneficiaryName,
+                pfpUrl = beneficiaryPfp,
                 size = dimensionResource(R.dimen.user_avatar_transaction)
             )
             Text(
-                text = friendName,
+                text = beneficiaryName,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -93,8 +93,8 @@ fun FriendListItem(
 
 @Composable
 fun BeneficiaryGridItem(
-    friendName: String,
-    friendPfp: String? = null,
+    beneficiaryName: String,
+    beneficiaryPfp: String? = null,
     deviceSpec: DeviceSpec,
     onPayClick: () -> Unit = {}
 ) {
@@ -106,12 +106,12 @@ fun BeneficiaryGridItem(
         verticalArrangement = Arrangement.spacedBy(deviceSpec.beneficiaryItemSpacing)
     ) {
         UserAvatar(
-            name = friendName,
-            pfpUrl = friendPfp,
+            name = beneficiaryName,
+            pfpUrl = beneficiaryPfp,
             size = dimensionResource(deviceSpec.beneficiaryAvatarSize)
         )
         Text(
-            text = friendName,
+            text = beneficiaryName,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface,

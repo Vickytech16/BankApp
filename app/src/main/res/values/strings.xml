@@ -21,6 +21,7 @@
     <string name="enter_valid_data_error">Enter valid data in all fields.</string>
     <string name="empty_field_error">%1$s cannot be empty.</string>
     <string name="data_too_long_error">%1$s cannot contain more than %2$d characters.</string>
+    <string name="data_too_short_error">%1$s must contain at least %2$d characters.</string>
     <string name="invalid_email_format_error">Invalid email format.</string>
     <string name="invalid_numerical_field_error"> %1$s must contain only numerical data.</string>
     <string name="invalid_username_error">Name must contain only alphabets or whitespaces.</string>
@@ -45,6 +46,9 @@
     <string name="generic_transaction_error">Transaction failed</string>
     <string name="invalid_amount_error">Amount must be valid and greater than 0</string>
     <string name="repeated_transaction">Transaction Repeated Accidentally</string>
+    <string name="daily_limit_exceeded">Daily limit of %1$s exceeded. You have already spent your allowed amount for the last 24 hours.</string>
+    <string name="single_tx_limit_exceeded">This transfer exceeds the single transaction limit of %1$s for your account type.</string>
+    <string name="daily_count_exceeded">You have reached the maximum of %1$d transactions allowed per 24 hours.</string>
 
 <!-- Password Errors   -->
     <string name="password_too_short">Password must be at least 8 characters long</string>
@@ -278,5 +282,51 @@
     <string name="Export_as_csv">Export as csv</string>
     <string name="Export_as_pdf">Export as pdf</string>
     <string name="limit_exceeded">Transaction limit exceeded!</string>
+    <string name="daily_velocity_title">Today\'s spendings</string>
+    <string name="toggle_velocity_visibility">toggle today\'s spending visibility</string>
+    <string name="spent_label">You have spent %1$s today</string>
+    <string name="limit_total_label">You total spending limit per day is %1$s</string>
+    <string name="daily_transfers_count">Today transaction remaining</string>
+    <string name="domestic_limit_label">domestic limits</string>
+    <string name="intl_limit_label">international limits</string>
+    <string name="interest">Interest</string>
+    <string name="remaining_limit">remaining spend limit</string>
+    <string name="transactions_label">transactions today</string>
+    <string name="domestic_transfer">domestic transfer</string>
+    <string name="international_transfer">international transfer</string>
+    <string name="tap_to_view_details">tap to view details</string>
+    <string name="spent_label_clean">spent amount</string>
+    <string name="exchange_rates_not_found">Exchange rates not found</string>
+    <string name="recovery_key_label">Recovery key</string>
+    <string name="copied">Copied!</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="daily_velocity_label">Daily spend limit</string>
+    <string name="spent_today_out_of">Spent: %1$s today (Limit: %2$s)</string>
+    <string name="search_for">Search for %1$s</string>
+    <string name="invalid_phone_number">Invalid phone number format for selected country</string>
+    <string name="select_country_first">Select country first</string>
+    <string name="recovery_key_expectaton">Recovery key must be 10 characters long</string>
+    <string name="recovery_key_no_match">Recovery key doesn\'t match</string>
+    <string name="no">No</string>
+    <string name="back_button_warning_default">You sure you want to go back?</string>
+    <string name="warning_title">You want to go back?</string>
+    <string name="yes">Yes</string>
+    <string name="phone_number_tip">Tip: Start with + and country code</string>
+    <string name="tap_to_edit_profile">tap to edit</string>
+    <string name="edit_profile_title">Edit profile</string>
+    <string name="change_photo_label">Change profile photo</string>
+    <string name="display_name_label">edit name</string>
+    <string name="save_changes_button">Save</string>
+    <string name="profile_picture_options">Profile picture options</string>
+    <string name="profile_picture_options_desc">Select your action</string>
+    <string name="upload_new_photo">Upload new photo</string>
+    <string name="delete_photo">Delete photo</string>
+    <string name="currency_field_name">currency</string>
+    <string name="date_range_label">Select date range</string>
+    <string name="done_label">Done</string>
+    <string name="select_date_range">select date range</string>
+    <string name="select_date">Select date</string>
+    <string name="official_receipt_footer">OfficialReciept</string>
+
 
 </resources>

@@ -11,7 +11,7 @@ import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.UiError
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
-import com.example.bankapp.usecases.ChangePasswordUseCase
+import com.example.bankapp.entities.ChangePasswordState
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
 import com.example.bankapp.utilities.invalidConfirmPasswordErrorMessageBuilder
@@ -21,13 +21,13 @@ import kotlinx.coroutines.launch
 
 class ChangePasswordViewModel(
     private val userRepository: UserRepository,
-    private val changePasswordUseCase: ChangePasswordUseCase
+    private val changePasswordState: ChangePasswordState
 ) : ViewModel(){
 
     private var user by mutableStateOf<User?>(null)
 
     private fun updateCurrentUser() {
-        user = changePasswordUseCase.user
+        user = changePasswordState.user
     }
 
     var password by mutableStateOf("")
@@ -123,14 +123,11 @@ class ChangePasswordViewModel(
         if(isLoading)
             return
 
-        println("This reached")
-
         isLoading = true
 
         isSubmitButtonClicked = true
         onPasswordChange(password)
         onConfirmPasswordChange(confirmPassword)
-
 
         viewModelScope.launch {
             try {
@@ -155,8 +152,8 @@ class ChangePasswordViewModel(
                 val updatedUser = user!!.copy(
                     passwordHashed = PasswordHashingService.hash(password)
                 )
-                userRepository.updateUser(updatedUser)
 
+                userRepository.updateUser(updatedUser)
                 isSubmitSuccessful = true
                 submitError = null
             } catch (_: Exception) {

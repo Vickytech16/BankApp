@@ -17,19 +17,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
+import com.example.bankapp.entities.uientities.uidata.BalanceCardExchangeDisplayData
 import com.example.bankapp.ui.theme.AppSpacing
 
 @Composable
 fun BalanceStatusCard(
     modifier: Modifier = Modifier,
     balanceValue: String,
-    exchangeInfo: ExchangeDisplayData? = null
+    exchangeInfo: BalanceCardExchangeDisplayData? = null
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(AppSpacing.xl),
+        shape = RoundedCornerShape(AppSpacing.xxl),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary
         ),
@@ -101,7 +101,3 @@ fun BalanceStatusCard(
     }
 }
 
-data class ExchangeDisplayData(
-    val convertedAmount: String,
-    val lastUpdated: String
-)

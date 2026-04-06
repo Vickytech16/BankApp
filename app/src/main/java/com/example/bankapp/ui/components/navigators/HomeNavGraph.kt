@@ -1,6 +1,8 @@
 package com.example.bankapp.ui.components.navigators
 
 import AuthorizationViewModel
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -9,50 +11,16 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.CashTransferViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.ChangePasswordViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.CurrencyConvertorViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.DepositViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.FilterViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.ForgotPasswordViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.HomeViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.NotificationViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.PasswordConfirmationViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.PayToBeneficiaryViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.ProfileViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.TransactionDetailsViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.TransactionResultViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.TransactionsViewModelFactory
+import com.example.bankapp.di.viewmodelfactory.*
 import com.example.bankapp.entities.SessionState
-import com.example.bankapp.repositories.AccountRepository
-import com.example.bankapp.repositories.BeneficiaryRepository
-import com.example.bankapp.repositories.TransactionRepository
-import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.di.viewmodelfactory.ManageBeneficiaryViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.RecoveryKeyViewModelFactory
-import com.example.bankapp.repositories.CountryRepository
-import com.example.bankapp.repositories.CurrencyExchangeRepository
+import com.example.bankapp.repositories.*
 import com.example.bankapp.services.TransactionExportService
-import com.example.bankapp.ui.screens.beneficiaryscreens.AddBeneficiaryScreen
-import com.example.bankapp.ui.screens.payscreens.CashTransferScreen
-import com.example.bankapp.ui.screens.payscreens.DepositScreen
-import com.example.bankapp.ui.screens.HomeScreen
-import com.example.bankapp.ui.screens.beneficiaryscreens.ManageBeneficiaryScreen
-import com.example.bankapp.ui.screens.PasswordConfirmationScreen
-import com.example.bankapp.ui.screens.payscreens.PayScreen
-import com.example.bankapp.ui.screens.payscreens.PayToBeneficiaryScreen
-import com.example.bankapp.ui.screens.ProfileScreen
-import com.example.bankapp.ui.screens.TransactionDetailsScreen
-import com.example.bankapp.ui.screens.TransactionResultScreen
-import com.example.bankapp.ui.screens.TransactionsScreen
-import com.example.bankapp.ui.screens.authscreens.ChangePasswordScreen
-import com.example.bankapp.ui.screens.authscreens.ForgetPasswordScreen
-import com.example.bankapp.ui.screens.authscreens.OtpScreen
-import com.example.bankapp.ui.screens.authscreens.RecoveryKeyVerificationScreen
-import com.example.bankapp.usecases.ChangePasswordUseCase
-import com.example.bankapp.viewmodels.LoggedInSessionViewModel
+import com.example.bankapp.ui.screens.*
+import com.example.bankapp.ui.screens.beneficiaryscreens.*
+import com.example.bankapp.ui.screens.payscreens.*
+import com.example.bankapp.ui.screens.authscreens.*
+import com.example.bankapp.entities.ChangePasswordState
+import com.example.bankapp.viewmodels.SessionViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 
@@ -63,54 +31,64 @@ fun NavGraphBuilder.homeNavGraph(
     transactionRepository: TransactionRepository,
     accountRepository: AccountRepository,
     otpViewModelFactory: OtpViewModelFactory,
-    notificationViewModelFactory: NotificationViewModelFactory,
     beneficiaryRepository: BeneficiaryRepository,
     userRepository: UserRepository,
     filterViewModelFactory: FilterViewModelFactory,
-    transactionDetailsViewModelFactory: TransactionDetailsViewModelFactory,
-    forgotPasswordViewModelFactory: ForgotPasswordViewModelFactory,
+
     changePasswordViewModelFactory: ChangePasswordViewModelFactory,
     recoveryKeyViewModelFactory: RecoveryKeyViewModelFactory,
     themeViewModel: ThemeViewModel,
     authorizationViewModel: AuthorizationViewModel,
     currencyExchangeRepository: CurrencyExchangeRepository,
-    sessionViewModel: LoggedInSessionViewModel,
+    sessionViewModel: SessionViewModel,
     countryRepository: CountryRepository,
-    changePasswordUseCase: ChangePasswordUseCase,
+    changePasswordState: ChangePasswordState,
     transactionExportService: TransactionExportService
 ) {
+    val routeOrder = listOf(HOME_ROUTE, PAY_ROUTE, PROFILE_ROUTE)
+    val animSpeed = 500 // Slower animation
+
     navigation(
         startDestination = HOME_ROUTE,
         route = MAIN_ROUTE
     ) {
         if (sessionState is SessionState.Authenticated.AccountRegistered) {
 
-            val transactionsViewModelFactory =
-                TransactionsViewModelFactory(sessionState, transactionRepository, transactionExportService)
-            val homeViewModelFactory =
-                HomeViewModelFactory(sessionState, accountRepository)
-            val cashTransferViewModelFactory =
-                CashTransferViewModelFactory(sessionState, transactionRepository, beneficiaryRepository, accountRepository, authorizationViewModel, userRepository, currencyExchangeRepository )
-            val depositViewModelFactory =
-                DepositViewModelFactory(sessionState, authorizationViewModel)
-            val passwordConfirmationViewModelFactory =
-                PasswordConfirmationViewModelFactory(sessionState, sessionViewModel)
-            val transactionResultViewModelFactory =
-                TransactionResultViewModelFactory(transactionRepository, beneficiaryRepository, authorizationViewModel)
-            val beneficiaryViewModelFactory =
-                AddBeneficiaryViewModelFactory(userRepository = userRepository, beneficiaryRepository = beneficiaryRepository, sessionState = sessionState, authorizationViewModel = authorizationViewModel, accountRepository = accountRepository)
-            val payToBeneficiaryViewModelFactory =
-                PayToBeneficiaryViewModelFactory(beneficiaryRepository = beneficiaryRepository, sessionState = sessionState)
-            val profileViewModelFactory =
-                ProfileViewModelFactory(userRepository = userRepository, sessionState = sessionState, changePasswordUseCase = changePasswordUseCase)
-            val manageBeneficiaryViewModelFactory =
-                ManageBeneficiaryViewModelFactory(sessionState = sessionState, beneficiaryRepository = beneficiaryRepository)
-            val currencyConvertorViewModelFactory =
-                CurrencyConvertorViewModelFactory(sessionState = sessionState, currencyExchangeRepository = currencyExchangeRepository, countryRepository = countryRepository)
+            val transactionsViewModelFactory = TransactionsViewModelFactory(sessionState, transactionRepository, transactionExportService)
+            val transactionDetailsViewModelFactory = TransactionDetailsViewModelFactory(transactionRepository, transactionExportService)
+            val homeViewModelFactory = HomeViewModelFactory(sessionState, transactionRepository)
+            val cashTransferViewModelFactory = CashTransferViewModelFactory(sessionState, transactionRepository, beneficiaryRepository, accountRepository, authorizationViewModel, userRepository, currencyExchangeRepository )
+            val depositViewModelFactory = DepositViewModelFactory(sessionState, authorizationViewModel)
+            val passwordConfirmationViewModelFactory = PasswordConfirmationViewModelFactory(sessionState, sessionViewModel)
+            val transactionResultViewModelFactory = TransactionResultViewModelFactory(transactionRepository, beneficiaryRepository, authorizationViewModel)
+            val beneficiaryViewModelFactory = AddBeneficiaryViewModelFactory(userRepository, beneficiaryRepository, sessionState, authorizationViewModel, accountRepository)
+            val payToBeneficiaryViewModelFactory = PayToBeneficiaryViewModelFactory(beneficiaryRepository, sessionState)
+            val profileViewModelFactory = ProfileViewModelFactory(userRepository, sessionState, changePasswordState)
+            val manageBeneficiaryViewModelFactory = ManageBeneficiaryViewModelFactory(sessionState, beneficiaryRepository)
+            val currencyConvertorViewModelFactory = CurrencyConvertorViewModelFactory(sessionState =sessionState, currencyExchangeRepository =  currencyExchangeRepository, countryRepository =  countryRepository)
 
-            composable(HOME_ROUTE) {
-                val transactionsViewModel: TransactionsViewModel =
-                    viewModel(factory = transactionsViewModelFactory)
+            composable(
+                route = HOME_ROUTE,
+                enterTransition = {
+                    val initialRoute = initialState.destination.route
+                    if (initialRoute in routeOrder) {
+                        val initialIndex = routeOrder.indexOf(initialRoute)
+                        val targetIndex = routeOrder.indexOf(HOME_ROUTE)
+                        if (targetIndex > initialIndex) slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                        else slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                    } else null
+                },
+                exitTransition = {
+                    val targetRoute = targetState.destination.route
+                    if (targetRoute in routeOrder) {
+                        val initialIndex = routeOrder.indexOf(HOME_ROUTE)
+                        val targetIndex = routeOrder.indexOf(targetRoute)
+                        if (targetIndex > initialIndex) slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                        else slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                    } else null
+                }
+            ) {
+                val transactionsViewModel: TransactionsViewModel = viewModel(factory = transactionsViewModelFactory)
                 HomeScreen(
                     homeViewModelFactory = homeViewModelFactory,
                     navController = navController,
@@ -119,18 +97,56 @@ fun NavGraphBuilder.homeNavGraph(
                 )
             }
 
-            composable(PAY_ROUTE) {
+            composable(
+                route = PAY_ROUTE,
+                enterTransition = {
+                    val initialRoute = initialState.destination.route
+                    if (initialRoute in routeOrder) {
+                        val initialIndex = routeOrder.indexOf(initialRoute)
+                        val targetIndex = routeOrder.indexOf(PAY_ROUTE)
+                        if (targetIndex > initialIndex) slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                        else slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                    } else null
+                },
+                exitTransition = {
+                    val targetRoute = targetState.destination.route
+                    if (targetRoute in routeOrder) {
+                        val initialIndex = routeOrder.indexOf(PAY_ROUTE)
+                        val targetIndex = routeOrder.indexOf(targetRoute)
+                        if (targetIndex > initialIndex) slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                        else slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                    } else null
+                }
+            ) {
                 PayScreen(
                     navController = navController,
-                    windowSizeClass = windowSizeClass,
                     currencyConvertorViewModelFactory = currencyConvertorViewModelFactory
                 )
             }
 
-            composable(PROFILE_ROUTE) {
+            composable(
+                route = PROFILE_ROUTE,
+                enterTransition = {
+                    val initialRoute = initialState.destination.route
+                    if (initialRoute in routeOrder) {
+                        val initialIndex = routeOrder.indexOf(initialRoute)
+                        val targetIndex = routeOrder.indexOf(PROFILE_ROUTE)
+                        if (targetIndex > initialIndex) slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                        else slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                    } else null
+                },
+                exitTransition = {
+                    val targetRoute = targetState.destination.route
+                    if (targetRoute in routeOrder) {
+                        val initialIndex = routeOrder.indexOf(PROFILE_ROUTE)
+                        val targetIndex = routeOrder.indexOf(targetRoute)
+                        if (targetIndex > initialIndex) slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                        else slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                    } else null
+                }
+            ) {
                 ProfileScreen(
                     navController = navController,
-                    windowSizeClass =  windowSizeClass,
                     profileViewModelFactory = profileViewModelFactory,
                     logoutAction = sessionViewModel::logout,
                     themeViewModel = themeViewModel
@@ -138,27 +154,19 @@ fun NavGraphBuilder.homeNavGraph(
             }
 
             composable(TRANSACTIONS_LOG_ROUTE) {
-                val transactionsViewModel: TransactionsViewModel =
-                    viewModel(factory = transactionsViewModelFactory)
+                val transactionsViewModel: TransactionsViewModel = viewModel(factory = transactionsViewModelFactory)
                 TransactionsScreen(
                     transactionsViewModel = transactionsViewModel,
                     navController = navController,
                     filterViewModelFactory = filterViewModelFactory,
-                    windowSizeClass = windowSizeClass,
                 )
             }
 
             composable(
                 route = "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/{transactionId}?origin={origin}",
                 arguments = listOf(
-                    navArgument("transactionId") {
-                        type = NavType.StringType
-                    },
-                    navArgument("origin") {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = "default"
-                    }
+                    navArgument("transactionId") { type = NavType.StringType },
+                    navArgument("origin") { type = NavType.StringType; nullable = true; defaultValue = "default" }
                 )
             ) { backStackEntry ->
                 val transactionId = backStackEntry.arguments?.getString("transactionId") ?: ""
@@ -167,7 +175,6 @@ fun NavGraphBuilder.homeNavGraph(
                     navController = navController,
                     transactionDetailsViewModelFactory = transactionDetailsViewModelFactory,
                     transactionId = transactionId,
-                    windowSizeClass = windowSizeClass,
                     backRoute = backRoute,
                     sessionState = sessionState
                 )
@@ -182,7 +189,7 @@ fun NavGraphBuilder.homeNavGraph(
                 )
             }
 
-            composable(CASH_TRANSFER_ROUTE){
+            composable(CASH_TRANSFER_ROUTE) {
                 CashTransferScreen(
                     windowSizeClass = windowSizeClass,
                     cashTransferViewModelFactory = cashTransferViewModelFactory,
@@ -197,97 +204,65 @@ fun NavGraphBuilder.homeNavGraph(
                 )
             }
 
-
             composable(
                 route = "$PASSWORD_CONFIRMATION_ROUTE/{backRoute}",
                 arguments = listOf(
-                    navArgument("backRoute") {
-                        type = NavType.StringType
-                        defaultValue = MAIN_ROUTE
-                    }
+                    navArgument("backRoute") { type = NavType.StringType; defaultValue = MAIN_ROUTE }
                 )
             ) { backStackEntry ->
                 val backRoute = backStackEntry.arguments?.getString("backRoute") ?: MAIN_ROUTE
-
                 PasswordConfirmationScreen(
                     navController = navController,
                     passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
                     onDismissRoute = backRoute,
-                    onPasswordVerificationSuccess = {
-                          authorizationViewModel.proceedAfterPassword(navController)
-                    },
+                    onPasswordVerificationSuccess = { authorizationViewModel.proceedAfterPassword(navController) },
                     sessionViewModel = sessionViewModel
                 )
             }
 
             composable(TRANSACTION_RESULT_ROUTE) {
-                TransactionResultScreen(
-                    transactionResultViewModelFactory,
-                    navController,
-                    authorizationViewModel
-                )
+                TransactionResultScreen(transactionResultViewModelFactory, navController, authorizationViewModel)
             }
 
             composable(ADD_BENEFICIARY_ROUTE) {
-                AddBeneficiaryScreen(
-                    windowSizeClass,
-                    beneficiaryViewModelFactory = beneficiaryViewModelFactory,
-                    navController = navController
-                )
+                AddBeneficiaryScreen(beneficiaryViewModelFactory = beneficiaryViewModelFactory, navController =  navController)
             }
 
             composable(PAY_TO_BENEFICIARY_ROUTE) {
-                PayToBeneficiaryScreen(
-                    payToBeneficiaryViewModelFactory = payToBeneficiaryViewModelFactory,
-                    navController = navController,
-                    windowSizeClass = windowSizeClass
-                )
+                PayToBeneficiaryScreen(payToBeneficiaryViewModelFactory, navController)
             }
 
             composable(MANAGE_BENEFICIARY_ROUTE) {
-                ManageBeneficiaryScreen(
-                    manageBeneficiaryViewModelFactory,
-                    navController = navController,
-                    windowSizeClass = windowSizeClass,
-                )
+                ManageBeneficiaryScreen(manageBeneficiaryViewModelFactory, navController)
             }
 
             composable(
                 route = "$HOME_OTP/{backRoute}",
                 arguments = listOf(
-                    navArgument("backRoute") {
-                        type = NavType.StringType
-                        defaultValue = MAIN_ROUTE
-                    }
+                    navArgument("backRoute") { type = NavType.StringType; defaultValue = MAIN_ROUTE }
                 )
             ) { backStackEntry ->
                 val backRoute = backStackEntry.arguments?.getString("backRoute") ?: MAIN_ROUTE
                 OtpScreen(
                     navController = navController,
-                    notificationViewModelFactory = notificationViewModelFactory,
                     otpViewModelFactory = otpViewModelFactory,
                     backRoute = backRoute,
-                    onOtpSuccess = {
-                       authorizationViewModel.proceedAfterOtp(navController)
-                    },
-                    onDismiss = {
-
-                    }
-                )
-            }
-
-            composable(FORGOT_PASSWORD_ROUTE_HOME) {
-                ForgetPasswordScreen(
-                    navController = navController,
-                    forgotPasswordViewModelFactory = forgotPasswordViewModelFactory
+                    popUpRoute = HOME_ROUTE,
+                    onOtpSuccess = { authorizationViewModel.proceedAfterOtp(navController) }
                 )
             }
 
             composable(CHANGE_PASSWORD_ROUTE_HOME) {
                 ChangePasswordScreen(
-                    windowSizeClass = windowSizeClass,
                     navController = navController,
-                    viewModelFactory = changePasswordViewModelFactory
+                    viewModelFactory = changePasswordViewModelFactory,
+                    PROFILE_ROUTE,
+                    popUpRoute = HOME_ROUTE,
+                    {
+                        navController.navigate(PROFILE_ROUTE) {
+                            popUpTo(HOME_ROUTE) { inclusive = false }
+                        }
+                    }
                 )
             }
 
@@ -295,7 +270,9 @@ fun NavGraphBuilder.homeNavGraph(
                 RecoveryKeyVerificationScreen(
                     recoveryKeyViewModelFactory,
                     navController,
-                    {navController.navigate(CHANGE_PASSWORD_ROUTE_HOME)}
+                    backRoute = PROFILE_ROUTE,
+                    popUpRoute = HOME_ROUTE,
+                    onSuccess = { navController.navigate(CHANGE_PASSWORD_ROUTE_HOME) }
                 )
             }
         }

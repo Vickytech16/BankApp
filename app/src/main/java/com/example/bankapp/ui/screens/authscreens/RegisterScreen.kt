@@ -1,9 +1,9 @@
 package com.example.bankapp.ui.screens.authscreens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,6 +11,8 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,7 +21,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,13 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bankapp.viewmodels.authviewmodels.RegisterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,25 +53,24 @@ import com.example.bankapp.ui.components.navigators.RECOVERY_KEY_DISPLAY_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.LocalDeviceSpec
-import com.example.bankapp.utilities.EmailFieldStrategy
-import com.example.bankapp.utilities.PasswordFieldStrategy
-import com.example.bankapp.utilities.PhoneNumberFieldStrategy
-import com.example.bankapp.utilities.UserNameFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.EmailFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.PasswordFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.PhoneNumberFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.UserNameFieldStrategy
+import com.example.bankapp.ui.components.IllustrationComponent
+import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.textFieldFontSize
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun RegisterScreen(
     registerViewModelFactory: RegisterViewModelFactory,
-    windowSizeClass: WindowSizeClass,
     navController: NavController
 ) {
     val viewModel: RegisterViewModel = viewModel(factory = registerViewModelFactory)
-
     val scrollState = rememberScrollState()
-
     val deviceSpec = LocalDeviceSpec.current
-
     val textFieldColumnWidth = deviceSpec.textFieldWidth
 
     BackButtonHandler(navController, LOGIN_ROUTE)
@@ -83,13 +82,6 @@ fun RegisterScreen(
         }
     }
 
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-
-    LaunchedEffect(deviceSpec) {
-        if (deviceSpec is DeviceSpec.MobileLandscape) {
-            bringIntoViewRequester.bringIntoView()
-        }
-    }
 
     Scaffold {
         contentPadding ->
@@ -99,15 +91,7 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center,
         )
         {
-            Image(
-                painter = painterResource(id = R.drawable.signup_illustration),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensionResource(R.dimen.illustration_height))
-                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
-                contentScale = ContentScale.Fit
-            )
+            IllustrationComponent(R.drawable.signup_illustration)
 
             MediumSpacer()
 
@@ -124,20 +108,32 @@ fun RegisterScreen(
             Column(
                 modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
-
             ) {
 
                 UnifiedOutlinedTextField(
                     value = viewModel.userName,
                     onValueChange = viewModel::onUserNameChange,
                     labelText = stringResource(R.string.username_field_name),
-                    isError = viewModel.userNameError != null,
+                    isError = viewModel.userNameError != null && viewModel.hasUserNameFieldEverUnFocused,
                     supportingText = {
-                        ErrorTextBuilder(viewModel.userNameError)
+                        if (viewModel.hasUserNameFieldEverUnFocused) {
+                            ErrorTextBuilder(viewModel.userNameError)
+                        }
                     },
-                    strategy = UserNameFieldStrategy
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                viewModel.onHasUserNameFieldEverFocusedChange(true)
+                            } else {
+                                if (viewModel.hasUserNameFieldEverFocused) {
+                                    viewModel.onHasUserNameFieldEverUnFocusedChange(true)
+                                }
+                            }
+                        },
+                    strategy = UserNameFieldStrategy,
+                    showTickCondition = { viewModel.isUserNameValidForTick }
                 )
-
                 MediumSpacer()
 
                 UnifiedOutlinedTextField(
@@ -155,27 +151,14 @@ fun RegisterScreen(
                         else
                             viewModel.onEmailFieldSelectedChange(false)
                     }.fillMaxWidth(),
-                    strategy = EmailFieldStrategy
-                )
-
-                MediumSpacer()
-
-                UnifiedOutlinedTextField(
-                    value = viewModel.phoneNumber,
-                    onValueChange = viewModel::onPhoneNumberChange,
-                    labelText = stringResource(R.string.phone_number_field_name),
-                    isError = viewModel.phoneNumberError != null,
-                    supportingText = {
-                        ErrorTextBuilder(viewModel.phoneNumberError)
-                    },
-                    strategy = PhoneNumberFieldStrategy,
-                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                    strategy = EmailFieldStrategy,
+                    showTickCondition = { viewModel.isEmailValidForTick }
                 )
 
                 MediumSpacer()
 
                 DropDownPickerField(
-                    label = "Country",
+                    label = stringResource(R.string.country_field_name),
                     selectedValue = viewModel.selectedCountry?.name ?: "",
                     placeholder = stringResource(R.string.select_your_country_placeholder),
                     items = viewModel.countries.collectAsState().value,
@@ -186,14 +169,25 @@ fun RegisterScreen(
                     showSheet = viewModel.isCountrySheetVisible,
                     onShowSheetChange = { viewModel.isCountrySheetVisible = it },
                     searchQuery = viewModel.countrySearchQuery,
-                    onSearchQueryChange = { viewModel.countrySearchQuery = it },
+                    onSearchQueryChange = viewModel::onCountrySearchQueryChange,
                     isError = viewModel.countryError != null,
-                    errorBehaviour = { ErrorTextBuilder(viewModel.countryError) }
+                    errorBehaviour = { ErrorTextBuilder(viewModel.countryError) },
+                    searchPlaceholder = stringResource(R.string.country_field_name),
+                    leadingIcon = {
+                        if (viewModel.selectedCountry == null) {
+                            Icon(
+                                imageVector = Icons.Outlined.Public,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            Text(viewModel.selectedCountry!!.emoji, fontSize = 20.sp)
+                        }
+                    }
                 )
 
-                MediumSpacer()
-
                 if (viewModel.isTimezoneFieldVisible) {
+                    MediumSpacer()
                     DropDownPickerField(
                         label = stringResource(R.string.timezone_label),
                         selectedValue = viewModel.selectedTimezone ?: "",
@@ -205,12 +199,72 @@ fun RegisterScreen(
                         showSheet = viewModel.isTimezoneSheetVisible,
                         onShowSheetChange = { viewModel.isTimezoneSheetVisible = it },
                         searchQuery = viewModel.timezoneSearchQuery,
-                        onSearchQueryChange = { viewModel.timezoneSearchQuery = it },
+                        onSearchQueryChange = viewModel::onTimeZoneSearchQueryChange,
                         isError = viewModel.timezoneError != null,
-                        errorBehaviour = { ErrorTextBuilder(viewModel.timezoneError) }
-
+                        errorBehaviour = { ErrorTextBuilder(viewModel.timezoneError) },
+                        skipPartiallyExpanded =  true,
+                        searchPlaceholder =  stringResource(R.string.timezone_label),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Schedule,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     )
                 }
+
+                MediumSpacer()
+
+                UnifiedOutlinedTextField(
+                    value = viewModel.phoneNumber,
+                    onValueChange = viewModel::onPhoneNumberChange,
+                    enabled = viewModel.selectedCountry != null,
+                    labelText = stringResource(R.string.phone_number_field_name),
+                    isError = viewModel.phoneNumberError != null && viewModel.hasPhoneFieldEverUnFocused,
+                    placeholderText = if (viewModel.selectedCountry == null) "Select country first" else "",
+                    leadingContent = {
+                        if (viewModel.selectedCountry == null) {
+                            Icon(Icons.Outlined.Phone, contentDescription = null)
+                        } else {
+                            Text(
+                                text = viewModel.selectedCountry!!.emoji,
+                                fontSize = 20.sp,
+                                modifier = Modifier.padding(start = AppSpacing.md)
+                            )
+                        }
+                    },
+                    prefix = {
+                        viewModel.selectedCountry?.let { country ->
+                            Text(
+                                text = "${country.phonePrefix} ",
+                                style = TextStyle(
+                                    fontSize = textFieldFontSize,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            )
+                        }
+                    },
+                    supportingText = {
+                        if (viewModel.hasPhoneFieldEverUnFocused) {
+                            ErrorTextBuilder(viewModel.phoneNumberError)
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                viewModel.onHasPhoneFieldEverFocusedChange(true)
+                            } else {
+                                if (viewModel.hasPhoneFieldEverFocused) {
+                                    viewModel.onHasPhoneFieldEverUnFocusedChange(true)
+                                }
+                            }
+                        },
+                    strategy = PhoneNumberFieldStrategy,
+                    showTickCondition = { viewModel.isPhoneValidForTick },
+                )
 
                 MediumSpacer()
 
@@ -229,7 +283,8 @@ fun RegisterScreen(
                         else if (viewModel.hasPasswordFieldEverFocused)
                             viewModel.onHasPasswordFieldEverUnFocusedChange(true)
                     }.fillMaxWidth(),
-                    strategy = PasswordFieldStrategy(viewModel.passwordVisible, viewModel::onPasswordVisibleChange)
+                    strategy = PasswordFieldStrategy(viewModel.passwordVisible, viewModel::onPasswordVisibleChange),
+                    showTickCondition = { viewModel.isPasswordValidForTick }
                 )
 
                 MediumSpacer()
@@ -242,7 +297,8 @@ fun RegisterScreen(
                     supportingText = {
                         ErrorTextBuilder(viewModel.confirmPasswordError)
                     },
-                    strategy = PasswordFieldStrategy(viewModel.confirmPasswordVisible, viewModel::onConfirmPasswordVisibleChange)
+                    strategy = PasswordFieldStrategy(viewModel.confirmPasswordVisible, viewModel::onConfirmPasswordVisibleChange),
+                    showTickCondition = { viewModel.isConfirmPasswordValidForTick }
                 )
 
                 MediumSpacer()
@@ -256,7 +312,6 @@ fun RegisterScreen(
                 )
 
                 ErrorTextBuilder(viewModel.submitError)
-
 
                 XLSpacer()
 
@@ -274,9 +329,7 @@ fun RegisterScreen(
                         Text(stringResource(R.string.login_button))
                     }
                 }
-
                 XLSpacer()
-
             }
         }
     }

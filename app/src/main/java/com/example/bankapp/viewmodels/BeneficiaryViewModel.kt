@@ -112,6 +112,7 @@ class AddBeneficiaryViewModel(
                         return@launch
                     }
                     else {
+
                         if(beneficiaryRepository.getBeneficiary(user.value.userId, friend.userId) == null){
                             if(accountRepository.getAccountByUserId(friend.userId).isEmpty()){
                                 submitError = FormError.UserDoesNotHaveAccountError
@@ -119,7 +120,7 @@ class AddBeneficiaryViewModel(
                                 authorizationViewModel.initializeAddBeneficiary(
                                     user.value.userId,
                                     friend.userId,
-                                    nickname
+                                  nickname
                                 )
                                 isVerificationSuccessful = true
                             }

@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.UserRepository
-import com.example.bankapp.usecases.SharedPreferenceHelper
-import com.example.bankapp.viewmodels.LoggedInSessionViewModel
+import com.example.bankapp.utilities.SharedPreferenceHelper
+import com.example.bankapp.viewmodels.SessionViewModel
 
 class LoggedInSessionViewModelFactory(
     private val sharedPreferenceHelper: SharedPreferenceHelper,
@@ -15,9 +15,9 @@ class LoggedInSessionViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass == LoggedInSessionViewModel::class.java) {
+        if (modelClass == SessionViewModel::class.java) {
 
-            return LoggedInSessionViewModel(sharedPreferenceHelper, accountRepository, userRepository) as T
+            return SessionViewModel(sharedPreferenceHelper, accountRepository, userRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

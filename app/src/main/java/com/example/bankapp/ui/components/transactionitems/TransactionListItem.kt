@@ -61,9 +61,6 @@ fun TransactionListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(deviceSpec.transactionListItemSpacing)
         ) {
-            if (pfpURL == null)
-                UserAvatar(counterPartyName, size = avatarSize)
-            else
                 UserAvatar(
                     counterPartyName,
                     pfpURL,

@@ -18,6 +18,10 @@ data class TransactionHistoryItemDto(
 
     val amount: String,
 
+    @ColumnInfo(name = "counterparty_nickname")
+    val counterpartyNickname: String? = null,
+
+    @ColumnInfo(name = "counterparty_name")
     val counterpartyName: String?,
 
     @ColumnInfo(name = "counterparty_pfp")

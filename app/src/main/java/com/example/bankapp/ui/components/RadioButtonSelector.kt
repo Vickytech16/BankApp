@@ -35,7 +35,6 @@ fun <T> RadioButtonSelector(
             style = MaterialTheme.typography.labelLarge,
             fontWeight = fontWeight,
             color = MaterialTheme.colorScheme.onSurface,
-           // fontSize = textFieldFontSize
         )
 
         LargeSpacer()

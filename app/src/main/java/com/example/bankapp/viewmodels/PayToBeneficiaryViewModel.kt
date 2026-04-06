@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.dtos.BeneficiaryDto
 import com.example.bankapp.repositories.BeneficiaryRepository
+import com.example.bankapp.utilities.USERNAME_MAX_SIZE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,6 +48,7 @@ class PayToBeneficiaryViewModel(
     }
 
     fun onQueryChange(newQuery: String) {
-        _query.value = newQuery
+        if(newQuery.length < USERNAME_MAX_SIZE)
+            _query.value = newQuery
     }
 }

@@ -15,7 +15,7 @@ fun XSSpacer() {
 
 @Composable
 fun XLSpacer() {
-    Spacer(Modifier.height(AppSpacing.xl))
+    Spacer(Modifier.height(AppSpacing.xxl))
 }
 
 @Composable
@@ -31,9 +31,4 @@ fun LargeSpacer() {
 @Composable
 fun SmallSpacer() {
     Spacer(Modifier.height(AppSpacing.sm))
-}
-
-@Composable
-fun MediumHorizontalSpacer() {
-    Spacer(Modifier.width(AppSpacing.md))
 }

@@ -15,14 +15,19 @@ class RegularDateTime(override val epochMillis: Long, override val activeTimeZon
     private val instant = Instant.ofEpochMilli(epochMillis)
     private val zonedDateTime = instant.atZone(zoneId)
 
-    override fun plusDays(days: Int): BankDateTime =
-        BankDateFactory.fromMillis(zonedDateTime.plusDays(days.toLong()).toInstant().toEpochMilli())
+    override val startOfDayMillis: Long
+        get() = Instant.ofEpochMilli(epochMillis)
+            .atZone(java.time.ZoneOffset.UTC)
+            .toLocalDate()
+            .atStartOfDay(zoneId)
+            .toInstant()
+            .toEpochMilli()
+
+    override val endOfDayMillis: Long
+        get() = startOfDayMillis + (24 * 60 * 60 * 1000L) - 1
 
     override fun minusDays(days: Int): BankDateTime =
         BankDateFactory.fromMillis(zonedDateTime.minusDays(days.toLong()).toInstant().toEpochMilli())
-
-    override fun toFullDisplay(): String =
-        zonedDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withZone(zoneId))
 
     override fun toIsoString(): String = zonedDateTime.toString()
 
@@ -38,11 +43,8 @@ class RegularDateTime(override val epochMillis: Long, override val activeTimeZon
         return zonedDateTime.format(formatter)
     }
 
-    override fun getDateAndTime(millis: Long): String {
-        val instant = Instant.ofEpochMilli(millis)
-        val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", java.util.Locale.getDefault())
-        val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-
-        return localDateTime.format(formatter)
+    override fun fileNameDate(): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm", Locale.US)
+        return zonedDateTime.format(formatter)
     }
 }

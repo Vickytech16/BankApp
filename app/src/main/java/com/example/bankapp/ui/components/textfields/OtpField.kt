@@ -1,6 +1,7 @@
 package com.example.bankapp.ui.components.textfields
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,13 +9,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,7 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.res.dimensionResource
@@ -41,12 +43,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bankapp.R
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import kotlinx.coroutines.delay
 
-import androidx.compose.ui.input.key.Key
-import com.example.bankapp.ui.theme.LocalDeviceSpec
-
-private val otpFontSize = 20.sp
+private val otpFontSize = 24.sp
 
 @Composable
 fun OtpInputField(
@@ -54,21 +54,19 @@ fun OtpInputField(
     isError: Boolean,
     onOtpChange: (index: Int, value: String) -> Unit
 ) {
-    val focusRequesters = List(6) { FocusRequester() }
+    val focusRequesters = remember { List(6) { FocusRequester() } }
     var shakeOffset by remember { mutableFloatStateOf(0f) }
-
     val deviceSpec = LocalDeviceSpec.current
 
     LaunchedEffect(isError) {
         if (isError) {
             repeat(3) {
-                shakeOffset = 10f
+                shakeOffset = 8f
                 delay(50)
-                shakeOffset = -10f
+                shakeOffset = -8f
                 delay(50)
             }
             shakeOffset = 0f
-            delay(500)
         }
     }
 
@@ -88,7 +86,7 @@ fun OtpInputField(
             modifier = Modifier
                 .fillMaxWidth(deviceSpec.textFieldWidth)
                 .offset(x = shakeOffset.dp),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing)),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             repeat(6) { index ->
@@ -96,10 +94,13 @@ fun OtpInputField(
                     value = otpInputs[index],
                     isError = isError,
                     onValueChange = { newValue ->
-                        onOtpChange(index, newValue)
+                        if (newValue.length <= 1) {
+                            onOtpChange(index, newValue)
+                        }
                     },
                     onBackspace = {
                         if (index > 0) {
+                            onOtpChange(index, "")
                             focusRequesters[index - 1].requestFocus()
                         }
                     },
@@ -120,35 +121,43 @@ private fun OtpBox(
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
-    val scale = animateFloatAsState(
-        targetValue = 1f,
+    val scale by animateFloatAsState(
+        targetValue = if (value.isNotEmpty()) 1.05f else 1f,
         label = "boxScale"
     )
 
     val borderColor = when {
         isError -> MaterialTheme.colorScheme.error
         value.isNotEmpty() -> MaterialTheme.colorScheme.primary
-        else -> MaterialTheme.colorScheme.outline
+        else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
     }
+
+    val borderWidth = if (value.isNotEmpty() || isError) 2.dp else 1.5.dp
 
     BasicTextField(
         value = value,
         onValueChange = { newValue ->
-            if (newValue.length <= 1 && (newValue.isEmpty() || newValue.all { it.isDigit() })) {
-                onValueChange(newValue)
+            if (newValue.all { it.isDigit() }) {
+                onValueChange(newValue.takeLast(1))
             }
         },
         modifier = modifier
-            .scale(scale.value)
-            .aspectRatio(0.8f)
+            .scale(scale)
+            .aspectRatio(1f)
+            .background(
+                color = if (value.isEmpty()) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                else Color.Transparent,
+                shape = RoundedCornerShape(dimensionResource(R.dimen.otp_box_corner_radius))
+            )
             .border(
-                width = dimensionResource(R.dimen.otp_box_border),
+                width = borderWidth,
                 color = borderColor,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.otp_box_corner_radius))
             )
             .focusRequester(focusRequester)
+
             .onKeyEvent { keyEvent ->
-                if (keyEvent.key == Key.Backspace && value.isEmpty()) {
+                if (keyEvent.key == Key.Backspace) {
                     onBackspace()
                     true
                 } else {
@@ -156,41 +165,21 @@ private fun OtpBox(
                 }
             },
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.NumberPassword,
+            keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Next
         ),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         textStyle = TextStyle(
             fontSize = otpFontSize,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
+            color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
         ),
         decorationBox = { innerTextField ->
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(dimensionResource(R.dimen.otp_box_padding)),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                if (value.isEmpty()) {
-                    Text(
-                        text = "•",
-                        style = TextStyle(
-                            fontSize = otpFontSize,
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
-                    )
-                } else {
-                    Text(
-                        text = "•",
-                        style = TextStyle(
-                            fontSize = otpFontSize,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
                 innerTextField()
             }
         },

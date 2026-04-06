@@ -29,15 +29,12 @@ fun SubmitButton(
 ){
     Button(
             onClick = { onClick() },
-            modifier = modifier
-                       .fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             enabled = enabled && !isLoading
     ) {
         AnimatedContent(
             targetState = isLoading,
-            transitionSpec = {
-                fadeIn() togetherWith fadeOut()
-            },
+            transitionSpec = { fadeIn() togetherWith fadeOut() },
         ) {
             if (!isLoading)
                 Text(text)

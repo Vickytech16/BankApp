@@ -1,29 +1,30 @@
 package com.example.bankapp.ui.screens.authscreens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Login
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,23 +45,25 @@ import com.example.bankapp.ui.components.navigators.LOGIN_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.LocalDeviceSpec
-import com.example.bankapp.utilities.EmailFieldStrategy
-import com.example.bankapp.utilities.PasswordFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.EmailFieldStrategy
+import com.example.bankapp.entities.uientities.uidata.PasswordFieldStrategy
+import com.example.bankapp.ui.components.IllustrationComponent
+import com.example.bankapp.ui.theme.AppSpacing
 
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    loginViewModelFactory: LoginViewModelFactory, ) {
+    loginViewModelFactory: LoginViewModelFactory ) {
 
     val loginViewModel: LoginViewModel = viewModel(factory = loginViewModelFactory)
-
     val scrollState = rememberScrollState()
-
     val deviceSpec = LocalDeviceSpec.current
+    val textFieldColumnWidth = deviceSpec.textFieldWidth
 
-    val textFieldColumnWidth =
-        deviceSpec.textFieldWidth
+    val focusManager = LocalFocusManager.current
+
+    val isAnyFieldFocused = remember { mutableStateOf(false) }
 
     LaunchedEffect(loginViewModel.isLoginSuccessful) {
         if (loginViewModel.isLoginSuccessful) {
@@ -72,7 +75,9 @@ fun LoginScreen(
 
     LaunchedEffect(deviceSpec) {
         if (deviceSpec is DeviceSpec.MobileLandscape) {
-            bringIntoViewRequester.bringIntoView()
+            if (!isAnyFieldFocused.value) {
+                bringIntoViewRequester.bringIntoView()
+            }
         }
     }
 
@@ -83,16 +88,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-
-            Image(
-                painter = painterResource(id = R.drawable.signin_illustration),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensionResource(R.dimen.illustration_height))
-                    .padding(bottom = dimensionResource(R.dimen.illustration_bottom_padding)),
-                contentScale = ContentScale.Fit
-            )
+            IllustrationComponent(R.drawable.signin_illustration)
 
             MediumSpacer()
 
@@ -111,19 +107,44 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-
                 UnifiedOutlinedTextField(
                     value = loginViewModel.userIdentifier,
                     onValueChange = loginViewModel::onIdentifierChange,
                     labelText = stringResource(R.string.email_or_phone_number_label),
                     isError = loginViewModel.userIdentifierError != null,
+                    showTickCondition = { false },
+                    leadingContent = {
+                        val icon = when {
+                            loginViewModel.userIdentifier.contains("@") -> Icons.Outlined.Email
+                            loginViewModel.userIdentifier.isNotEmpty() && (loginViewModel.userIdentifier.all { it.isDigit() } || loginViewModel.userIdentifier.startsWith("+")) -> Icons.Outlined.Phone
+                            else -> Icons.AutoMirrored.Outlined.Login
+                        }
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = if (loginViewModel.userIdentifierError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     supportingText = {
-                        ErrorTextBuilder(loginViewModel.userIdentifierError)
+                        Column {
+                            if (loginViewModel.userIdentifier.isNotEmpty() && loginViewModel.userIdentifier.all { it.isDigit() } && !loginViewModel.userIdentifier.startsWith("+")) {
+                                Text(
+                                    text = stringResource(R.string.phone_number_tip),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(bottom = AppSpacing.xs)
+                                )
+                            }
+                            ErrorTextBuilder(loginViewModel.userIdentifierError)
+                        }
                     },
                     strategy = EmailFieldStrategy,
-                    leadingIcon = Icons.AutoMirrored.Outlined.Login,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged {
+                            isAnyFieldFocused.value = it.isFocused
+                        },
                 )
-
 
                 MediumSpacer()
 
@@ -132,13 +153,19 @@ fun LoginScreen(
                     onValueChange = loginViewModel::onPasswordChange,
                     labelText = stringResource(R.string.password_field_name),
                     isError = loginViewModel.passwordError != null,
+                    showTickCondition = { false },
                     supportingText = {
                         ErrorTextBuilder(loginViewModel.passwordError)
                     },
                     strategy = PasswordFieldStrategy(
                         loginViewModel.passwordVisible,
                         loginViewModel::onPasswordVisibleChange
-                    )
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged {
+                            isAnyFieldFocused.value = it.isFocused
+                        },
                 )
 
                 TextButton(
@@ -177,6 +204,9 @@ fun LoginScreen(
                         Text(stringResource(R.string.register_button))
                     }
                 }
+
+                XLSpacer()
+                XLSpacer()
             }
         }
     }

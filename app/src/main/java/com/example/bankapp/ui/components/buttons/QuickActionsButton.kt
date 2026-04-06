@@ -14,18 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
-import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.entities.uientities.uidata.QuickActionButtonDimensions
 
 @Composable
 fun ActionButton(
     onClickAction: () -> Unit,
     icon: ImageVector,
     label: String,
-    dimensions: ButtonDimensions,
+    dimensions: QuickActionButtonDimensions,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -57,10 +55,3 @@ fun ActionButton(
         )
     }
 }
-
-data class ButtonDimensions(
-    val buttonSize: Int,
-    val iconSize: Int,
-    val spacing: Dp,
-    val labelStyle: TextStyle
-)

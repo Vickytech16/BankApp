@@ -26,14 +26,13 @@ fun AutoResizeText(
     maxLines: Int = 1
 ) {
     var resizedTextStyle by remember(text) { mutableStateOf(style) }
+    // var resizedTextStyle by remember(text, style) { mutableStateOf(style) }
     var shouldDraw by remember { mutableStateOf(false) }
 
     Text(
         text = text,
         color = color,
-        modifier = modifier.drawWithContent {
-            if (shouldDraw) drawContent()
-            },
+        modifier = modifier.drawWithContent { if (shouldDraw) drawContent() },
         softWrap = false,
         style = resizedTextStyle,
         maxLines = maxLines,

@@ -21,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import com.example.bankapp.R
+import com.example.bankapp.ui.components.BankAppBottomSheet
 import com.example.bankapp.ui.components.LargeSpacer
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +35,7 @@ fun FilterSortChip(
     showSheet: Boolean,
     onShowSheetChange: (Boolean) -> Unit,
     sheetContent: @Composable () -> Unit,
+    fullHeight: Boolean
 ) {
     BadgedBox(
         badge = {
@@ -68,23 +71,12 @@ fun FilterSortChip(
         )
     }
 
-    if (showSheet) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                onShowSheetChange(false)
-            },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(dimensionResource(R.dimen.filter_sheet_padding))
-                    .navigationBarsPadding()
-            ) {
-                sheetContent()
-            }
-            LargeSpacer()
-        }
+    BankAppBottomSheet(
+        showSheet = showSheet,
+        onDismissRequest = { onShowSheetChange(false) },
+        skipPartiallyExpanded = true,
+        fullHeight = fullHeight
+    ) {
+        sheetContent()
     }
 }
