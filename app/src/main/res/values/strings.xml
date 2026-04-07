@@ -327,6 +327,7 @@
     <string name="select_date_range">select date range</string>
     <string name="select_date">Select date</string>
     <string name="official_receipt_footer">OfficialReciept</string>
+    <string name="back_label">back</string>
 
 
 </resources>

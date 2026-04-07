@@ -1,6 +1,5 @@
 package com.example.bankapp.ui.components.navigators
 
-import AuthorizationViewModel
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +19,7 @@ import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.TransactionExportService
 import com.example.bankapp.entities.ChangePasswordState
+import com.example.bankapp.viewmodels.AuthorizationViewModel
 import com.example.bankapp.viewmodels.SessionViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 

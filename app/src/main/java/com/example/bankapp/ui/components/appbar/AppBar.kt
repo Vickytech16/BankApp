@@ -22,7 +22,7 @@ import com.example.bankapp.R
 fun RegularAppBar(
     title: String,
     navBehaviour: (() -> Unit)? = null,
-    scrollBehavior: TopAppBarScrollBehavior?,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
     actions: @Composable () -> Unit = {},
     titleStyle: TextStyle = MaterialTheme.typography.headlineSmall,
     showNavIcon: Boolean = true

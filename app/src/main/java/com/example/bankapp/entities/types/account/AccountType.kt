@@ -14,7 +14,7 @@ sealed class AccountType(val code: String) {
 
     data object Savings : AccountType("SAVINGS") {
         override val dailyTransactionLimit = BigDecimal("5000.00")
-        override val dailyTransactionCount = 10
+        override val dailyTransactionCount = 100
 
         override fun getMaxPerTransaction(transactionType: TransactionType): BigDecimal {
             return when (transactionType) {

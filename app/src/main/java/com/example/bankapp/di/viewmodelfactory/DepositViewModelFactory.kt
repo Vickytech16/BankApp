@@ -1,9 +1,9 @@
 package com.example.bankapp.di.viewmodelfactory
 
-import AuthorizationViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bankapp.entities.SessionState
+import com.example.bankapp.viewmodels.AuthorizationViewModel
 import com.example.bankapp.viewmodels.DepositViewModel
 
 class DepositViewModelFactory(

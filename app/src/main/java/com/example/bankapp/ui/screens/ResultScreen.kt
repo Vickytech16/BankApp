@@ -1,7 +1,7 @@
 package com.example.bankapp.ui.screens
 
 import com.example.bankapp.entities.AuthorizationIntent
-import AuthorizationViewModel
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +31,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.TransactionResultViewModelFactory
-import com.example.bankapp.ui.components.BackButtonHandler
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
@@ -45,10 +44,9 @@ import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.INDIVIDUAL_TRANSACTION_LOG_ROUTE
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_ROUTE
-
+import com.example.bankapp.viewmodels.AuthorizationViewModel
 import com.example.bankapp.viewmodels.ResultViewModel
 import kotlinx.coroutines.delay
-
 
 @Composable
 fun TransactionResultScreen(
@@ -57,118 +55,136 @@ fun TransactionResultScreen(
     authorizationViewModel: AuthorizationViewModel
 ) {
     val viewModel: ResultViewModel = viewModel(factory = transactionResultViewModelFactory)
-
     val actionState = authorizationViewModel.authorizationActionState
 
     LaunchedEffect(Unit) {
-        if(!viewModel.actionExecuted) {
+        if (!viewModel.actionExecuted) {
             viewModel.actionExecuted = true
-            when(authorizationViewModel.authorizationIntent){
-                is AuthorizationIntent.CashTransfer -> viewModel.cashTransfer(authorizationViewModel.authorizationIntent as AuthorizationIntent.CashTransfer)
-                is AuthorizationIntent.AddBeneficiary -> viewModel.addBeneficiary(authorizationViewModel.authorizationIntent as AuthorizationIntent.AddBeneficiary)
-                is AuthorizationIntent.Deposit -> viewModel.Deposit(authorizationViewModel.authorizationIntent as AuthorizationIntent.Deposit)
-                is AuthorizationIntent.InternationalTransfer -> viewModel.InternationalTransfer(authorizationViewModel.authorizationIntent as AuthorizationIntent.InternationalTransfer)
+            when (val intent = authorizationViewModel.authorizationIntent) {
+                is AuthorizationIntent.CashTransfer -> viewModel.cashTransfer(intent)
+                is AuthorizationIntent.AddBeneficiary -> viewModel.addBeneficiary(intent)
+                is AuthorizationIntent.Deposit -> viewModel.Deposit(intent)
+                is AuthorizationIntent.InternationalTransfer -> viewModel.InternationalTransfer(intent)
                 else -> {}
             }
         }
     }
 
-    val resultContent: ResultContent = when(authorizationViewModel.authorizationIntent) {
-        is AuthorizationIntent.CashTransfer -> {
-            val authorizationIntent = authorizationViewModel.authorizationIntent as AuthorizationIntent.CashTransfer
-            authorizationViewModel.getResultContent(
-                onDone = {
-                    val transactionId = authorizationIntent.transactionId
-                    if (transactionId != null) {
-                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
-                            popUpTo(HOME_ROUTE) {
-                                inclusive = false
+    val resultContent: ResultContent = remember(authorizationViewModel.authorizationIntent, actionState) {
+        when (authorizationViewModel.authorizationIntent) {
+            is AuthorizationIntent.CashTransfer -> {
+                authorizationViewModel.getResultContent(
+                    onDone = {
+                        val transactionId = (authorizationViewModel.authorizationIntent as AuthorizationIntent.CashTransfer).transactionId
+                        authorizationViewModel.clearAuthorization()
+                        if (transactionId != null) {
+                            navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
+                                popUpTo(HOME_ROUTE) { inclusive = false }
+                            }
+                        } else {
+                            navController.navigate(HOME_ROUTE) {
+                                popUpTo(MAIN_ROUTE) { inclusive = true }
                             }
                         }
-                    } else {
+                    },
+                    onRetry = {
+                        authorizationViewModel.clearAuthorization()
                         navController.navigate(HOME_ROUTE) {
-                            popUpTo(MAIN_ROUTE) {
-                                inclusive = true
+                            popUpTo(MAIN_ROUTE) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            is AuthorizationIntent.InternationalTransfer -> {
+                authorizationViewModel.getResultContent(
+                    onDone = {
+                        val transactionId = (authorizationViewModel.authorizationIntent as AuthorizationIntent.InternationalTransfer).transactionId
+                        authorizationViewModel.clearAuthorization()
+                        if (transactionId != null) {
+                            navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
+                                popUpTo(HOME_ROUTE) { inclusive = false }
+                            }
+                        } else {
+                            navController.navigate(HOME_ROUTE) {
+                                popUpTo(MAIN_ROUTE) { inclusive = true }
                             }
                         }
-                    }
-                },
-                onRetry = {
-                    navController.navigate(CASH_TRANSFER_ROUTE) {
-                        popUpTo(HOME_ROUTE) {
-                            inclusive = true
-                        }
-                    }
-                }
-            )
-        }
-        is AuthorizationIntent.AddBeneficiary -> {
-            authorizationViewModel.getResultContent(
-                onDone = {
-                    navController.navigate(HOME_ROUTE) {
-                        popUpTo(HOME_ROUTE){
-                            inclusive = false
-                        }
-                    }
-                },
-                onRetry = {
-                    navController.navigate(ADD_BENEFICIARY_ROUTE) {
-                        popUpTo(PAY_ROUTE){
-                            inclusive = false
-                        }
-                    }
-                }
-            )
-        }
-        is AuthorizationIntent.Deposit -> {
-            val authorizationIntent = authorizationViewModel.authorizationIntent as AuthorizationIntent.Deposit
-            authorizationViewModel.getResultContent(
-                onDone = {
-                    val transactionId = authorizationIntent.transactionId
-                    if (transactionId != null) {
-                        navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
-                            popUpTo(HOME_ROUTE) {
-                                inclusive = false
-                            }
-                        }
-                    } else {
+                    },
+                    onRetry = {
+                        authorizationViewModel.clearAuthorization()
                         navController.navigate(HOME_ROUTE) {
-                            popUpTo(MAIN_ROUTE) {
-                                inclusive = true
+                            popUpTo(MAIN_ROUTE) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            is AuthorizationIntent.AddBeneficiary -> {
+                authorizationViewModel.getResultContent(
+                    onDone = {
+                        authorizationViewModel.clearAuthorization()
+                        navController.navigate(HOME_ROUTE) {
+                            popUpTo(HOME_ROUTE) { inclusive = false }
+                        }
+                    },
+                    onRetry = {
+                        authorizationViewModel.clearAuthorization()
+                        navController.navigate(HOME_ROUTE) {
+                            popUpTo(MAIN_ROUTE) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            is AuthorizationIntent.Deposit -> {
+                authorizationViewModel.getResultContent(
+                    onDone = {
+                        val transactionId = (authorizationViewModel.authorizationIntent as AuthorizationIntent.Deposit).transactionId
+                        authorizationViewModel.clearAuthorization()
+                        if (transactionId != null) {
+                            navController.navigate("$INDIVIDUAL_TRANSACTION_LOG_ROUTE/$transactionId?origin=$HOME_ROUTE") {
+                                popUpTo(HOME_ROUTE) { inclusive = false }
+                            }
+                        } else {
+                            navController.navigate(HOME_ROUTE) {
+                                popUpTo(MAIN_ROUTE) { inclusive = true }
                             }
                         }
-                    }
-                },
-                onRetry = {
-                    navController.navigate(DEPOSIT_ROUTE) {
-                        popUpTo(HOME_ROUTE) {
-                            inclusive = true
+                    },
+                    onRetry = {
+                        authorizationViewModel.clearAuthorization()
+                        navController.navigate(HOME_ROUTE) {
+                            popUpTo(MAIN_ROUTE) { inclusive = true }
                         }
                     }
-                }
-            )
-        }
-        else ->
-            authorizationViewModel.getResultContent(
+                )
+            }
+
+            else -> authorizationViewModel.getResultContent(
                 onDone = {
+                    authorizationViewModel.clearAuthorization()
                     navController.navigate(HOME_ROUTE)
                 },
                 onRetry = {
+                    authorizationViewModel.clearAuthorization()
                     navController.navigate(PAY_ROUTE)
                 }
             )
+        }
     }
 
     val showContent = remember { mutableStateOf(false) }
 
-    BackButtonHandler(navController, HOME_ROUTE)
+    BackHandler(true) {
+        authorizationViewModel.clearAuthorization()
+        navController.navigate(HOME_ROUTE) {
+            popUpTo(MAIN_ROUTE) { inclusive = true }
+        }
+    }
 
-    val successComposition = rememberLottieComposition(
-        LottieCompositionSpec.RawRes(R.raw.success_tick)
-    )
-    val failureComposition = rememberLottieComposition(
-        LottieCompositionSpec.RawRes(R.raw.fail)
-    )
+    val successComposition = rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.success_tick))
+    val failureComposition = rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.fail))
 
     LaunchedEffect(actionState) {
         if (actionState == AuthorizationctionState.SUCCESS || actionState == AuthorizationctionState.FAILURE) {
@@ -179,11 +195,11 @@ fun TransactionResultScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
-    ) {
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it),
+                .padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -209,10 +225,7 @@ fun TransactionResultScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             LottieAnimation(
-                                composition = if (isSuccess)
-                                    successComposition.value
-                                else
-                                    failureComposition.value,
+                                composition = if (isSuccess) successComposition.value else failureComposition.value,
                                 modifier = Modifier.fillMaxWidth(0.8f)
                             )
                         }
@@ -293,9 +306,6 @@ fun TransactionResultScreen(
                                         }
                                     }
                                 }
-
-                                XLSpacer()
-                                XLSpacer()
                                 XLSpacer()
                                 XLSpacer()
                             }

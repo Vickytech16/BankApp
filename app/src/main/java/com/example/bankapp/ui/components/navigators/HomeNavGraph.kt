@@ -1,7 +1,7 @@
 package com.example.bankapp.ui.components.navigators
 
-import AuthorizationViewModel
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,6 +20,7 @@ import com.example.bankapp.ui.screens.beneficiaryscreens.*
 import com.example.bankapp.ui.screens.payscreens.*
 import com.example.bankapp.ui.screens.authscreens.*
 import com.example.bankapp.entities.ChangePasswordState
+import com.example.bankapp.viewmodels.AuthorizationViewModel
 import com.example.bankapp.viewmodels.SessionViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
@@ -46,7 +47,7 @@ fun NavGraphBuilder.homeNavGraph(
     transactionExportService: TransactionExportService
 ) {
     val routeOrder = listOf(HOME_ROUTE, PAY_ROUTE, PROFILE_ROUTE)
-    val animSpeed = 500 // Slower animation
+    val animSpeed = 700
 
     navigation(
         startDestination = HOME_ROUTE,
@@ -180,27 +181,75 @@ fun NavGraphBuilder.homeNavGraph(
                 )
             }
 
-            composable("$CASH_TRANSFER_ROUTE/{friendAccNo}") { backStackEntry ->
-                CashTransferScreen(
-                    windowSizeClass = windowSizeClass,
-                    cashTransferViewModelFactory = cashTransferViewModelFactory,
+            composable(
+                route = "$CASH_TRANSFER_ROUTE/{friendAccNo}",
+                arguments = listOf(
+                    navArgument("friendAccNo") { type = NavType.StringType }
+                ),
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                }
+            ) { backStackEntry ->
+                CashTransferFlowHost(
                     navController = navController,
-                    friendAccNo = backStackEntry.arguments?.getString("friendAccNo")
-                )
-            }
-
-            composable(CASH_TRANSFER_ROUTE) {
-                CashTransferScreen(
-                    windowSizeClass = windowSizeClass,
+                    authorizationViewModel = authorizationViewModel,
                     cashTransferViewModelFactory = cashTransferViewModelFactory,
-                    navController = navController
+                    otpViewModelFactory = otpViewModelFactory,
+                    passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
+                    sessionViewModel = sessionViewModel
                 )
             }
 
-            composable(DEPOSIT_ROUTE) {
-                DepositScreen(
+            composable(
+                route = CASH_TRANSFER_ROUTE,
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                }
+            ) {
+                CashTransferFlowHost(
+                    navController = navController,
+                    authorizationViewModel = authorizationViewModel,
+                    cashTransferViewModelFactory = cashTransferViewModelFactory,
+                    otpViewModelFactory = otpViewModelFactory,
+                    passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
+                    sessionViewModel = sessionViewModel
+                )
+            }
+
+            composable(
+                route = DEPOSIT_ROUTE,
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                },
+                popEnterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                }
+            ) {
+                DepositFlowHost(
+                    navController = navController,
+                    authorizationViewModel = authorizationViewModel,
                     depositViewModelFactory = depositViewModelFactory,
-                    navController = navController
+                    otpViewModelFactory = otpViewModelFactory,
+                    passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
+                    sessionViewModel = sessionViewModel
                 )
             }
 
@@ -215,12 +264,23 @@ fun NavGraphBuilder.homeNavGraph(
                     navController = navController,
                     passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
                     onDismissRoute = backRoute,
-                    onPasswordVerificationSuccess = { authorizationViewModel.proceedAfterPassword(navController) },
+                    onPasswordVerificationSuccess = {  },
                     sessionViewModel = sessionViewModel
                 )
             }
 
-            composable(TRANSACTION_RESULT_ROUTE) {
+            composable(
+                route = TRANSACTION_RESULT_ROUTE,
+                enterTransition = {
+                    EnterTransition.None
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(animSpeed)
+                    )
+                }
+            ) {
                 TransactionResultScreen(transactionResultViewModelFactory, navController, authorizationViewModel)
             }
 
