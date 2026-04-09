@@ -20,6 +20,7 @@ androidxFoundation = "1.10.6"
 uiText = "1.10.6"
 workRuntimeKtx = "2.11.2"
 volley = "1.2.1"
+composeMaterialCore = "1.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

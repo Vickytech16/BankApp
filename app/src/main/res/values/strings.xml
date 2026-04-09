@@ -228,7 +228,7 @@
     <string name="settings_support_label">SETTINGS &amp; SUPPORT</string>
     <string name="change_password_label">Change Password</string>
     <string name="forgot_password_label">Forgot Password</string>
-    <string name="appearance_theme_label">Appearance Theme</string>
+    <string name="appearance_theme_label">Change Theme</string>
     <string name="dark_mode_label">Dark Mode</string>
     <string name="search_friend_hint">Search friends</string>
     <string name="close_button">Close</string>

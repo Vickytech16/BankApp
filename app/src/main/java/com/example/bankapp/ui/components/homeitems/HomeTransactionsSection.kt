@@ -13,6 +13,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -21,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
+import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
@@ -39,6 +44,9 @@ fun HomeTransactionSection(
     deviceSpec: DeviceSpec,
     countryCode: String
 ) {
+    val initialFontSize = deviceSpec.transactionListItemCounterPartyNameStyle().fontSize
+    var currentMinFontSize by remember { mutableStateOf(initialFontSize) }
+
     Column(modifier = modifier) {
         Row(
             modifier = Modifier
@@ -56,7 +64,7 @@ fun HomeTransactionSection(
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource( R.dimen.home_screen_see_all_spacing))
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.home_screen_see_all_spacing))
             ) {
                 Text(
                     text = stringResource(R.string.see_all_label),
@@ -75,30 +83,39 @@ fun HomeTransactionSection(
 
         SmallSpacer()
 
-        transactions.take(3).forEach {
-            transaction ->
+        val count = when(deviceSpec){
+            is DeviceSpec.MobilePortrait, is DeviceSpec.MobileLandscape -> 3
+            else -> 10
+        }
+
+        transactions.take(count).forEach { transaction ->
             val displayName = when {
                 transaction.transactionType == TransactionType.DEPOSIT -> "You (Deposit)"
                 transaction.transactionType == TransactionType.INTEREST_ADDITION -> "You (Interest Addition)"
-                !transaction.counterpartyNickname.isNullOrEmpty() ->
-                    "${transaction.counterpartyNickname} (${transaction.counterpartyName})"
+                !transaction.counterpartyNickname.isNullOrEmpty() -> {
+                    when(deviceSpec) {
+                        is DeviceSpec.MobilePortrait ->
+                            transaction.counterpartyNickname
+                        else ->
+                            "${transaction.counterpartyNickname} (${transaction.counterpartyName})"
+                    }
+                }
                 else -> transaction.counterpartyName ?: "Bank"
             }
 
             val displayPfp =
                 if (transaction.transactionType == TransactionType.DEPOSIT)
                     transaction.myPfpUrl
-                else if(transaction.transactionType == TransactionType.INTEREST_ADDITION)
+                else if (transaction.transactionType == TransactionType.INTEREST_ADDITION)
                     "res://bank_logo"
                 else
                     transaction.counterpartyPfpUrl
 
             val avatarName =
-                if(transaction.transactionType == TransactionType.DEPOSIT)
+                if (transaction.transactionType == TransactionType.DEPOSIT)
                     transaction.myUserName
                 else
                     transaction.counterpartyName ?: "Bank"
-
 
             TransactionListItem(
                 counterPartyName = displayName,
@@ -113,7 +130,14 @@ fun HomeTransactionSection(
                 },
                 deviceSpec = deviceSpec,
                 countryCode = countryCode,
-                avatarName = avatarName
+                avatarName = avatarName,
+                forcedFontSize = currentMinFontSize,
+                isFailed = transaction.transactionStatus == TransactionStatus.FAILED,
+                onFontSizeChange = { newSize ->
+                    if (newSize < currentMinFontSize) {
+                        currentMinFontSize = newSize
+                    }
+                }
             )
             SmallSpacer()
         }

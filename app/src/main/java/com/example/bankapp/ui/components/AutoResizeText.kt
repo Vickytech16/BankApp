@@ -23,24 +23,24 @@ fun AutoResizeText(
     modifier: Modifier = Modifier,
     style: TextStyle,
     color: Color = MaterialTheme.colorScheme.onPrimary,
-    maxLines: Int = 1
+    maxLines: Int = 1,
+    softWrap: Boolean = false
 ) {
     var resizedTextStyle by remember(text) { mutableStateOf(style) }
-    // var resizedTextStyle by remember(text, style) { mutableStateOf(style) }
     var shouldDraw by remember { mutableStateOf(false) }
 
     Text(
         text = text,
         color = color,
         modifier = modifier.drawWithContent { if (shouldDraw) drawContent() },
-        softWrap = false,
+        softWrap = softWrap,
         style = resizedTextStyle,
         maxLines = maxLines,
         overflow = TextOverflow.Clip,
         onTextLayout = {
             result: TextLayoutResult ->
 
-            val minFontSize = 12.sp
+            val minFontSize = 10.sp
             if (result.didOverflowWidth && resizedTextStyle.fontSize > minFontSize) {
                 resizedTextStyle = resizedTextStyle.copy(
                     fontSize = resizedTextStyle.fontSize * 0.95

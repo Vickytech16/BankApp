@@ -149,11 +149,12 @@ class TransactionsViewModel(
 
             withContext(Dispatchers.IO) {
                 val exportData = currentList.map { exportData ->
-                    val description = if (exportData.transactionType == TransactionType.DEPOSIT) {
-                        "${exportData.myUserName} (Deposit)"
-                    } else {
-                        exportData.counterpartyName ?: "Unknown"
-                    }
+                    val description =
+                        when(exportData.transactionType){
+                            TransactionType.DEPOSIT -> "${exportData.myUserName} (Deposit)"
+                            TransactionType.INTEREST_ADDITION -> "${exportData.myUserName} Interest Addition"
+                            else -> exportData.counterpartyName ?: "Unknown"
+                        }
 
                     TransactionExportDto(
                         date = exportData.transactionDate.toMonthDayDisplay(),

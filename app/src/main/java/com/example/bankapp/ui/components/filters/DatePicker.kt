@@ -173,8 +173,4 @@ val PastOnlyConstraints = object : SelectableDates {
         utcTimeMillis <= System.currentTimeMillis()
 }
 
-private fun formatUtcMillisToDisplay(millis: Long): String {
-    val sdf = java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault())
-    sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
-    return sdf.format(java.util.Date(millis))
-}
+

@@ -60,12 +60,10 @@ fun SimpleCropPreview(
                 .fillMaxWidth()
                 .clipToBounds()
                 .onGloballyPositioned { boxSize = it.size }
-                // ... inside SimpleCropPreview Composable
                 .pointerInput(boxSize) {
                     if (boxSize.width == 0) return@pointerInput
 
                     detectTransformGestures { _, pan, zoom, _ ->
-                        // 1. Lower the min scale to 0.5f to allow shrinking
                         val newScale = (scale * zoom).coerceIn(0.5f, 5f)
 
                         val fitScale = minOf(
@@ -77,16 +75,13 @@ fun SimpleCropPreview(
 
                         val circleRadiusPx = minOf(boxSize.width, boxSize.height) / 3f
 
-                        // 2. Adjust Clamping Logic
-                        // If image is larger than the circle, we clamp so background doesn't show.
-                        // If image is smaller than the circle, we allow it to be panned but keep it centered.
                         val imgWidthOnScreen = fittedW * newScale
                         val imgHeightOnScreen = fittedH * newScale
 
                         val maxOffsetX = if (imgWidthOnScreen > circleRadiusPx * 2) {
                             (imgWidthOnScreen / 2f - circleRadiusPx)
                         } else {
-                            // Allow some "wiggle" even if smaller, or set to 0f to force center
+
                             (circleRadiusPx - imgWidthOnScreen / 2f).coerceAtLeast(0f)
                         }
 

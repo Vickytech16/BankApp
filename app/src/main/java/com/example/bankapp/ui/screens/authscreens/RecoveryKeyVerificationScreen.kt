@@ -54,8 +54,6 @@ fun RecoveryKeyVerificationScreen(
     else {
         null
     }
-
-
     if(viewModel.isVerified){
         onSuccess()
     }

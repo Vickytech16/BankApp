@@ -1,5 +1,8 @@
 package com.example.bankapp.ui.components.homeitems
 
+/*
+package com.example.bankapp.ui.components.homeitems
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -38,7 +41,6 @@ fun HomeCardCarousel(
 ) {
     val pagerState = rememberPagerState(pageCount = { if (velocityStatus != null) 2 else 1 })
     val configuration = LocalConfiguration.current
-
     val screenWidth = configuration.screenWidthDp.dp
 
     Column(
@@ -47,7 +49,6 @@ fun HomeCardCarousel(
     ) {
         val cardWidthDp = screenWidth * deviceSpec.homeScreenCardWidth
         val horizontalPadding = (screenWidth - cardWidthDp) / 2
-
         val fling = PagerDefaults.flingBehavior(
             state = pagerState,
             pagerSnapDistance = PagerSnapDistance.atMost(1)
@@ -60,7 +61,7 @@ fun HomeCardCarousel(
             contentPadding = PaddingValues(horizontal = horizontalPadding),
             pageSpacing = 16.dp,
             userScrollEnabled = velocityStatus != null,
-            flingBehavior = fling,
+           flingBehavior = fling,
         ) { page ->
             Box(
                 modifier = Modifier
@@ -70,8 +71,16 @@ fun HomeCardCarousel(
                                 (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                                 ).absoluteValue
 
-                        alpha = lerp(0.7f, 1f, 1f - pageOffset.coerceIn(0f, 1f))
-                        scaleY = lerp(0.9f, 1f, 1f - pageOffset.coerceIn(0f, 1f))
+                        alpha = lerp(
+                            start = 0.5f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+                        scaleY = lerp(
+                            start = 0.9f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -125,3 +134,4 @@ fun HomeCardCarousel(
         }
     }
 }
+ */

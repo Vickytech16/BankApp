@@ -267,13 +267,11 @@ fun AccountNumberOutlinedTextField(
                 val offsetMapping = object : OffsetMapping {
                     override fun originalToTransformed(offset: Int): Int {
                         if (offset <= 0) return 0
-                        // For every 4 digits, we add a space in the transformed string
                         val spaces = (offset - 1) / 4
                         return offset + spaces
                     }
 
                     override fun transformedToOriginal(offset: Int): Int {
-                        // Map back to the original digits string length
                         val spaces = offset / 5
                         return (offset - spaces).coerceIn(0, typedDigits.length)
                     }

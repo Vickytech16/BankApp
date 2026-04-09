@@ -77,7 +77,8 @@ class RegisterViewModel(
 
 
     fun onUserNameChange(newUserName: String) {
-        val processed = if (newUserName.length > USERNAME_MAX_SIZE) {
+        val processed =
+        if (newUserName.length > USERNAME_MAX_SIZE) {
             newUserName.substring(0, USERNAME_MAX_SIZE)
         }
         else {
@@ -93,9 +94,11 @@ class RegisterViewModel(
                 else ->
                     processed.invalidUserNameErrorMessageBuilder() ?:
                     processed.minRequiredCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MIN_SIZE)
-
             }
 
+            if(processed.invalidUserNameErrorMessageBuilder()!=null){
+                    _uiState.update { it.copy(userName = processed, userNameError = error, hasUserNameFocused = true, hasUserNameUnFocused = true) }
+                }
             _uiState.update { it.copy(userName = processed, userNameError = error) }
             submitErrorReset()
         }

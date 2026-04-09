@@ -9,15 +9,20 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
+import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.SmallSpacer
@@ -27,7 +32,6 @@ import com.example.bankapp.ui.screens.uiAmountDisplay
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.utilities.isSameDay
-
 
 @Composable
 fun TransactionLazyList(
@@ -41,6 +45,10 @@ fun TransactionLazyList(
 ) {
     val todayLabel = stringResource(R.string.today)
     val yesterdayLabel = stringResource(R.string.yesterday)
+
+    val initialFontSize = deviceSpec.transactionListItemCounterPartyNameStyle().fontSize
+    var currentMinFontSize by remember { mutableStateOf(initialFontSize) }
+
     val groupedTransactions = remember(transactions) {
         transactions.groupBy { transaction ->
             val transactionDate = transaction.transactionDate
@@ -78,25 +86,28 @@ fun TransactionLazyList(
                 val displayName = when {
                     transaction.transactionType == TransactionType.DEPOSIT -> "You (Deposit)"
                     transaction.transactionType == TransactionType.INTEREST_ADDITION -> "You (Interest Addition)"
-                    !transaction.counterpartyNickname.isNullOrEmpty() ->
-                        "${transaction.counterpartyNickname} (${transaction.counterpartyName})"
+                    !transaction.counterpartyNickname.isNullOrEmpty() -> {
+                        when(deviceSpec) {
+                            is DeviceSpec.MobilePortrait ->
+                                transaction.counterpartyNickname
+                            else ->
+                                "${transaction.counterpartyNickname} (${transaction.counterpartyName})"
+                        }
+                    }
                     else -> transaction.counterpartyName ?: "Bank"
                 }
 
-                val displayPfp =
-                    if (transaction.transactionType == TransactionType.DEPOSIT)
-                        transaction.myPfpUrl
-                    else if(transaction.transactionType == TransactionType.INTEREST_ADDITION)
-                        "res://bank_logo"
-                    else
-                        transaction.counterpartyPfpUrl
+                val displayPfp = if (transaction.transactionType == TransactionType.DEPOSIT)
+                    transaction.myPfpUrl
+                else if (transaction.transactionType == TransactionType.INTEREST_ADDITION)
+                    "res://bank_logo"
+                else
+                    transaction.counterpartyPfpUrl
 
-                val avatarName =
-                    if(transaction.transactionType == TransactionType.DEPOSIT)
-                        transaction.myUserName
-                    else
-                        transaction.counterpartyName ?: "Bank"
-
+                val avatarName = if (transaction.transactionType == TransactionType.DEPOSIT)
+                    transaction.myUserName
+                else
+                    transaction.counterpartyName ?: "Bank"
 
                 TransactionListItem(
                     counterPartyName = displayName,
@@ -109,9 +120,16 @@ fun TransactionLazyList(
                             "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/${transaction.transactionId}?origin=$TRANSACTIONS_LOG_ROUTE"
                         )
                     },
+                    isFailed = transaction.transactionStatus == TransactionStatus.FAILED,
                     deviceSpec = deviceSpec,
                     countryCode = countryCode,
-                    avatarName = avatarName
+                    avatarName = avatarName,
+                    forcedFontSize = currentMinFontSize,
+                    onFontSizeChange = { newSize ->
+                        if (newSize < currentMinFontSize) {
+                            currentMinFontSize = newSize
+                        }
+                    }
                 )
 
                 SmallSpacer()

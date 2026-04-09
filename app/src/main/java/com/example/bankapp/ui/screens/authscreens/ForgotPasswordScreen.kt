@@ -81,9 +81,7 @@ fun ForgetPasswordScreen(
         null
     }
 
-
     BackButtonHandler(navController, LOGIN_ROUTE)
-
 
     LaunchedEffect(viewModel.isVerificationSuccessful) {
         if (viewModel.isVerificationSuccessful) {

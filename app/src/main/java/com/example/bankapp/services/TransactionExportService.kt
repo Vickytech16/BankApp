@@ -13,6 +13,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -63,7 +66,6 @@ class TransactionExportService(private val context: Context) {
         return file
     }
 
-
     fun createPdfFile(
         metadata: ExportMetadata,
         transactions: List<TransactionExportDto>,
@@ -76,69 +78,109 @@ class TransactionExportService(private val context: Context) {
         val pageWidth = 792
         var pageNumber = 1
 
-        val paint = Paint()
-        val titlePaint = Paint().apply {
+        val colWidths = floatArrayOf(80f, 180f, 70f, 50f, 80f, 80f, 70f, 80f)
+        val startX = 50f
+        val colsX = FloatArray(colWidths.size)
+        var currentX = startX
+        for (i in colWidths.indices) {
+            colsX[i] = currentX
+            currentX += colWidths[i]
+        }
+
+        val titlePaint = TextPaint().apply {
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             textSize = 20f
+            color = Color.BLACK
         }
-        val headerPaint = Paint().apply {
+        val headerPaint = TextPaint().apply {
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            textSize = 12f
-        }
-        val textPaint = Paint().apply {
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
             textSize = 10f
+        }
+        val textPaint = TextPaint().apply {
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            textSize = 9f
         }
 
         var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
         var page = pdfDocument.startPage(pageInfo)
         var canvas = page.canvas
-
         var yPos = 50f
+
+        // Header Info
         canvas.drawText("BANK STATEMENT", 50f, yPos, titlePaint)
         yPos += 30f
         canvas.drawText("Account Holder: ${metadata.userName}", 50f, yPos, textPaint)
-        yPos += 20f
+        yPos += 15f
         canvas.drawText("Account Number: ${metadata.accountNo}", 50f, yPos, textPaint)
-        yPos += 20f
+        yPos += 15f
         canvas.drawText("Generated On: ${metadata.dateGenerated}", 50f, yPos, textPaint)
         yPos += 40f
 
-        val cols = floatArrayOf(50f, 130f, 280f, 350f, 410f, 480f, 560f, 650f)
+        // Table Headers
         val headers = listOf("Date", "Description", "Type", "De/Cr", "Amount", "Balance", "Status", "Ref")
+        val headerRectPaint = Paint().apply { color = Color.parseColor("#F2F2F2") }
+        canvas.drawRect(startX - 5f, yPos - 15f, pageWidth - 40f, yPos + 10f, headerRectPaint)
 
-        paint.color = Color.LTGRAY
-        canvas.drawRect(45f, yPos - 15f, 750f, yPos + 10f, paint)
-
-        headers.forEachIndexed { index, s ->
-            canvas.drawText(s, cols[index], yPos, headerPaint)
+        headers.forEachIndexed { i, s ->
+            canvas.drawText(s, colsX[i], yPos, headerPaint)
         }
-        yPos += 30f
+        yPos += 25f
 
-        transactions.take(10000).forEach { item ->
-            if (yPos > pageHeight - 50f) {
+        // 2. Dynamic Row Generation
+        transactions.forEach { item ->
+            val rowData = listOf(
+                item.date,
+                item.description, // No more truncation!
+                item.type,
+                item.direction,
+                item.amount,
+                item.balanceAfter,
+                item.status,
+                item.reference
+            )
+
+            // Create layouts for each cell to determine the max height needed for this row
+            val layouts = rowData.mapIndexed { i, text ->
+                StaticLayout.Builder.obtain(text, 0, text.length, textPaint, colWidths[i].toInt() - 10)
+                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    .setLineSpacing(0f, 1f)
+                    .setIncludePad(false)
+                    .build()
+            }
+
+            val maxHeight = layouts.maxOf { it.height }.toFloat() + 10f // Padding
+
+            // Check for Page Break
+            if (yPos + maxHeight > pageHeight - 50f) {
                 pdfDocument.finishPage(page)
                 pageNumber++
                 pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
                 page = pdfDocument.startPage(pageInfo)
                 canvas = page.canvas
                 yPos = 50f
+
+                // Re-draw headers on new page
+                canvas.drawRect(startX - 5f, yPos - 15f, pageWidth - 40f, yPos + 10f, headerRectPaint)
+                headers.forEachIndexed { i, s -> canvas.drawText(s, colsX[i], yPos, headerPaint) }
+                yPos += 25f
             }
 
-            canvas.drawText(item.date, cols[0], yPos, textPaint)
-            canvas.drawText(item.description.take(20), cols[1], yPos, textPaint) // Truncate to fit
-            canvas.drawText(item.type, cols[2], yPos, textPaint)
-            canvas.drawText(item.direction, cols[3], yPos, textPaint)
-            canvas.drawText(item.amount, cols[4], yPos, textPaint)
-            canvas.drawText(item.balanceAfter, cols[5], yPos, textPaint)
-            canvas.drawText(item.status, cols[6], yPos, textPaint)
-            canvas.drawText(item.reference.take(12), cols[7], yPos, textPaint)
+            // Draw each cell using the calculated layouts
+            layouts.forEachIndexed { i, layout ->
+                canvas.save()
+                canvas.translate(colsX[i], yPos - 10f) // Adjust for baseline
+                layout.draw(canvas)
+                canvas.restore()
+            }
 
-            yPos += 25f
+            // Draw a subtle separator line
+            val linePaint = Paint().apply { color = Color.LTGRAY; strokeWidth = 0.5f }
+            canvas.drawLine(startX - 5f, yPos + maxHeight - 5f, pageWidth - 40f, yPos + maxHeight - 5f, linePaint)
+
+            yPos += maxHeight
         }
 
         pdfDocument.finishPage(page)
-
         val outputStream = FileOutputStream(file)
         pdfDocument.writeTo(outputStream)
         pdfDocument.close()
@@ -146,6 +188,9 @@ class TransactionExportService(private val context: Context) {
 
         return file
     }
+
+
+
 
     suspend fun shareBitmap(bitmap: Bitmap) {
         withContext(Dispatchers.IO) {

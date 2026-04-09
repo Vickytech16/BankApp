@@ -16,7 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import com.example.bankapp.R
 import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.entities.types.transaction.LedgerDirection
@@ -28,36 +31,33 @@ import com.example.bankapp.ui.theme.amountGreenColor
 import com.example.bankapp.utilities.CurrencyUtils
 import java.math.BigDecimal
 
-
 @Composable
 fun TransactionListItem(
     counterPartyName: String,
     transactionDirection: LedgerDirection?,
     amount: String,
     transactionDate: BankDateTime,
+    isFailed: Boolean = false,
     pfpURL: String? = null,
     onClickAction: () -> Unit = {},
     deviceSpec: DeviceSpec,
     countryCode: String,
-    avatarName: String = counterPartyName
+    avatarName: String = counterPartyName,
+    forcedFontSize: TextUnit,
+    onFontSizeChange: (TextUnit) -> Unit
 ) {
     val formattedDate = transactionDate.toMonthDayDisplay()
     val isCredit = transactionDirection == LedgerDirection.CREDIT
     val avatarSize = dimensionResource(deviceSpec.transactionListItemAvatarSize)
-    val amountColor = if (isCredit) {
-        amountGreenColor
-    }
-    else {
-        MaterialTheme.colorScheme.error
-    }
-    val amountPrefix = if (isCredit) {
-        "+"
-    }
-    else {
-        "-"
-    }
-    val itemShape = RoundedCornerShape(dimensionResource(R.dimen.transaction_list_item_Rounded_border))
 
+    val amountColor = when {
+        isFailed -> MaterialTheme.colorScheme.outline
+        isCredit -> amountGreenColor
+        else -> MaterialTheme.colorScheme.error
+    }
+
+    val amountPrefix = if (isCredit) "+" else "-"
+    val itemShape = RoundedCornerShape(dimensionResource(R.dimen.transaction_list_item_Rounded_border))
 
     Box(
         modifier = Modifier
@@ -75,12 +75,7 @@ fun TransactionListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(deviceSpec.transactionListItemSpacing)
         ) {
-            UserAvatar(
-                avatarName,
-                pfpURL,
-                size = avatarSize
-            )
-
+            UserAvatar(avatarName, pfpURL, size = avatarSize)
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -88,10 +83,16 @@ fun TransactionListItem(
             ) {
                 Text(
                     text = counterPartyName,
-                    style = deviceSpec.transactionListItemCounterPartyNameStyle(),
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = deviceSpec.transactionListItemCounterPartyNameStyle().copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = forcedFontSize
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false
                 )
+
                 Text(
                     text = formattedDate,
                     style = deviceSpec.transactionListItemDateStyle(),
@@ -99,14 +100,29 @@ fun TransactionListItem(
                 )
             }
 
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
+                AutoResizeText(
+                    text = "$amountPrefix${CurrencyUtils.formatCurrency(amount.toBigDecimalOrNull() ?: BigDecimal.ZERO, countryCode)} ${CurrencyUtils.getCurrencySymbol(countryCode)}",
+                    style = deviceSpec.transactionListItemMoneyStyle().copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = amountColor,
+                    maxLines = 1,
+                    softWrap = false
+                )
 
-            AutoResizeText(
-                text = "$amountPrefix${CurrencyUtils.formatCurrency(amount.toBigDecimalOrNull() ?: BigDecimal.ZERO, countryCode)} ${CurrencyUtils.getCurrencySymbol(countryCode)}",
-                style = deviceSpec.transactionListItemMoneyStyle().copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = amountColor
-            )
+                if (isFailed) {
+                    Text(
+                        text = "✕ Failed", // Replace with stringResource(R.string.failed)
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         }
     }
 }

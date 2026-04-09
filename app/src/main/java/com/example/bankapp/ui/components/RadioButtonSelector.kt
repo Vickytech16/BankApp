@@ -30,14 +30,16 @@ fun <T> RadioButtonSelector(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = fontWeight,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        if(title!="") {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = fontWeight,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
 
-        LargeSpacer()
+            LargeSpacer()
+        }
 
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.filter_chip_spacing))

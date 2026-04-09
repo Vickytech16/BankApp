@@ -56,20 +56,6 @@ fun HomeAppBar(
             }
         },
         navigationIcon = {
-//            IconButton(
-//                onClick = {
-//                    scope.launch {
-//                        drawerState.open()
-//                    }
-//                },
-//                modifier = Modifier.padding(horizontal = deviceSpec.homeAppBarHorizontalPadding).size(dimensionResource(deviceSpec.homeAppBarMenuButtonSize))
-//                 ) {
-//                Icon(
-//                    Icons.Outlined.Menu,
-//                    contentDescription = stringResource(R.string.open_menu_content_description),
-//                    tint = MaterialTheme.colorScheme.onSurface
-//                )
-//            }
         },
         scrollBehavior = scrollBehavior,
     )

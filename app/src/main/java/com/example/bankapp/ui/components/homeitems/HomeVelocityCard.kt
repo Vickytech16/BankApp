@@ -76,7 +76,7 @@ fun HomeVelocityCard(
             defaultElevation = dimensionResource(deviceSpec.homeScreenCardElevation)
         ),
         modifier = Modifier
-            .fillMaxWidth(deviceSpec.homeScreenCardWidth)
+            .fillMaxWidth()
             .padding(vertical = AppSpacing.md)
     ) {
         Box(
@@ -88,7 +88,6 @@ fun HomeVelocityCard(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // ── Top row: label (left) + logo (right) ──────────────────────
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -109,7 +108,7 @@ fun HomeVelocityCard(
 
                 XSSpacer()
 
-                // ── Amount row: large amount (left) + eye toggle (right) ───────
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -167,7 +166,6 @@ fun HomeVelocityCard(
 
                         XSSpacer()
 
-                        // Limit + reset line — always takes up space, hidden text when not visible
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -196,7 +194,6 @@ fun HomeVelocityCard(
                     }
                 }
 
-                // ── Bottom tab: daily transaction count ───────────────────────
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

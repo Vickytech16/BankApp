@@ -67,7 +67,7 @@ fun HomeScreenCard(
             defaultElevation = dimensionResource(deviceSpec.homeScreenCardElevation)
         ),
         modifier = Modifier
-            .fillMaxWidth(deviceSpec.homeScreenCardWidth)
+            .fillMaxWidth()
             .padding(vertical = AppSpacing.md)
     ) {
 
