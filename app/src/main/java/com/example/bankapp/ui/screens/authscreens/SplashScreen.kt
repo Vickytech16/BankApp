@@ -37,6 +37,8 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.bankapp.R
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.SmallSpacer
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 
 
 @Composable
@@ -60,6 +62,8 @@ fun SplashScreen() {
         animationSpec = tween(durationMillis = 900, delayMillis = 300, easing = EaseOutCubic),
         label = "content_slide"
     )
+
+    val deviceSpec = LocalDeviceSpec.current
 
     Scaffold {
         innerPadding ->
@@ -116,15 +120,17 @@ fun SplashScreen() {
 
             LargeSpacer()
 
-            LottieAnimation(
-                composition = composition,
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensionResource(R.dimen.splash_lottie_height))
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = dimensionResource(R.dimen.splash_lottie_bottom_padding))
-            )
+            if(deviceSpec !is DeviceSpec.MobileLandscape) {
+                LottieAnimation(
+                    composition = composition,
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(dimensionResource(R.dimen.splash_lottie_height))
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = dimensionResource(R.dimen.splash_lottie_bottom_padding))
+                )
+            }
         }
     }
 }

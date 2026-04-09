@@ -1,5 +1,6 @@
 package com.example.bankapp.viewmodels
 
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,12 +14,13 @@ import com.example.bankapp.entities.AuthorizationctionState
 import com.example.bankapp.entities.uientities.uidata.ResultButton
 import com.example.bankapp.entities.uientities.uidata.ResultContent
 import com.example.bankapp.entities.uientities.uidata.ResultUiText
+import com.example.bankapp.ui.components.navigators.HOME_ROUTE
+import com.example.bankapp.ui.components.navigators.PAY_TO_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTION_RESULT_ROUTE
 import com.example.bankapp.utilities.CurrencyUtils
 import java.math.BigDecimal
 
 class AuthorizationViewModel : ViewModel() {
-
     var authorizationIntent by mutableStateOf<AuthorizationIntent?>(null)
         private set
 
@@ -32,7 +34,7 @@ class AuthorizationViewModel : ViewModel() {
 
     val totalSteps: Int
         get() = when (activeFlow) {
-            FlowType.DEPOSIT -> 3
+            FlowType.DEPOSIT, FlowType.ADD_BENEFICIARY -> 3
             FlowType.CASH_TRANSFER, FlowType.INTERNATIONAL -> {
                 val isFriend = when (val intent = authorizationIntent) {
                     is AuthorizationIntent.CashTransfer -> intent.isFriend
@@ -47,7 +49,6 @@ class AuthorizationViewModel : ViewModel() {
                     else -> 4
                 }
             }
-            FlowType.ADD_BENEFICIARY -> 3
             else -> 0
         }
 
@@ -138,20 +139,28 @@ class AuthorizationViewModel : ViewModel() {
         }
     }
 
-    fun proceedAfterOtp(navController: NavController) {
+    fun proceedAfterOtp(navController: NavController, origin: String? = null ) {
         val intent = authorizationIntent
+
+        if(intent is AuthorizationIntent.Deposit || intent is AuthorizationIntent.AddBeneficiary) {
+            moveToNextStep()
+            return
+        }
+
         val isFriend = when (intent) {
             is AuthorizationIntent.CashTransfer -> intent.isFriend
             is AuthorizationIntent.InternationalTransfer -> intent.isFriend
             else -> false
         }
 
+        val targetOrigin = origin ?: HOME_ROUTE
+
         if (isFriend) {
-            navController.navigate(TRANSACTION_RESULT_ROUTE)
+            navController.navigate("$TRANSACTION_RESULT_ROUTE?origin=$targetOrigin")
         } else if (currentStep < totalSteps) {
             moveToNextStep()
         } else {
-            navController.navigate(TRANSACTION_RESULT_ROUTE)
+            navController.navigate("$TRANSACTION_RESULT_ROUTE?origin=$targetOrigin")
         }
     }
 
@@ -164,6 +173,9 @@ class AuthorizationViewModel : ViewModel() {
     }
 
     var failureReason by mutableStateOf(R.string.action_failed)
+
+    var additionalFailureMessage by mutableStateOf<String?>(null)
+
     var successMessage by mutableStateOf(R.string.action_success)
 
     fun getResultContent(onDone: () -> Unit, onRetry: () -> Unit): ResultContent {
@@ -214,7 +226,7 @@ class AuthorizationViewModel : ViewModel() {
                 } else {
                     ResultContent(
                         text1 = ResultUiText.StringResource(R.string.transaction_failed),
-                        text2 = ResultUiText.StringResource(failureReason),
+                        text2 = ResultUiText.StringResource(failureReason, additionalFailureMessage),
                         primaryButton = ResultButton(text = ResultUiText.StringResource(R.string.try_again), onClick = onRetry),
                     )
                 }

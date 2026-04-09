@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.DialogProperties
 import com.example.bankapp.R
 import com.example.bankapp.core.datecompatability.BankDateFactory
+import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 
@@ -155,7 +156,7 @@ private fun DateChip(
 
 ) {
     val displayDate = dateMillis?.let {
-        BankDateFactory.fromMillis(it).toMonthDayDisplay()
+        BankDateFactory.fromMillis(it, BankDateTime.UTC_ID).toMonthDayDisplay()
     } ?: stringResource(R.string.select_date)
 
     FilterChip(
@@ -172,113 +173,8 @@ val PastOnlyConstraints = object : SelectableDates {
         utcTimeMillis <= System.currentTimeMillis()
 }
 
-//
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun DateRangeSection(
-//    startDate: Long?,
-//    endDate: Long?,
-//    onDatesSelected: (Long?, Long?) -> Unit,
-//    showPicker: Boolean,
-//    onShowPickerChange: (Boolean) -> Unit
-//) {
-//    val context = LocalContext.current
-//
-//    val datePickerState = rememberDatePickerState()
-//
-//    Column(modifier = Modifier.fillMaxWidth()) {
-//        Text(
-//            text =
-//                stringResource(R.string.date_range_label),
-//            style = MaterialTheme.typography.labelLarge,
-//            fontWeight = FontWeight.SemiBold,
-//            color = MaterialTheme.colorScheme.onSurfaceVariant
-//        )
-//
-//        LargeSpacer()
-//
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)
-//        ) {
-//            DateDisplayBox(
-//                label = stringResource(R.string.from),
-//                dateMillis = startDate,
-//                modifier = Modifier.weight(1f),
-//                onClick = { onShowPickerChange(true) }
-//            )
-//
-//            DateDisplayBox(
-//                label = stringResource(R.string.to),
-//                dateMillis = endDate,
-//                modifier = Modifier.weight(1f),
-//                onClick = { onShowPickerChange(true) }
-//            )
-//        }
-//    }
-//
-//    if (showPicker) {
-//        val dateConstraints = remember {
-//            object : SelectableDates {
-//                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-//                    return utcTimeMillis <= System.currentTimeMillis()
-//                }
-//
-//                override fun isSelectableYear(year: Int): Boolean {
-//                    return year > 2016
-//                }
-//            }
-//        }
-//
-//        val rangePickerState = rememberDateRangePickerState(
-//            initialSelectedStartDateMillis = startDate,
-//            initialSelectedEndDateMillis = endDate,
-//            selectableDates = dateConstraints
-//        )
-//
-//        DatePickerDialog(
-//            onDismissRequest = { onShowPickerChange(false) },
-//            confirmButton = {
-//                TextButton(onClick = {
-//                    onDatesSelected(
-//                        rangePickerState.selectedStartDateMillis,
-//                        rangePickerState.selectedEndDateMillis
-//                    )
-//                    onShowPickerChange(false)
-//                }) { Text(stringResource(R.string.done_label)) }
-//            },
-//            dismissButton = {
-//                TextButton(onClick = { onShowPickerChange(false) }) {
-//                    Text(stringResource(R.string.cancel_label))
-//                }
-//            }
-//        ) {
-//            DateRangePicker(
-//                state = rangePickerState,
-//                modifier = Modifier.weight(1f).padding(AppSpacing.md),
-//                title = { Text(stringResource(R.string.select_date_range)) }
-//            )
-//        }
-//    }
-//}
-//
-//@Composable
-//private fun DateDisplayBox(
-//    label: String,
-//    dateMillis: Long?,
-//    onClick: () -> Unit,
-//    modifier: Modifier = Modifier
-//) {
-//    val displayDate = dateMillis?.let {
-//        BankDateFactory.fromMillis(it).toMonthDayDisplay()
-//    } ?: stringResource(R.string.select_date_range)
-//
-//    OutlinedCard(
-//        onClick = onClick,
-//        modifier = modifier
-//    ) {
-//        Column(modifier = Modifier.padding(AppSpacing.md)) {
-//            Text(label, style = MaterialTheme.typography.labelSmall)
-//            Text(displayDate, style = MaterialTheme.typography.bodyMedium)
-//        }
-//    }
+private fun formatUtcMillisToDisplay(millis: Long): String {
+    val sdf = java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault())
+    sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
+    return sdf.format(java.util.Date(millis))
+}

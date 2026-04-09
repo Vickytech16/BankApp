@@ -82,6 +82,7 @@ fun RecipientStepContent(
             SubmitButton(
                 onClick = { viewModel.onRecipientSubmit(onSuccess = onNext) },
                 enabled = viewModel.accountExistsStatus == AccountStatus.EXISTS,
+                modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
                 text = stringResource(R.string.continue_label)
             )
         }

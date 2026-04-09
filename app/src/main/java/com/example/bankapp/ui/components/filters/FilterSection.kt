@@ -77,7 +77,7 @@ fun FilterSection(
 
         FilterItem(
             title = stringResource(R.string.transaction_type_label),
-            options = TransactionType.entries.toSet(),
+            options = TransactionType.entries.filter { it != TransactionType.SCHEDULED_TRANSFER }.toSet(),
             selected = pendingState.selectedTypes,
             onClick = { transactionType ->
                 val currentSelected = pendingState.selectedTypes.toMutableSet()

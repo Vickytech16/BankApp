@@ -59,8 +59,11 @@ fun ErrorTextBuilder(error: FormError?) {
 
                     is FormError.RecoveryKeyMustBe10DigitsLong,
 
-                    is FormError.RecoveryKeyDoesNotMatch
+                    is FormError.RecoveryKeyDoesNotMatch,
 
+                    is FormError.UserNameCannotStartWithNumber,
+
+                    is FormError.SamePassword
                         ->
 
                         stringResource(error.message)
@@ -99,6 +102,28 @@ fun ErrorTextBuilder(error: FormError?) {
                             error.message,
                             stringResource(error.fieldNameRes)
                         )
+
+                    is FormError.BeneficiaryLimitReached
+                       ->
+                           stringResource(
+                               error.message,
+                               error.limit
+                           )
+
+                    is FormError.LimitExceeded
+                        ->
+                           stringResource(
+                               error.message,
+                               error.data
+                           )
+
+                    is FormError.LimitExceededDeposit
+                        ->
+                        stringResource(
+                            error.message,
+                            error.data
+                        )
+
                 }
 
             Text(

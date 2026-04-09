@@ -4,6 +4,7 @@ import android.util.Patterns
 import com.example.bankapp.services.PasswordValidationService
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.errors.PasswordError
+import com.example.bankapp.ui.theme.emailRegex
 import com.example.bankapp.ui.theme.userNameWithSpacesRegex
 import java.math.BigDecimal
 
@@ -32,17 +33,33 @@ fun String.minRequiredCharacterErrorMessageBuilder(fieldName: Int, characterLimi
 }
 
 fun String.invalidUserNameErrorMessageBuilder(): FormError? {
-    return if (this.matches(userNameWithSpacesRegex))
+    return if(this.length>= 1 && this.first().isDigit())
+        FormError.UserNameCannotStartWithNumber
+     else if (this.matches(userNameWithSpacesRegex))
         null
     else
         FormError.InvalidUsername
 }
 
 fun String.invalidEmailErrorMessageBuilder(): FormError? {
-    return if(Patterns.EMAIL_ADDRESS.matcher(this).matches() && this.substringAfterLast('.').length >= 2)
-        null
-    else
-        FormError.InvalidEmailFormat
+        val email = this.trim()
+
+        if (email.isBlank() || email.length > 320) return FormError.InvalidEmailFormat
+        if (!email.contains("@") || !email.contains(".")) return FormError.InvalidEmailFormat
+
+        if (!email.first().isLetterOrDigit()) return FormError.InvalidEmailFormat
+
+        val lastDotIndex = email.lastIndexOf('.')
+        val charsAfterDot = email.length - (lastDotIndex + 1)
+        if (lastDotIndex == -1 || charsAfterDot < 2) return FormError.InvalidEmailFormat
+
+        val tld = email.substring(lastDotIndex + 1)
+        if (!tld.all { it.isLetter() }) return FormError.InvalidEmailFormat
+
+        if(Patterns.EMAIL_ADDRESS.matcher(email).matches())
+            return null
+        else
+            return FormError.InvalidEmailFormat
 }
 
 fun String.invalidNumericalFieldErrorMessageBuilder(fieldNameRes: Int): FormError? {

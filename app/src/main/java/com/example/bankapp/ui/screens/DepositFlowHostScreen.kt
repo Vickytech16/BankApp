@@ -35,7 +35,8 @@ fun DepositFlowHost(
     depositViewModelFactory: DepositViewModelFactory,
     otpViewModelFactory: OtpViewModelFactory,
     passwordConfirmationViewModelFactory: PasswordConfirmationViewModelFactory,
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
+    origin: String
 ) {
     val currentStep = authorizationViewModel.currentStep
     val totalSteps = authorizationViewModel.totalSteps
@@ -124,7 +125,7 @@ fun DepositFlowHost(
                         )
                         2 -> OtpStepContent(
                             otpViewModelFactory = otpViewModelFactory,
-                            onOtpSuccess = { authorizationViewModel.proceedAfterOtp(navController) }
+                            onOtpSuccess = { authorizationViewModel.proceedAfterOtp(navController, origin) }
                         )
                         3 -> PasswordStepContent(
                             passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
@@ -133,7 +134,7 @@ fun DepositFlowHost(
                                 focusManager.clearFocus()
                                 isExiting = true
                                 authorizationViewModel.proceedAfterPassword(navController,
-                                    TRANSACTION_RESULT_ROUTE, DEPOSIT_ROUTE
+                                    "$TRANSACTION_RESULT_ROUTE?origin=$origin", "$DEPOSIT_ROUTE?origin=$origin"
                                 )
                             }
                         )

@@ -1,166 +1,156 @@
 package com.example.bankapp.ui.screens.beneficiaryscreens
 
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Login
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
-import com.example.bankapp.di.viewmodelfactory.AddBeneficiaryViewModelFactory
-import com.example.bankapp.ui.components.appbar.RegularAppBar
-import com.example.bankapp.ui.components.BackButtonHandler
-import com.example.bankapp.ui.components.ErrorTextBuilder
-import com.example.bankapp.ui.components.LargeSpacer
-import com.example.bankapp.ui.components.XLSpacer
-import com.example.bankapp.ui.components.buttons.SubmitButton
-
-import com.example.bankapp.ui.components.navigators.ADD_BENEFICIARY_ROUTE
-import com.example.bankapp.ui.components.navigators.HOME_OTP
-import com.example.bankapp.ui.components.navigators.HOME_ROUTE
-import com.example.bankapp.ui.components.navigators.PAY_ROUTE
-import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.theme.AppPadding
-import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.entities.uientities.uidata.EmailFieldStrategy
 import com.example.bankapp.entities.uientities.uidata.UserNameFieldStrategy
+import com.example.bankapp.ui.components.*
+import com.example.bankapp.ui.components.buttons.SubmitButton
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
+import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.viewmodels.AddBeneficiaryViewModel
+import kotlinx.coroutines.launch
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddBeneficiaryScreen(
-    navController: NavController,
-    beneficiaryViewModelFactory: AddBeneficiaryViewModelFactory,
+fun AddBeneficiaryStepContent(
+    viewModel: AddBeneficiaryViewModel,
+    onNext: () -> Unit
 ) {
-    val viewModel: AddBeneficiaryViewModel = viewModel(factory = beneficiaryViewModelFactory)
-
     val scrollState = rememberScrollState()
-
     val deviceSpec = LocalDeviceSpec.current
-
+    val textFieldColumnWidth = deviceSpec.textFieldWidth
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
-
-    LaunchedEffect(deviceSpec) {
-        if (deviceSpec is DeviceSpec.MobileLandscape) {
-            bringIntoViewRequester.bringIntoView()
-        }
-    }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(viewModel.isVerificationSuccessful) {
-        if(viewModel.isVerificationSuccessful) {
-            navController.navigate("$HOME_OTP/$ADD_BENEFICIARY_ROUTE")
+        if (viewModel.isVerificationSuccessful) {
+            onNext()
         }
     }
 
-
-
-    val textFieldColumnWidth =
-        deviceSpec.textFieldWidth
-
-    BackButtonHandler(navController, PAY_ROUTE)
-
-    Scaffold(
-        topBar = { RegularAppBar(stringResource(R.string.add_beneficiary), {
-            navController.navigate(HOME_ROUTE)
-        }, null)
-     },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
-        contentPadding ->
+        XLSpacer()
+
+        Text(
+            text = stringResource(R.string.add_beneficiary_headline),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.ExtraBold
+        )
+
+        LargeSpacer()
+
+        Text(
+            text = stringResource(R.string.add_beneficiary_description),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.fillMaxWidth(0.8f),
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        XLSpacer()
+
         Column(
-            modifier = AppPadding.padding(contentPadding).fillMaxHeight().verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            XLSpacer()
-
-            Text(
-                text = stringResource(R.string.add_beneficiary_headline),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.ExtraBold
-            )
-
-            XLSpacer()
-
-            Text(
-                text = stringResource(R.string.add_beneficiary_description),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            XLSpacer()
-
-            Column(
-                modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                UnifiedOutlinedTextField(
-                    value = viewModel.userIdentifier,
-                    onValueChange = viewModel::onIdentifierChange,
-                    labelText = stringResource(R.string.email_or_phone_number_label),
-                    isError = viewModel.userIdentifierError != null,
-                    supportingText = {
+            UnifiedOutlinedTextField(
+                value = viewModel.userIdentifier,
+                onValueChange = viewModel::onIdentifierChange,
+                labelText = stringResource(R.string.email_or_phone_number_label),
+                isError = viewModel.userIdentifierError != null,
+                showTickCondition = {false},
+                leadingContent = {
+                    val icon = when {
+                        viewModel.userIdentifier.contains("@") -> Icons.Outlined.Email
+                        viewModel.userIdentifier.isNotEmpty() && (viewModel.userIdentifier.any { it.isDigit() } || viewModel.userIdentifier.startsWith("+")) -> Icons.Outlined.Phone
+                        else -> Icons.AutoMirrored.Outlined.Login
+                    }
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = if (viewModel.userIdentifierError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                supportingText = {
+                    Column {
+                        if (viewModel.showPhoneTip) {
+                            Text(
+                                text = stringResource(R.string.phone_number_tip),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(bottom = AppSpacing.xs)
+                            )
+                        }
                         ErrorTextBuilder(viewModel.userIdentifierError)
-                    },
-                    strategy = EmailFieldStrategy,
-                    leadingIcon = Icons.AutoMirrored.Outlined.Login,
-                )
+                    }
+                },
+                strategy = EmailFieldStrategy,
+                modifier = Modifier
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusEvent {
+                        if (it.isFocused) {
+                            coroutineScope.launch { bringIntoViewRequester.bringIntoView() }
+                        }
+                    }
+            )
 
-                LargeSpacer()
+            LargeSpacer()
 
-                UnifiedOutlinedTextField(
-                    value = viewModel.nickname,
-                    onValueChange = viewModel::onNickNameChange,
-                    labelText = stringResource(R.string.nickname_optional_field_name),
-                    isError = viewModel.nicknameError != null,
-                    supportingText = {
-                        ErrorTextBuilder(viewModel.nicknameError)
-                    },
-                    strategy = UserNameFieldStrategy
-                )
+            UnifiedOutlinedTextField(
+                value = viewModel.nickname,
+                onValueChange = viewModel::onNickNameChange,
+                labelText = stringResource(R.string.nickname_optional_field_name),
+                isError = viewModel.nicknameError != null,
+                supportingText = { ErrorTextBuilder(viewModel.nicknameError) },
+                showTickCondition = {false},
+                strategy = UserNameFieldStrategy,
+                modifier = Modifier
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusEvent {
+                        if (it.isFocused) {
+                            coroutineScope.launch { bringIntoViewRequester.bringIntoView() }
+                        }
+                    }
+            )
 
-                XLSpacer()
+            XLSpacer()
 
-                SubmitButton(
-                    onClick = { viewModel.onSubmit() },
-                    text = stringResource(R.string.submit_button),
-                    isLoading = viewModel.isLoading,
-                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
-                )
+            SubmitButton(
+                onClick = { viewModel.onSubmit() },
+                text = stringResource(R.string.submit_button),
+                isLoading = viewModel.isLoading
+            )
 
-                ErrorTextBuilder(viewModel.submitError)
+            ErrorTextBuilder(viewModel.submitError)
 
-                XLSpacer()
-                XLSpacer()
-            }
+            XLSpacer()
         }
     }
 }

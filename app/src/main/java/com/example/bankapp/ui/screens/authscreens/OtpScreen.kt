@@ -14,10 +14,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -35,6 +37,8 @@ import com.example.bankapp.ui.components.navigators.FORGOT_PASSWORD_ROUTE_AUTH
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.textfields.OtpInputField
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.viewmodels.authviewmodels.OtpViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,12 +52,21 @@ fun OtpScreen(
 ) {
     val otpViewModel: OtpViewModel = viewModel(factory = otpViewModelFactory)
 
+    val deviceSpec = LocalDeviceSpec.current
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val title = stringResource(R.string.your_otp)
     val message = stringResource(R.string.otp_field_name)
 
     var showExitDialog by remember { mutableStateOf(false) }
+
+    val scrollBehavior = if (deviceSpec is DeviceSpec.MobileLandscape) {
+        TopAppBarDefaults.enterAlwaysScrollBehavior()
+    }
+    else {
+        null
+    }
 
    BackHandlerWithWarning(
        onConfirm = {
@@ -118,7 +131,21 @@ fun OtpScreen(
                 navBehaviour = {
                     showExitDialog = true
                 },
-                scrollBehavior = null)
+                scrollBehavior = scrollBehavior)
+        },
+        modifier = Modifier.then(
+            if (scrollBehavior != null) {
+                Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+            }
+            else {
+                Modifier
+            }
+        ),
+        contentWindowInsets = if (deviceSpec is DeviceSpec.MobileLandscape) {
+            WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
+        }
+        else {
+            ScaffoldDefaults.contentWindowInsets
         }
     ) { paddingValues ->
         if (!permissionGranted) {

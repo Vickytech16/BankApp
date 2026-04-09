@@ -1,6 +1,5 @@
 package com.example.bankapp.di
 
-import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.AuthorizationViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ChangePasswordViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.FilterViewModelFactory
@@ -11,10 +10,8 @@ import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.RecoveryKeyViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.RegisterViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.ThemeViewModelFactory
-import com.example.bankapp.di.viewmodelfactory.TransactionDetailsViewModelFactory
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.CountryRepository
-import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.entities.ChangePasswordState
 import com.example.bankapp.utilities.SharedPreferenceHelper
@@ -25,7 +22,6 @@ class ViewModelContainer(
     changePasswordState: ChangePasswordState,
     private val sharedPreferenceHelper: SharedPreferenceHelper,
     private val accountRepository: AccountRepository,
-    private val transactionRepository: TransactionRepository,
     private val countryRepository: CountryRepository
 ) {
     val loginViewModelFactory: LoginViewModelFactory = LoginViewModelFactory(
@@ -66,6 +62,4 @@ class ViewModelContainer(
 
     val authorizationViewModelFactory: AuthorizationViewModelFactory =
         AuthorizationViewModelFactory()
-
-
 }

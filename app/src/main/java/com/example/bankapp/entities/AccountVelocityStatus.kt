@@ -8,7 +8,8 @@ data class AccountVelocityStatus(
     val dailySpendLimit: BigDecimal,
     val transactionsToday: Int,
     val maxTransactions: Int,
-    val accountType: AccountType
+    val accountType: AccountType,
+    val nextResetMillis: Long
 ) {
     val dailyLimitProgress: Float
         get() = if (dailySpendLimit > BigDecimal.ZERO) {

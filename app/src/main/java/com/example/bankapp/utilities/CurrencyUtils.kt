@@ -1,6 +1,7 @@
 package com.example.bankapp.utilities
 
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Currency
@@ -40,24 +41,24 @@ object CurrencyUtils {
     }
 
     fun convertCurrency(
-        amount: String,
+        amount: BigDecimal,
         rates: Map<String, Double>?,
         baseCountryCode: String,
         targetCountryCode: String
-    ): String {
-        val numericAmount = amount.toDoubleOrNull() ?: 0.0
-        if (rates == null || numericAmount == 0.0) return "0.00"
+    ): BigDecimal {
+        if (rates == null || amount.signum() == 0) return 0.00.toBigDecimal()
 
         val baseCurrency = getCurrencyCode(baseCountryCode)
         val targetCurrency = getCurrencyCode(targetCountryCode)
 
-        val baseRate = rates[baseCurrency] ?: 1.0
-        val targetRate = rates[targetCurrency] ?: 1.0
-        println("Base: $baseCountryCode ($baseRate), Target: $targetCountryCode ($targetRate)")
+        val baseRate = BigDecimal.valueOf(rates[baseCurrency] ?: 1.0)
+        val targetRate = BigDecimal.valueOf(rates[targetCurrency] ?: 1.0)
 
-        val result = (numericAmount / baseRate) * targetRate
+        if (baseRate.signum() == 0) return 0.00.toBigDecimal()
+        val amountInBase = amount.divide(baseRate, 8, RoundingMode.HALF_UP)
 
-        return formatter.format(result)
+        val result = amountInBase.multiply(targetRate)
+        return result
     }
 
 

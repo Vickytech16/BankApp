@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 class CurrencyConvertorViewModel(
     private val currencyExchangeRepository: CurrencyExchangeRepository,
@@ -95,12 +96,14 @@ class CurrencyConvertorViewModel(
     }
 
     val convertedValue: String
-        get() = CurrencyUtils.convertCurrency(
-            amount = converterInput,
+        get() =
+            CurrencyUtils.formatCurrency(
+            CurrencyUtils.convertCurrency(
+            amount = converterInput.toBigDecimalOrNull() ?: BigDecimal.ZERO,
             rates = exchangeRates?.rates,
             baseCountryCode = topCurrency?.countryCode ?: user.countryCode,
             targetCountryCode = bottomCurrency?.countryCode ?: "US"
-        )
+        ), topCurrency?.countryCode ?: user.countryCode)
 
     fun onConverterInputChange(newValue: String) {
         if (newValue.isEmpty() || newValue.matches(depositAmountRegex)) {

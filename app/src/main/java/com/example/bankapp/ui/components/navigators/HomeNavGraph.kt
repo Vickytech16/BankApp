@@ -59,7 +59,7 @@ fun NavGraphBuilder.homeNavGraph(
             val transactionDetailsViewModelFactory = TransactionDetailsViewModelFactory(transactionRepository, transactionExportService)
             val homeViewModelFactory = HomeViewModelFactory(sessionState, transactionRepository)
             val cashTransferViewModelFactory = CashTransferViewModelFactory(sessionState, transactionRepository, beneficiaryRepository, accountRepository, authorizationViewModel, userRepository, currencyExchangeRepository )
-            val depositViewModelFactory = DepositViewModelFactory(sessionState, authorizationViewModel)
+            val depositViewModelFactory = DepositViewModelFactory(sessionState, authorizationViewModel, currencyExchangeRepository)
             val passwordConfirmationViewModelFactory = PasswordConfirmationViewModelFactory(sessionState, sessionViewModel)
             val transactionResultViewModelFactory = TransactionResultViewModelFactory(transactionRepository, beneficiaryRepository, authorizationViewModel)
             val beneficiaryViewModelFactory = AddBeneficiaryViewModelFactory(userRepository, beneficiaryRepository, sessionState, authorizationViewModel, accountRepository)
@@ -68,27 +68,7 @@ fun NavGraphBuilder.homeNavGraph(
             val manageBeneficiaryViewModelFactory = ManageBeneficiaryViewModelFactory(sessionState, beneficiaryRepository)
             val currencyConvertorViewModelFactory = CurrencyConvertorViewModelFactory(sessionState =sessionState, currencyExchangeRepository =  currencyExchangeRepository, countryRepository =  countryRepository)
 
-            composable(
-                route = HOME_ROUTE,
-                enterTransition = {
-                    val initialRoute = initialState.destination.route
-                    if (initialRoute in routeOrder) {
-                        val initialIndex = routeOrder.indexOf(initialRoute)
-                        val targetIndex = routeOrder.indexOf(HOME_ROUTE)
-                        if (targetIndex > initialIndex) slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
-                        else slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
-                    } else null
-                },
-                exitTransition = {
-                    val targetRoute = targetState.destination.route
-                    if (targetRoute in routeOrder) {
-                        val initialIndex = routeOrder.indexOf(HOME_ROUTE)
-                        val targetIndex = routeOrder.indexOf(targetRoute)
-                        if (targetIndex > initialIndex) slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
-                        else slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
-                    } else null
-                }
-            ) {
+            composable(route = HOME_ROUTE,) {
                 val transactionsViewModel: TransactionsViewModel = viewModel(factory = transactionsViewModelFactory)
                 HomeScreen(
                     homeViewModelFactory = homeViewModelFactory,
@@ -98,54 +78,14 @@ fun NavGraphBuilder.homeNavGraph(
                 )
             }
 
-            composable(
-                route = PAY_ROUTE,
-                enterTransition = {
-                    val initialRoute = initialState.destination.route
-                    if (initialRoute in routeOrder) {
-                        val initialIndex = routeOrder.indexOf(initialRoute)
-                        val targetIndex = routeOrder.indexOf(PAY_ROUTE)
-                        if (targetIndex > initialIndex) slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
-                        else slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
-                    } else null
-                },
-                exitTransition = {
-                    val targetRoute = targetState.destination.route
-                    if (targetRoute in routeOrder) {
-                        val initialIndex = routeOrder.indexOf(PAY_ROUTE)
-                        val targetIndex = routeOrder.indexOf(targetRoute)
-                        if (targetIndex > initialIndex) slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
-                        else slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
-                    } else null
-                }
-            ) {
+            composable(route = PAY_ROUTE) {
                 PayScreen(
                     navController = navController,
                     currencyConvertorViewModelFactory = currencyConvertorViewModelFactory
                 )
             }
 
-            composable(
-                route = PROFILE_ROUTE,
-                enterTransition = {
-                    val initialRoute = initialState.destination.route
-                    if (initialRoute in routeOrder) {
-                        val initialIndex = routeOrder.indexOf(initialRoute)
-                        val targetIndex = routeOrder.indexOf(PROFILE_ROUTE)
-                        if (targetIndex > initialIndex) slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
-                        else slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
-                    } else null
-                },
-                exitTransition = {
-                    val targetRoute = targetState.destination.route
-                    if (targetRoute in routeOrder) {
-                        val initialIndex = routeOrder.indexOf(PROFILE_ROUTE)
-                        val targetIndex = routeOrder.indexOf(targetRoute)
-                        if (targetIndex > initialIndex) slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
-                        else slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
-                    } else null
-                }
-            ) {
+            composable(route = PROFILE_ROUTE) {
                 ProfileScreen(
                     navController = navController,
                     profileViewModelFactory = profileViewModelFactory,
@@ -154,7 +94,7 @@ fun NavGraphBuilder.homeNavGraph(
                 )
             }
 
-            composable(TRANSACTIONS_LOG_ROUTE) {
+            composable(TRANSACTIONS_LOG_ROUTE){
                 val transactionsViewModel: TransactionsViewModel = viewModel(factory = transactionsViewModelFactory)
                 TransactionsScreen(
                     transactionsViewModel = transactionsViewModel,
@@ -168,7 +108,7 @@ fun NavGraphBuilder.homeNavGraph(
                 arguments = listOf(
                     navArgument("transactionId") { type = NavType.StringType },
                     navArgument("origin") { type = NavType.StringType; nullable = true; defaultValue = "default" }
-                )
+                ),
             ) { backStackEntry ->
                 val transactionId = backStackEntry.arguments?.getString("transactionId") ?: ""
                 val backRoute = backStackEntry.arguments?.getString("origin") ?: HOME_ROUTE
@@ -182,9 +122,10 @@ fun NavGraphBuilder.homeNavGraph(
             }
 
             composable(
-                route = "$CASH_TRANSFER_ROUTE/{friendAccNo}",
+                route = "$CASH_TRANSFER_ROUTE/{friendAccNo}?origin={origin}",
                 arguments = listOf(
-                    navArgument("friendAccNo") { type = NavType.StringType }
+                    navArgument("friendAccNo") { type = NavType.StringType },
+                    navArgument("origin") { type = NavType.StringType; defaultValue = HOME_ROUTE }
                 ),
                 enterTransition = {
                     slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
@@ -196,18 +137,23 @@ fun NavGraphBuilder.homeNavGraph(
                     slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
                 }
             ) { backStackEntry ->
+                val origin = backStackEntry.arguments?.getString("origin") ?: HOME_ROUTE
                 CashTransferFlowHost(
                     navController = navController,
                     authorizationViewModel = authorizationViewModel,
                     cashTransferViewModelFactory = cashTransferViewModelFactory,
                     otpViewModelFactory = otpViewModelFactory,
                     passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
-                    sessionViewModel = sessionViewModel
+                    sessionViewModel = sessionViewModel,
+                    origin = origin
                 )
             }
 
             composable(
-                route = CASH_TRANSFER_ROUTE,
+                route = "$CASH_TRANSFER_ROUTE?origin={origin}",
+                arguments = listOf(
+                    navArgument("origin") { type = NavType.StringType; defaultValue = HOME_ROUTE }
+                ),
                 enterTransition = {
                     slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
                 },
@@ -217,19 +163,24 @@ fun NavGraphBuilder.homeNavGraph(
                 popExitTransition = {
                     slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
                 }
-            ) {
+            ) { backStackEntry ->
+                val origin = backStackEntry.arguments?.getString("origin") ?: HOME_ROUTE
                 CashTransferFlowHost(
                     navController = navController,
                     authorizationViewModel = authorizationViewModel,
                     cashTransferViewModelFactory = cashTransferViewModelFactory,
                     otpViewModelFactory = otpViewModelFactory,
                     passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
-                    sessionViewModel = sessionViewModel
+                    sessionViewModel = sessionViewModel,
+                    origin = origin
                 )
             }
 
             composable(
-                route = DEPOSIT_ROUTE,
+                    route = "$DEPOSIT_ROUTE?origin={origin}",
+                    arguments = listOf(
+                        navArgument("origin") { type = NavType.StringType; defaultValue = HOME_ROUTE }
+                    ),
                 enterTransition = {
                     slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
                 },
@@ -242,35 +193,27 @@ fun NavGraphBuilder.homeNavGraph(
                 popExitTransition = {
                     slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
                 }
-            ) {
+            ) {backStackEntry ->
+                val origin = backStackEntry.arguments?.getString("origin") ?: HOME_ROUTE
                 DepositFlowHost(
                     navController = navController,
                     authorizationViewModel = authorizationViewModel,
                     depositViewModelFactory = depositViewModelFactory,
                     otpViewModelFactory = otpViewModelFactory,
                     passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
-                    sessionViewModel = sessionViewModel
+                    sessionViewModel = sessionViewModel,
+                    origin = origin
                 )
             }
 
             composable(
-                route = "$PASSWORD_CONFIRMATION_ROUTE/{backRoute}",
+                route = "$TRANSACTION_RESULT_ROUTE?origin={origin}",
                 arguments = listOf(
-                    navArgument("backRoute") { type = NavType.StringType; defaultValue = MAIN_ROUTE }
-                )
-            ) { backStackEntry ->
-                val backRoute = backStackEntry.arguments?.getString("backRoute") ?: MAIN_ROUTE
-                PasswordConfirmationScreen(
-                    navController = navController,
-                    passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
-                    onDismissRoute = backRoute,
-                    onPasswordVerificationSuccess = {  },
-                    sessionViewModel = sessionViewModel
-                )
-            }
-
-            composable(
-                route = TRANSACTION_RESULT_ROUTE,
+                    navArgument("origin") {
+                        type = NavType.StringType
+                        defaultValue = HOME_ROUTE
+                    }
+                ),
                 enterTransition = {
                     EnterTransition.None
                 },
@@ -280,19 +223,71 @@ fun NavGraphBuilder.homeNavGraph(
                         animationSpec = tween(animSpeed)
                     )
                 }
-            ) {
-                TransactionResultScreen(transactionResultViewModelFactory, navController, authorizationViewModel)
+            ) {backStackEntry ->
+                val origin = backStackEntry.arguments?.getString("origin") ?: HOME_ROUTE
+                TransactionResultScreen(transactionResultViewModelFactory, navController, authorizationViewModel,
+                    onDone = {
+                    navController.navigate(origin) {
+                        popUpTo(MAIN_ROUTE) { inclusive = false }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                })
             }
 
-            composable(ADD_BENEFICIARY_ROUTE) {
-                AddBeneficiaryScreen(beneficiaryViewModelFactory = beneficiaryViewModelFactory, navController =  navController)
+
+            composable(
+                route = ADD_BENEFICIARY_ROUTE,
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                },
+                popEnterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                }
+            ){
+                AddBeneficiaryFlowHost(
+                    navController = navController,
+                    authorizationViewModel = authorizationViewModel,
+                    addBeneficiaryViewModelFactory = beneficiaryViewModelFactory,
+                    otpViewModelFactory = otpViewModelFactory,
+                    passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
+                    sessionViewModel = sessionViewModel,
+
+                )
             }
 
-            composable(PAY_TO_BENEFICIARY_ROUTE) {
-                PayToBeneficiaryScreen(payToBeneficiaryViewModelFactory, navController)
+            composable(
+                route = "$PAY_TO_BENEFICIARY_ROUTE?origin={origin}",
+                arguments = listOf(
+                    navArgument("origin") { type = NavType.StringType; defaultValue = PAY_ROUTE }
+                )
+            ){
+                backStackEntry ->
+                val origin = backStackEntry.arguments?.getString("origin") ?: PAY_ROUTE
+                PayToBeneficiaryScreen(payToBeneficiaryViewModelFactory, navController, origin = origin)
             }
 
-            composable(MANAGE_BENEFICIARY_ROUTE) {
+            composable(
+                route = MANAGE_BENEFICIARY_ROUTE,
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                },
+                popEnterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                }
+            ){
                 ManageBeneficiaryScreen(manageBeneficiaryViewModelFactory, navController)
             }
 
@@ -308,11 +303,25 @@ fun NavGraphBuilder.homeNavGraph(
                     otpViewModelFactory = otpViewModelFactory,
                     backRoute = backRoute,
                     popUpRoute = HOME_ROUTE,
-                    onOtpSuccess = { authorizationViewModel.proceedAfterOtp(navController) }
+                    onOtpSuccess = { authorizationViewModel.proceedAfterOtp(navController, HOME_ROUTE) }
                 )
             }
 
-            composable(CHANGE_PASSWORD_ROUTE_HOME) {
+            composable(
+                route = CHANGE_PASSWORD_ROUTE_HOME,
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                },
+                popEnterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(animSpeed))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(animSpeed))
+                }
+            ){
                 ChangePasswordScreen(
                     navController = navController,
                     viewModelFactory = changePasswordViewModelFactory,

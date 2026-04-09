@@ -6,11 +6,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
+import com.example.bankapp.entities.AccountVelocityStatus
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.entities.errors.FormError
 import com.example.bankapp.entities.types.account.AccountStatus
+import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.repositories.*
 import com.example.bankapp.utilities.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
@@ -54,6 +59,30 @@ class CashTransferViewModel(
     var recipientName by mutableStateOf("")
         private set
 
+    val velocityStatus: StateFlow<AccountVelocityStatus?> =
+        transactionRepository.getAccountVelocityStatus(account.value.accNo, user.value)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    private val currentTransactionType: TransactionType
+        get() = if (isInternational) TransactionType.INTERNATIONAL_TRANSFER else TransactionType.CASH_TRANSFER
+
+    val localMaxPerTxLimit: BigDecimal
+        get() {
+            val maxUsd = account.value.accountType.getMaxPerTransaction(currentTransactionType)
+            val myRate = exchangeRates[CurrencyUtils.getCurrencyCode(user.value.countryCode)] ?: 1.0
+            return maxUsd.multiply(BigDecimal.valueOf(myRate)).setScale(2, java.math.RoundingMode.HALF_UP)
+        }
+    val isAmountValidForSubmission: Boolean
+        get() {
+            val currentAmount = amount.toBigDecimalOrNull() ?: BigDecimal.ZERO
+            if (currentAmount <= BigDecimal.ZERO) return false
+
+            val myRate = exchangeRates[CurrencyUtils.getCurrencyCode(user.value.countryCode)] ?: 1.0
+            val amountInUsd = currentAmount.divide(BigDecimal.valueOf(myRate), 8, java.math.RoundingMode.HALF_UP)
+
+            return amountInUsd <= account.value.accountType.getMaxPerTransaction(currentTransactionType)
+        }
+
     init {
         loadExchangeRates()
     }
@@ -68,10 +97,10 @@ class CashTransferViewModel(
 
     val convertedAmountDisplay: String
         get() {
-            if (amount.isEmpty() || exchangeRates.isEmpty()) return ""
-            val result = CurrencyUtils.convertCurrency(amount, exchangeRates, user.value.countryCode, receiverCountryCode)
+            if (amount.isEmpty() || exchangeRates.isEmpty() || amount.toBigDecimalOrNull()==null) return ""
+            val result = CurrencyUtils.convertCurrency(amount.toBigDecimal(), exchangeRates, user.value.countryCode, receiverCountryCode)
             val symbol = CurrencyUtils.getCurrencySymbol(receiverCountryCode)
-            return "$result $symbol"
+            return "${CurrencyUtils.formatCurrency(result, user.value.countryCode)} $symbol"
         }
 
     fun onFriendPay(accNo: String) {

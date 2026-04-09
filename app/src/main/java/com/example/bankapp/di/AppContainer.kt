@@ -42,6 +42,7 @@ class AppContainer(applicationContext: Context) {
     private val sharedPreferenceService: SharedPreferenceService = SharedPreferenceService(applicationContext)
     val sharedPreferenceHelper: SharedPreferenceHelper = SharedPreferenceHelper(sharedPreferenceService, userRepository)
     val changePasswordState: ChangePasswordState = ChangePasswordState()
-    val viewModelContainer: ViewModelContainer = ViewModelContainer(userRepository, changePasswordState,sharedPreferenceHelper, accountRepository, transactionRepository, countryRepository)
+    val viewModelContainer: ViewModelContainer = ViewModelContainer(userRepository, changePasswordState,sharedPreferenceHelper, accountRepository,
+        countryRepository)
 
 }

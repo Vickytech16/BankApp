@@ -1,16 +1,26 @@
 package com.example.bankapp.ui.components.homeitems
 
-import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,18 +28,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
 import com.example.bankapp.entities.AccountVelocityStatus
 import com.example.bankapp.ui.components.AutoResizeText
-import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.utilities.CurrencyUtils
-import java.math.BigDecimal
 
 @Composable
 fun HomeVelocityCard(
@@ -40,8 +48,8 @@ fun HomeVelocityCard(
     countryCode: String
 ) {
     val currencySymbol = CurrencyUtils.getCurrencySymbol(countryCode)
+    val cardBackgroundGradient = 0.12f
 
-    // Calculate progress for the bar
     val spendProgress = (velocityStatus.moneySpentToday.toDouble() /
             velocityStatus.dailySpendLimit.toDouble()).coerceIn(0.0, 1.0).toFloat()
 
@@ -51,131 +59,176 @@ fun HomeVelocityCard(
         else "••••••"
     }
 
+    val timeRemaining = remember(velocityStatus.nextResetMillis) {
+        val diff = velocityStatus.nextResetMillis - System.currentTimeMillis()
+        val hours = (diff / (1000 * 60 * 60)).coerceAtLeast(0)
+        val mins = ((diff / (1000 * 60)) % 60).coerceAtLeast(0)
+        if (hours > 0) "$hours hr $mins min" else "$mins min"
+    }
+
+    val formattedLimit = remember(velocityStatus.dailySpendLimit) {
+        CurrencyUtils.formatCurrency(velocityStatus.dailySpendLimit, countryCode)
+    }
+
     Card(
         shape = RoundedCornerShape(size = dimensionResource(deviceSpec.homeScreenCardRoundedCorner)),
-        colors = CardDefaults.cardColors(
-            // Use SurfaceVariant to distinguish from the Primary Home Card
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = dimensionResource(deviceSpec.homeScreenCardElevation)
         ),
-        elevation = CardDefaults.cardElevation(dimensionResource(deviceSpec.homeScreenCardElevation)),
         modifier = Modifier
             .fillMaxWidth(deviceSpec.homeScreenCardWidth)
             .padding(vertical = AppSpacing.md)
-            .animateContentSize() // Smoothly expand/collapse when bar appears
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(AppSpacing.lg)
         ) {
-            // Header
-            Text(
-                text = stringResource(R.string.daily_velocity_label),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.Bold
-            )
-
-            XSSpacer()
-
-            // Main Amount
-            AutoResizeText(
-                text = "$currencySymbol $formattedSpent",
-                modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.ExtraBold),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            // Progress Bar (Visible only when details are shown or always for UX)
-            if (isVelocityVisible) {
-                SmallSpacer()
-                VelocityProgressBar(progress = spendProgress)
-                XSSpacer()
-
-                val spent = CurrencyUtils.formatCurrency(velocityStatus.moneySpentToday, countryCode)
-                val limit = CurrencyUtils.formatCurrency(velocityStatus.dailySpendLimit, countryCode)
-
-                Text(
-                    text = stringResource(R.string.spent_today_out_of, "$currencySymbol $spent", "$currencySymbol $limit"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
-            }
-
-            SmallSpacer()
-
-            // Clickable Bottom Section
-            Surface(
-                onClick = onToggleVisibility,
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = RoundedCornerShape(dimensionResource(deviceSpec.homeScreenCardAccountInfoRoundedCorner)),
+            Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                // ── Top row: label (left) + logo (right) ──────────────────────
                 Row(
-                    modifier = Modifier.padding(deviceSpec.homeScreenCardAccountInfoPadding),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (isVelocityVisible) "Hide Details" else "Tap to View Details",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    // Transaction count
-                    Text(
-                        text = "${velocityStatus.transactionsToday}/${velocityStatus.maxTransactions} Txns",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        text = "Today's Spending",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
                     )
+                    Image(
+                        painter = painterResource(R.drawable.bank_logo),
+                        contentDescription = null,
+                        modifier = Modifier.size(dimensionResource(deviceSpec.homeScreenCardLogoSize))
+                    )
+                }
+
+                XSSpacer()
+
+                // ── Amount row: large amount (left) + eye toggle (right) ───────
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AutoResizeText(
+                        text = "$currencySymbol $formattedSpent",
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    XSSpacer()
+
+                    IconButton(onClick = onToggleVisibility) {
+                        Icon(
+                            imageVector = if (isVelocityVisible)
+                                Icons.Outlined.Visibility
+                            else
+                                Icons.Outlined.VisibilityOff,
+                            contentDescription = if (isVelocityVisible)
+                                "Hide velocity"
+                            else
+                                "Show velocity",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // ── Progress bar + limit/reset row (fixed height, always reserved) ──
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = deviceSpec.homeScreenCardAccountSectionSpacing)
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        // Progress bar — invisible when hidden, but space always reserved
+                        LinearProgressIndicator(
+                            progress = { if (isVelocityVisible) spendProgress else 0f },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(10.dp)
+                                .clip(RoundedCornerShape(5.dp)),
+                            color = when {
+                                !isVelocityVisible -> Color.Transparent
+                                spendProgress > 0.9f -> MaterialTheme.colorScheme.error
+                                spendProgress > 0.7f -> Color(0xFFFFA500)
+                                else -> MaterialTheme.colorScheme.primary
+                            },
+                            trackColor = if (isVelocityVisible)
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+                            else
+                                Color.Transparent
+                        )
+
+                        XSSpacer()
+
+                        // Limit + reset line — always takes up space, hidden text when not visible
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = if (isVelocityVisible)
+                                    "Limit: $currencySymbol $formattedLimit"
+                                else
+                                    "Limit: $currencySymbol ••••••",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = if (isVelocityVisible)
+                                    "Resets in $timeRemaining"
+                                else
+                                    "Resets in ••••••",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+
+                // ── Bottom tab: daily transaction count ───────────────────────
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = cardBackgroundGradient),
+                            shape = RoundedCornerShape(dimensionResource(deviceSpec.homeScreenCardAccountInfoRoundedCorner))
+                        )
+                        .padding(deviceSpec.homeScreenCardAccountInfoPadding)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Daily Count Usage",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = if (isVelocityVisible)
+                                "${velocityStatus.transactionsToday}/${velocityStatus.maxTransactions} Txns"
+                            else
+                                "••••/${velocityStatus.maxTransactions} Txns",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
         }
     }
 }
-
-@Composable
-private fun VelocityProgressBar(progress: Float) {
-    // Dynamic color based on how close they are to the limit
-    val barColor = when {
-        progress > 0.9f -> MaterialTheme.colorScheme.error
-        progress > 0.7f -> Color(0xFFFFA500) // Orange warning
-        else -> MaterialTheme.colorScheme.primary
-    }
-
-    LinearProgressIndicator(
-        progress = { progress },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(8.dp) // Slightly thicker for visibility
-            .clip(RoundedCornerShape(4.dp)),
-        color = barColor,
-        trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
-    )
-}
-
-@Composable
-private fun VelocityInfoItem(
-    label: String,
-    value: String,
-    color: Color,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-        Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = color)
-    }
-}
-
-//@Composable
-//private fun RuleRow(label: String, value: String) {
-//    Row(
-//        modifier = Modifier.fillMaxWidth().padding(vertical = AppSpacing.xs),
-//        horizontalArrangement = Arrangement.SpaceBetween
-//    ) {
-//        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-//        Text(text = value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
-//    }
-//}

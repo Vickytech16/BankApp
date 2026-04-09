@@ -10,6 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.bankapp.entities.AccountVelocityStatus
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.TransactionRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -20,14 +23,13 @@ class HomeViewModel(
     val user = sessionState.user
     val account = sessionState.account
 
-    var velocityStatus by mutableStateOf<AccountVelocityStatus?>(null)
-        private set
-
-    init {
-        viewModelScope.launch {
-            velocityStatus = transactionRepository.getAccountVelocityStatus(account.value.accNo, user.value)
-        }
-    }
+    val velocityStatus: StateFlow<AccountVelocityStatus?> =
+        transactionRepository.getAccountVelocityStatus(account.value.accNo, user.value)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null
+            )
 
     var currentCardPage by mutableIntStateOf(0)
         private set

@@ -13,8 +13,21 @@ sealed class FormError(override val message: Int): UiError {
     class TooLongData(val fieldNameRes: Int, val characterLimitRes: Int):
             FormError(R.string.data_too_long_error)
 
+    class LimitExceeded(val data: String):
+            FormError(R.string.limit_exceeded_error)
+
+    object UserNameCannotStartWithNumber:
+            FormError(R.string.username_cannot_start_with_number)
+
+
+    class LimitExceededDeposit(val data: String):
+        FormError(R.string.limit_exceeded_deposit_error)
+
     class TooShortData(val fieldNameRes: Int, val characterLimitRes: Int):
         FormError(R.string.data_too_short_error)
+
+    class BeneficiaryLimitReached(val limit: Int):
+        FormError(R.string.beneficary_limit_reached)
 
     object InvalidEmailFormat:
             FormError(R.string.invalid_email_format_error)
@@ -58,6 +71,9 @@ sealed class FormError(override val message: Int): UiError {
 
     object OtpExpired:
             FormError(R.string.otp_expired)
+
+    object SamePassword:
+            FormError(R.string.same_password)
 
     object InvalidDepositAmountFormat:
             FormError(R.string.invalid_deposit_amount_format_error)

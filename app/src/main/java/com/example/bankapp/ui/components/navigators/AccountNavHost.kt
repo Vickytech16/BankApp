@@ -6,6 +6,7 @@ import androidx.navigation.navigation
 import com.example.bankapp.di.viewmodelfactory.AccountCreationViewModelFactory
 import com.example.bankapp.entities.SessionState
 import com.example.bankapp.repositories.AccountRepository
+import com.example.bankapp.repositories.CurrencyExchangeRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.ui.screens.AccountCreationScreen
 import com.example.bankapp.viewmodels.SessionViewModel
@@ -14,7 +15,8 @@ fun NavGraphBuilder.accountNavGraph(
     accountRepository: AccountRepository,
     transactionRepository: TransactionRepository,
     sessionViewModel: SessionViewModel,
-    sessionState: SessionState
+    sessionState: SessionState,
+    currencyExchangeRepository: CurrencyExchangeRepository
     ){
 
     if(sessionState is SessionState.Authenticated.AccountNotRegistered) {
@@ -23,7 +25,8 @@ fun NavGraphBuilder.accountNavGraph(
                 accountRepository = accountRepository,
                 transactionRepository = transactionRepository,
                 sessionViewModel = sessionViewModel,
-                sessionState = sessionState
+                sessionState = sessionState,
+                currencyRepository = currencyExchangeRepository
                 )
         navigation(
             startDestination = ACCOUNT_CREATION_ROUTE,

@@ -1,5 +1,7 @@
 package com.example.bankapp.ui.components.navigators
 
+import android.annotation.SuppressLint
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +25,7 @@ import com.example.bankapp.viewmodels.AuthorizationViewModel
 import com.example.bankapp.viewmodels.SessionViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AppNavHost(
     windowSizeClass: WindowSizeClass,
@@ -35,23 +38,16 @@ fun AppNavHost(
     currencyExchangeRepository: CurrencyExchangeRepository,
     countryRepository: CountryRepository,
     changePasswordState: ChangePasswordState,
-    transactionExportService: TransactionExportService
+    transactionExportService: TransactionExportService,
+    sessionViewModel: SessionViewModel
 ) {
     val navController = rememberNavController()
 
-    val sessionViewModel: SessionViewModel =
-        viewModel(factory = viewModelContainer.loggedInSessionViewModelFactory)
-
     val authorizationViewModel: AuthorizationViewModel = viewModel(factory = viewModelContainer.authorizationViewModelFactory)
-
-    LaunchedEffect(sessionViewModel.sessionState) {
-        sessionViewModel.restoreSession()
-    }
 
     val sessionState by sessionViewModel.sessionState.collectAsState()
 
     val startDestination = when(sessionState) {
-
         is SessionState.Loading ->
             LOADING_ROUTE
 
@@ -64,49 +60,53 @@ fun AppNavHost(
         is SessionState.Authenticated.AccountRegistered ->
             MAIN_ROUTE
     }
-    NavHost(
-        navController = navController,
-        startDestination = startDestination
-    )  {
-        authNavGraph(
+
+    Scaffold() {
+        NavHost(
             navController = navController,
-            loginViewModelFactory = viewModelContainer.loginViewModelFactory,
-            registerViewModelFactory = viewModelContainer.registerViewModelFactory,
-            forgotPasswordViewModelFactory = viewModelContainer.forgotPasswordViewModelFactory,
-            changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
-            otpViewModelFactory = viewModelContainer.otpViewModelFactory,
-            recoveryKeyViewModelFactory = viewModelContainer.recoveryKeyViewModelFactory ,
-            restoreSession = { sessionViewModel.restoreSession() }
-        )
+            startDestination = startDestination
+        ) {
+            splashNavGraph()
 
-        homeNavGraph(
-            navController = navController,
-            windowSizeClass = windowSizeClass,
-            sessionState = sessionState,
-            transactionRepository = transactionRepository,
-            accountRepository = accountRepository,
-            otpViewModelFactory = viewModelContainer.otpViewModelFactory,
-            beneficiaryRepository = beneficiaryRepository,
-            userRepository = userRepository,
-            filterViewModelFactory = viewModelContainer.filterViewModelFactory,
-            themeViewModel = themeViewModel,
-            authorizationViewModel = authorizationViewModel,
-            currencyExchangeRepository = currencyExchangeRepository,
-            sessionViewModel = sessionViewModel,
-            changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
-            recoveryKeyViewModelFactory = viewModelContainer.recoveryKeyViewModelFactory,
-            countryRepository = countryRepository,
-            changePasswordState = changePasswordState,
-            transactionExportService = transactionExportService
-        )
+            authNavGraph(
+                navController = navController,
+                loginViewModelFactory = viewModelContainer.loginViewModelFactory,
+                registerViewModelFactory = viewModelContainer.registerViewModelFactory,
+                forgotPasswordViewModelFactory = viewModelContainer.forgotPasswordViewModelFactory,
+                changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
+                otpViewModelFactory = viewModelContainer.otpViewModelFactory,
+                recoveryKeyViewModelFactory = viewModelContainer.recoveryKeyViewModelFactory,
+                restoreSession = { sessionViewModel.restoreSession() }
+            )
 
-        splashNavGraph()
+            homeNavGraph(
+                navController = navController,
+                windowSizeClass = windowSizeClass,
+                sessionState = sessionState,
+                transactionRepository = transactionRepository,
+                accountRepository = accountRepository,
+                otpViewModelFactory = viewModelContainer.otpViewModelFactory,
+                beneficiaryRepository = beneficiaryRepository,
+                userRepository = userRepository,
+                filterViewModelFactory = viewModelContainer.filterViewModelFactory,
+                themeViewModel = themeViewModel,
+                authorizationViewModel = authorizationViewModel,
+                currencyExchangeRepository = currencyExchangeRepository,
+                sessionViewModel = sessionViewModel,
+                changePasswordViewModelFactory = viewModelContainer.changePasswordViewModelFactory,
+                recoveryKeyViewModelFactory = viewModelContainer.recoveryKeyViewModelFactory,
+                countryRepository = countryRepository,
+                changePasswordState = changePasswordState,
+                transactionExportService = transactionExportService
+            )
 
-        accountNavGraph(
-            sessionViewModel = sessionViewModel,
-            transactionRepository = transactionRepository,
-            accountRepository = accountRepository,
-            sessionState = sessionState
-        )
+            accountNavGraph(
+                sessionViewModel = sessionViewModel,
+                transactionRepository = transactionRepository,
+                accountRepository = accountRepository,
+                sessionState = sessionState,
+                currencyExchangeRepository = currencyExchangeRepository
+            )
+        }
     }
 }

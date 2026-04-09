@@ -1,4 +1,6 @@
-package com.example.bankapp.ui.components.profileitems
+package com.example.bankapp.temp
+
+
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -34,7 +36,12 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.IntSize
 import com.example.bankapp.ui.theme.AppSpacing
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 
 @Composable
 fun SimpleCropPreview(
@@ -44,6 +51,7 @@ fun SimpleCropPreview(
 ) {
     var scale by remember { mutableStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
+    var boxSize by remember { mutableStateOf(IntSize.Zero) }
 
     Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         Box(
@@ -51,10 +59,48 @@ fun SimpleCropPreview(
                 .weight(1f)
                 .fillMaxWidth()
                 .clipToBounds()
-                .pointerInput(Unit) {
+                .onGloballyPositioned { boxSize = it.size }
+                // ... inside SimpleCropPreview Composable
+                .pointerInput(boxSize) {
+                    if (boxSize.width == 0) return@pointerInput
+
                     detectTransformGestures { _, pan, zoom, _ ->
-                        scale *= zoom
-                        offset += pan
+                        // 1. Lower the min scale to 0.5f to allow shrinking
+                        val newScale = (scale * zoom).coerceIn(0.5f, 5f)
+
+                        val fitScale = minOf(
+                            boxSize.width.toFloat() / bitmap.width,
+                            boxSize.height.toFloat() / bitmap.height
+                        )
+                        val fittedW = bitmap.width * fitScale
+                        val fittedH = bitmap.height * fitScale
+
+                        val circleRadiusPx = minOf(boxSize.width, boxSize.height) / 3f
+
+                        // 2. Adjust Clamping Logic
+                        // If image is larger than the circle, we clamp so background doesn't show.
+                        // If image is smaller than the circle, we allow it to be panned but keep it centered.
+                        val imgWidthOnScreen = fittedW * newScale
+                        val imgHeightOnScreen = fittedH * newScale
+
+                        val maxOffsetX = if (imgWidthOnScreen > circleRadiusPx * 2) {
+                            (imgWidthOnScreen / 2f - circleRadiusPx)
+                        } else {
+                            // Allow some "wiggle" even if smaller, or set to 0f to force center
+                            (circleRadiusPx - imgWidthOnScreen / 2f).coerceAtLeast(0f)
+                        }
+
+                        val maxOffsetY = if (imgHeightOnScreen > circleRadiusPx * 2) {
+                            (imgHeightOnScreen / 2f - circleRadiusPx)
+                        } else {
+                            (circleRadiusPx - imgHeightOnScreen / 2f).coerceAtLeast(0f)
+                        }
+
+                        scale = newScale
+                        offset = Offset(
+                            x = (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
+                            y = (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                        )
                     }
                 },
             contentAlignment = Alignment.Center
@@ -62,26 +108,33 @@ fun SimpleCropPreview(
             Image(
                 bitmap = bitmap.asImageBitmap(),
                 contentDescription = null,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
+                    .fillMaxSize()
                     .graphicsLayer(
-                        scaleX = maxOf(.5f, minOf(3f, scale)),
-                        scaleY = maxOf(.5f, minOf(3f, scale)),
+                        scaleX = scale,
+                        scaleY = scale,
                         translationX = offset.x,
                         translationY = offset.y
                     )
             )
 
-
             Canvas(modifier = Modifier.fillMaxSize()) {
-                val circleRadius = size.minDimension / 3
-                val path = Path().apply {
-                    addOval(Rect(center, circleRadius))
-                }
+                val circleRadius = size.minDimension / 3f
                 drawContext.canvas.nativeCanvas.apply {
                     val checkpoint = saveLayer(null, null)
-                    drawRect(Color.Black.copy(alpha = 0.6f))
-                    // Clear the circle area
-                    drawPath(path, Color.Transparent, blendMode = BlendMode.Clear)
+
+                    drawRect(
+                        color = Color.Black.copy(alpha = 0.7f)
+                    )
+
+                    drawCircle(
+                        center = center,
+                        radius = circleRadius,
+                        color = Color.Transparent,
+                        blendMode = BlendMode.Clear
+                    )
+
                     restoreToCount(checkpoint)
                 }
             }
@@ -89,14 +142,20 @@ fun SimpleCropPreview(
 
         Row(
             modifier = Modifier.fillMaxWidth().padding(AppSpacing.lg),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = onCancel) {
                 Text("Cancel", color = Color.White)
             }
             Button(onClick = {
-                // We create a new bitmap that represents the 'Visual' crop
-                val cropped = renderCroppedBitmap(bitmap, scale, offset)
+                val cropped = renderCroppedBitmap(
+                    source = bitmap,
+                    scale = scale,
+                    offset = offset,
+                    boxSize = boxSize,
+                    imageSize = boxSize
+                )
                 onCropConfirmed(cropped)
             }) {
                 Text("Apply Crop")
@@ -105,17 +164,62 @@ fun SimpleCropPreview(
     }
 }
 
-private fun renderCroppedBitmap(source: Bitmap, scale: Float, offset: Offset): Bitmap {
-    val size = 500 // Your target size
-    val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+private fun renderCroppedBitmap(
+    source: Bitmap,
+    scale: Float,
+    offset: Offset,
+    boxSize: IntSize,
+    imageSize: IntSize
+): Bitmap {
+    val outputSize = 1000
+    val fitScale = minOf(
+        imageSize.width.toFloat() / source.width,
+        imageSize.height.toFloat() / source.height
+    )
+
+    val fittedW = source.width * fitScale
+    val fittedH = source.height * fitScale
+
+    val circleRadiusPx = minOf(boxSize.width, boxSize.height) / 3f
+    val circleCenterX = boxSize.width / 2f
+    val circleCenterY = boxSize.height / 2f
+
+    val imageCenterX = circleCenterX + offset.x
+    val imageCenterY = circleCenterY + offset.y
+
+    val imageTopLeftX = imageCenterX - (fittedW * scale) / 2f
+    val imageTopLeftY = imageCenterY - (fittedH * scale) / 2f
+
+    val totalScale = fitScale * scale
+
+    val srcCenterX = (circleCenterX - imageTopLeftX) / totalScale
+    val srcCenterY = (circleCenterY - imageTopLeftY) / totalScale
+
+    val srcRadius = circleRadiusPx / totalScale
+
+    val srcLeft = (srcCenterX - srcRadius).toInt().coerceAtLeast(0)
+    val srcTop = (srcCenterY - srcRadius).toInt().coerceAtLeast(0)
+    val srcRight = (srcCenterX + srcRadius).toInt().coerceAtMost(source.width)
+    val srcBottom = (srcCenterY + srcRadius).toInt().coerceAtMost(source.height)
+
+    val srcWidth = srcRight - srcLeft
+    val srcHeight = srcBottom - srcTop
+
+    if (srcWidth <= 0 || srcHeight <= 0) {
+        return createBitmap(outputSize, outputSize)
+    }
+
+    val cropped = Bitmap.createBitmap(source, srcLeft, srcTop, srcWidth, srcHeight)
+    val scaled = cropped.scale(outputSize, outputSize)
+
+    val output = createBitmap(outputSize, outputSize)
     val canvas = android.graphics.Canvas(output)
 
-    val paint = Paint(Paint.FILTER_BITMAP_FLAG)
-    val matrix = Matrix()
-    matrix.postTranslate(-source.width / 2f, -source.height / 2f)
-    matrix.postScale(scale, scale)
-    matrix.postTranslate(size / 2f + offset.x, size / 2f + offset.y)
+    val circlePath = android.graphics.Path().apply {
+        addCircle(outputSize / 2f, outputSize / 2f, outputSize / 2f, android.graphics.Path.Direction.CW)
+    }
+    canvas.clipPath(circlePath)
+    canvas.drawBitmap(scaled, 0f, 0f, null)
 
-    canvas.drawBitmap(source, matrix, paint)
     return output
 }

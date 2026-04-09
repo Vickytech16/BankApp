@@ -11,11 +11,11 @@ object BankDateFactory {
         return fromMillis(System.currentTimeMillis())
     }
 
-    fun fromMillis(millis: Long): BankDateTime {
+    fun fromMillis(millis: Long, tempTimeZone: String? = null): BankDateTime {
         return if (android.os.Build.VERSION.SDK_INT >= 26) {
-            RegularDateTime(millis, activeTimeZone)
+            RegularDateTime(millis, tempTimeZone ?: activeTimeZone)
         } else {
-            LegacyDateTime(millis, activeTimeZone)
+            LegacyDateTime(millis, tempTimeZone ?: activeTimeZone)
         }
     }
 }

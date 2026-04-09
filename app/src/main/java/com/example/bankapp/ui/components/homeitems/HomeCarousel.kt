@@ -1,101 +1,104 @@
 package com.example.bankapp.ui.components.homeitems
 
-import androidx.compose.animation.*
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBackIos
-import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import com.example.bankapp.entities.uientities.uimodels.AccountUiModel
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import com.example.bankapp.entities.AccountVelocityStatus
-import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.entities.uientities.uimodels.AccountUiModel
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpec
 
 @Composable
 fun HomeCardCarousel(
     account: AccountUiModel,
     velocityStatus: AccountVelocityStatus?,
-    currentPage: Int,
     isBalanceVisible: Boolean,
     isVelocityVisible: Boolean,
     onBalanceToggle: () -> Unit,
     onVelocityToggle: () -> Unit,
-    onNext: () -> Unit,
-    onPrevious: () -> Unit,
     deviceSpec: DeviceSpec,
     countryCode: String
 ) {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(deviceSpec.homeScreenCardWidth),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            IconButton(
-                onClick = onPrevious,
-                enabled = currentPage > 0,
-                modifier = Modifier.size(AppSpacing.xl)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBackIos,
-                    contentDescription = null,
-                    tint = if (currentPage > 0) MaterialTheme.colorScheme.primary else Color.Transparent
-                )
-            }
+    val pagerState = rememberPagerState(pageCount = { if (velocityStatus != null) 2 else 1 })
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
 
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val cardWidthDp = screenWidth * deviceSpec.homeScreenCardWidth
+        val horizontalPadding = (screenWidth - cardWidthDp) / 2
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = horizontalPadding),
+            pageSpacing = 16.dp,
+            userScrollEnabled = velocityStatus != null
+        ) { page ->
             Box(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                AnimatedContent(
-                    targetState = currentPage,
-                    transitionSpec = {
-                        if (targetState > initialState) {
-                            (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
-                        } else {
-                            (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
-                        }
-                    },
-                    label = "CardSlide"
-                ) { targetPage ->
-                    when (targetPage) {
-                        0 -> HomeScreenCard(
-                            account = account,
-                            isBalanceVisible = isBalanceVisible,
-                            onIsBalanceVisibleChange = onBalanceToggle,
+                when (page) {
+                    0 -> HomeScreenCard(
+                        account = account,
+                        isBalanceVisible = isBalanceVisible,
+                        onIsBalanceVisibleChange = onBalanceToggle,
+                        deviceSpec = deviceSpec,
+                        countryCode = countryCode
+                    )
+                    1 -> velocityStatus?.let {
+                        HomeVelocityCard(
+                            velocityStatus = it,
+                            isVelocityVisible = isVelocityVisible,
+                            onToggleVisibility = onVelocityToggle,
                             deviceSpec = deviceSpec,
                             countryCode = countryCode
                         )
-                        1 -> if (velocityStatus != null) {
-                            HomeVelocityCard(
-                                velocityStatus = velocityStatus,
-                                isVelocityVisible = isVelocityVisible,
-                                onToggleVisibility = onVelocityToggle,
-                                deviceSpec = deviceSpec,
-                                countryCode = countryCode
-                            )
-                        }
                     }
                 }
             }
+        }
 
-            IconButton(
-                onClick = onNext,
-                enabled = currentPage < 1 && velocityStatus != null,
-                modifier = Modifier.size(AppSpacing.xl)
+        if (velocityStatus != null) {
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Row(
+                Modifier.height(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
-                    contentDescription = null,
-                    tint = if (currentPage < 1) MaterialTheme.colorScheme.primary else Color.Transparent
-                )
+                repeat(pagerState.pageCount) { iteration ->
+                    val isSelected = pagerState.currentPage == iteration
+                    val color by animateColorAsState(
+                        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                        label = "dotColor"
+                    )
+                    val width by animateDpAsState(
+                        targetValue = if (isSelected) 24.dp else 8.dp,
+                        label = "dotWidth"
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .size(width = width, height = 8.dp)
+                            .clip(CircleShape)
+                            .background(color)
+                    )
+                }
             }
         }
     }

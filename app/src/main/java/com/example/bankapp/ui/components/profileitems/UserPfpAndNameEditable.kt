@@ -16,6 +16,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -25,23 +27,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.bankapp.R
-import com.example.bankapp.entities.dbtables.User
+import com.example.bankapp.entities.uientities.uidata.UserNameFieldStrategy
+import com.example.bankapp.temp.SimpleCropPreview
+import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.SmallSpacer
 import com.example.bankapp.ui.components.UserAvatar
 import com.example.bankapp.ui.components.XLSpacer
+import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.utilities.USERNAME_MAX_SIZE
 import com.example.bankapp.viewmodels.ProfileViewModel
 
 @Composable
 fun UserPfpAndNameEditable(
     viewModel: ProfileViewModel,
-    user: User,
     deviceSpec: DeviceSpec
 ) {
-    var tempName by remember(user.userName) { mutableStateOf(user.userName) }
+    val draftName by viewModel.userNameDraft.collectAsState()
+    val user by viewModel.editableUser.collectAsState()
+    val userNameError by viewModel.userNameError.collectAsState()
+
     var showImageOptions by remember { mutableStateOf(false) }
     var bitmapToCrop by remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
@@ -94,27 +102,27 @@ fun UserPfpAndNameEditable(
         }
 
         item {
-            OutlinedTextField(
-                value = tempName,
-                onValueChange = { if (it.length <= ProfileViewModel.USER_NAME_MAX_SIZE) tempName = it },
-                label = { Text(stringResource(R.string.display_name_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                enabled = !viewModel.isProcessingImage,
-                isError = !viewModel.validateUserName(tempName),
-                supportingText = { if (!viewModel.validateUserName(tempName)) Text(stringResource(R.string.invalid_username_error)) }
+            UnifiedOutlinedTextField(
+                value = draftName,
+                onValueChange = viewModel::onUserNameChange,
+                labelText = stringResource(R.string.username_field_name),
+                isError = userNameError != null,
+                supportingText = { userNameError?.let { ErrorTextBuilder(it) }
+                    ?: Text("${draftName.length}/${ProfileViewModel.USERNAME_MAX_SIZE}") },
+                strategy = UserNameFieldStrategy,
+                showTickCondition = { viewModel.isUserNameValid() },
+                maxCharLimit = USERNAME_MAX_SIZE,
+                showCharCount = true
             )
+
             XLSpacer()
         }
 
         item {
             Button(
-                onClick = {
-                    viewModel.updateUserName(tempName)
-                    viewModel.onShowEditSheetChange(false)
-                },
+                onClick = { viewModel.updateUserName() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.isProcessingImage && viewModel.validateUserName(tempName)
+                enabled = !viewModel.isProcessingImage && userNameError == null
             ) {
                 Text(stringResource(R.string.save_changes_button))
             }

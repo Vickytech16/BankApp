@@ -27,6 +27,9 @@ sealed class TransactionResult(val message: Int) {
             data class DailyLimitExceeded(val limit: BigDecimal) : LimitExceeded(R.string.daily_limit_exceeded)
             data class DailyCountExceeded(val maxCount: Int) : LimitExceeded(R.string.daily_count_exceeded)
             data class SingleTransactionLimitExceeded(val maxAmount: BigDecimal) : LimitExceeded(R.string.single_tx_limit_exceeded)
+
+            object RecieverMaxBalanceLimitExceeded: LimitExceeded(R.string.reciever_max_balance_exceeded_error)
+            data class MaxBalanceLimitExceededDeposit(val maxAmount: BigDecimal) : LimitExceeded(R.string.max_limit_exceeeded_deposit)
         }
 
     }

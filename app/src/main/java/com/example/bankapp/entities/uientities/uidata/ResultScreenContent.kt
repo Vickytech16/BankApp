@@ -19,13 +19,17 @@ data class ResultButton(
 )
 
 sealed class ResultUiText {
-    data class StringResource(val resId: Int) : ResultUiText()
+    data class StringResource(val resId: Int, var args: String? = null) : ResultUiText()
     data class DynamicString(val value: String) : ResultUiText()
 
     @Composable
     fun asString(): String {
         return when (this) {
-            is StringResource -> stringResource(resId)
+            is StringResource ->
+                if(args!=null)
+                    stringResource(resId, args?:"")
+                else
+                    stringResource(resId)
             is DynamicString -> value
         }
     }

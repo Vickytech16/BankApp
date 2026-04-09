@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,10 +29,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
 import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.entities.uientities.uimodels.AccountUiModel
 import com.example.bankapp.ui.components.AutoResizeText
+import com.example.bankapp.ui.components.SmallSpacer
+import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
@@ -126,6 +131,10 @@ fun HomeScreenCard(
                         )
                     }
                 }
+
+                XLSpacer()
+                XSSpacer()
+                Spacer(modifier = Modifier.height(2.dp))
 
                 Box(
                     modifier = Modifier

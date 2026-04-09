@@ -40,6 +40,7 @@ import com.example.bankapp.ui.components.homeitems.HomeTransactionSection
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
+import com.example.bankapp.ui.components.navigators.PAY_ROUTE
 import com.example.bankapp.ui.components.navigators.PAY_TO_BENEFICIARY_ROUTE
 import com.example.bankapp.ui.components.navigators.TRANSACTIONS_LOG_ROUTE
 import com.example.bankapp.ui.components.screenModifier
@@ -80,7 +81,7 @@ fun HomeScreen(
         drawerState = drawerState,
         logoutAction = logoutAction,
         username = user.userName,
-       userPfpUrl = user.pfpURL,
+        userPfpUrl = user.pfpURL,
         showLogoutDialog = homeViewModel.showLogoutDialog,
         onShowLogOutDialogChange = homeViewModel::onLogoutClickChange,
         modifier = Modifier.fillMaxWidth(deviceSpec.drawerWidth),
@@ -120,19 +121,15 @@ fun HomeScreen(
                 ) {
                     HomeCardCarousel(
                         account = account,
-                        velocityStatus = homeViewModel.velocityStatus,
-                        currentPage = homeViewModel.currentCardPage,
+                        velocityStatus = homeViewModel.velocityStatus.collectAsState().value,
                         isBalanceVisible = homeViewModel.isBalanceVisible,
                         isVelocityVisible = homeViewModel.isVelocityToggleVisible,
                         onBalanceToggle = homeViewModel::onIsBalanceVisibleChange,
                         onVelocityToggle = homeViewModel::onVelocityToggleVisibleChange,
-                        onNext = homeViewModel::onNextCard,
-                        onPrevious = homeViewModel::onPreviousCard,
                         deviceSpec = deviceSpec,
                         countryCode = user.countryCode
                     )
                 }
-
                 XLSpacer()
 
                 Row(
@@ -142,7 +139,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(deviceSpec.quickActionsSpacing)
                 ) {
                     ActionButton(
-                        onClickAction = { navController.navigate(PAY_TO_BENEFICIARY_ROUTE) },
+                        onClickAction = { navController.navigate("$PAY_TO_BENEFICIARY_ROUTE?origin=$HOME_ROUTE") },
                         icon = Icons.Outlined.AccountBalance,
                         label = stringResource(R.string.pay_to_friend),
                         modifier = Modifier.weight(1f),
@@ -150,14 +147,14 @@ fun HomeScreen(
 
                     )
                    ActionButton(
-                        onClickAction = { navController.navigate(CASH_TRANSFER_ROUTE) },
+                        onClickAction = { navController.navigate("$CASH_TRANSFER_ROUTE?origin=$HOME_ROUTE") },
                         icon = Icons.Outlined.SwapHoriz,
                         label = stringResource(R.string.pay_anyone),
                         modifier = Modifier.weight(1f),
                         dimensions = actionQuickActionButtonDimensions
                     )
                    ActionButton(
-                        onClickAction = { navController.navigate(DEPOSIT_ROUTE) },
+                        onClickAction = { navController.navigate("$DEPOSIT_ROUTE?origin=$HOME_ROUTE") },
                         icon = Icons.Outlined.AccountBalanceWallet,
                         label = stringResource(R.string.deposit_button),
                         modifier = Modifier.weight(1f),

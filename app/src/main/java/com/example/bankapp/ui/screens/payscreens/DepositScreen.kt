@@ -1,54 +1,37 @@
 package com.example.bankapp.ui.screens.payscreens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.di.viewmodelfactory.DepositViewModelFactory
-import com.example.bankapp.ui.components.appbar.RegularAppBar
 import com.example.bankapp.ui.components.ErrorTextBuilder
 import com.example.bankapp.ui.components.XLSpacer
 import com.example.bankapp.ui.components.buttons.SubmitButton
-import com.example.bankapp.ui.components.navigators.DEPOSIT_ROUTE
-import com.example.bankapp.ui.components.navigators.HOME_OTP
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.BalanceStatusCard
 import com.example.bankapp.ui.components.LargeSpacer
-import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.entities.uientities.uidata.AmountFieldStrategy
-import com.example.bankapp.ui.components.BackHandlerWithWarning
 import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.viewmodels.DepositViewModel
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DepositStepContent(
@@ -58,20 +41,14 @@ fun DepositStepContent(
     val viewModel: DepositViewModel = viewModel(factory = depositViewModelFactory)
     val scrollState = rememberScrollState()
     val deviceSpec = LocalDeviceSpec.current
-    val balanceAfter = viewModel.account.balance.toString()
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     val textFieldColumnWidth = deviceSpec.textFieldWidth
 
     LaunchedEffect(viewModel.isVerifySuccessful) {
         if (viewModel.isVerifySuccessful) {
             onSuccess()
-        }
-    }
-
-    LaunchedEffect(deviceSpec) {
-        if (deviceSpec is DeviceSpec.MobileLandscape) {
-            bringIntoViewRequester.bringIntoView()
         }
     }
 
@@ -97,7 +74,7 @@ fun DepositStepContent(
         BalanceStatusCard(
             modifier = Modifier.fillMaxWidth(textFieldColumnWidth),
             balanceValue = CurrencyUtils.formatCurrency(
-                balanceAfter.toBigDecimalOrNull() ?: BigDecimal.ZERO,
+                viewModel.account.balance,
                 viewModel.user.countryCode
             ) + " " + CurrencyUtils.getCurrencyCode(viewModel.user.countryCode),
         )
@@ -117,6 +94,13 @@ fun DepositStepContent(
                     ErrorTextBuilder(viewModel.amountError)
                 },
                 strategy = AmountFieldStrategy(TransactionType.DEPOSIT),
+                modifier = Modifier
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusEvent {
+                        if (it.isFocused && deviceSpec is DeviceSpec.MobileLandscape) {
+                            coroutineScope.launch { bringIntoViewRequester.bringIntoView() }
+                        }
+                    }
             )
 
             XLSpacer()
@@ -124,14 +108,12 @@ fun DepositStepContent(
             SubmitButton(
                 onClick = { viewModel.onSubmit() },
                 isLoading = viewModel.isLoading,
-                modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                enabled = viewModel.amount.isNotEmpty() && viewModel.amountError == null && !viewModel.isLoading
             )
 
             ErrorTextBuilder(viewModel.submitError)
 
-            XLSpacer()
-
-            if(deviceSpec is DeviceSpec.MobileLandscape){
+            if (deviceSpec is DeviceSpec.MobileLandscape) {
                 Spacer(modifier = Modifier.height(400.dp))
             }
         }

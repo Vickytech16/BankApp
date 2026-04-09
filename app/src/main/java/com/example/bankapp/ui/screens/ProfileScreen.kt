@@ -36,6 +36,7 @@ import com.example.bankapp.ui.components.profileitems.ProfileSettingsCard
 import com.example.bankapp.ui.components.profileitems.UserInfoCard
 import com.example.bankapp.ui.components.profileitems.UserPfpAndNameEditable
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpec
 import com.example.bankapp.ui.theme.LocalDeviceSpec
 import com.example.bankapp.viewmodels.ProfileViewModel
 import com.example.bankapp.viewmodels.ThemeViewModel
@@ -52,7 +53,7 @@ fun ProfileScreen(
     val scrollState = rememberScrollState()
     val deviceSpec = LocalDeviceSpec.current
     val account by viewModel.account.collectAsState()
-    val user by viewModel.user.collectAsState()
+    val user by viewModel.editableUser.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
@@ -71,8 +72,9 @@ fun ProfileScreen(
                 deviceSpec = deviceSpec
             )
         },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
-    ) { contentPadding ->
+
+    ) {
+        contentPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(contentPadding), contentAlignment = Alignment.TopCenter) {
             Column(
                 modifier = Modifier.fillMaxWidth(deviceSpec.profileScreenWidthFaction).verticalScroll(scrollState).padding(top = AppSpacing.md, bottom = AppSpacing.xxl),
@@ -117,7 +119,7 @@ fun ProfileScreen(
         }
 
         BankAppBottomSheet(showSheet = viewModel.showEditSheet, onDismissRequest = { viewModel.onShowEditSheetChange(false) }, fullHeight = false) {
-            UserPfpAndNameEditable(viewModel = viewModel, user = user, deviceSpec = deviceSpec)
+            UserPfpAndNameEditable(viewModel = viewModel, deviceSpec = deviceSpec)
         }
 
         if (viewModel.showEnlargedImage) {

@@ -36,7 +36,6 @@ import com.example.bankapp.ui.components.AlertDialogBox
 import com.example.bankapp.viewmodels.AccountCreationViewModel
 import com.example.bankapp.viewmodels.SessionViewModel
 
-
 @Composable
 fun AccountCreationScreen(
     accountCreationViewModelFactory: AccountCreationViewModelFactory,
@@ -46,7 +45,6 @@ fun AccountCreationScreen(
     val scrollState = rememberScrollState()
     val deviceSpec = LocalDeviceSpec.current
     val textFieldColumnWidth = deviceSpec.textFieldWidth
-
 
     LaunchedEffect(accountCreationViewModel.isSubmitSuccessful) {
         if(accountCreationViewModel.isSubmitSuccessful)
@@ -65,7 +63,7 @@ fun AccountCreationScreen(
     }
 
     Scaffold() {
-        contentPadding ->
+            contentPadding ->
         Column(
             modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,21 +95,20 @@ fun AccountCreationScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
 
-
                 RadioButtonSelector(
                     title = stringResource(R.string.select_your_account_type_label),
                     options = listOf(AccountType.Savings, AccountType.Current),
                     selected = accountCreationViewModel.accountType,
                     onSelectionChange = accountCreationViewModel::onAccountTypeChange,
                     labelFor =  { accountTypes ->
-                       stringResource(accountTypes.nameRes)
+                        stringResource(accountTypes.nameRes)
                     },
                     fontWeight = FontWeight.Medium
                 )
 
                 MediumSpacer()
 
-               UnifiedOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = accountCreationViewModel.amount,
                     onValueChange = accountCreationViewModel::onAmountChange,
                     labelText = stringResource(R.string.initial_balance),
@@ -124,15 +121,16 @@ fun AccountCreationScreen(
 
                 MediumSpacer()
 
-               UnifiedOutlinedTextField(
+                UnifiedOutlinedTextField(
                     value = accountCreationViewModel.password,
                     onValueChange  = accountCreationViewModel::onPasswordChange,
                     labelText = stringResource(R.string.password_field_name),
                     isError = accountCreationViewModel.passwordError != null,
                     supportingText = {
-                       ErrorTextBuilder(accountCreationViewModel.passwordError)
-                   },
-                   strategy = PasswordFieldStrategy(accountCreationViewModel.passwordVisible, accountCreationViewModel::onPasswordVisibleChange)
+                        ErrorTextBuilder(accountCreationViewModel.passwordError)
+                    },
+                    strategy = PasswordFieldStrategy(accountCreationViewModel.passwordVisible, accountCreationViewModel::onPasswordVisibleChange),
+                    showTickCondition = {false}
                 )
 
                 XLSpacer()
@@ -141,7 +139,8 @@ fun AccountCreationScreen(
                     onClick = {accountCreationViewModel.onSubmit()},
                     text = stringResource(R.string.create_account),
                     isLoading = accountCreationViewModel.isLoading,
-                    )
+                    enabled = accountCreationViewModel.amount.isNotEmpty() && accountCreationViewModel.amountError == null && !accountCreationViewModel.isLoading
+                )
 
                 ErrorTextBuilder(accountCreationViewModel.submitError)
 
@@ -157,4 +156,3 @@ fun AccountCreationScreen(
         }
     }
 }
-

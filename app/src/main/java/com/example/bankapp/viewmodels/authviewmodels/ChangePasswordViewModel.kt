@@ -22,13 +22,7 @@ import kotlinx.coroutines.launch
 class ChangePasswordViewModel(
     private val userRepository: UserRepository,
     private val changePasswordState: ChangePasswordState
-) : ViewModel(){
-
-    private var user by mutableStateOf<User?>(null)
-
-    private fun updateCurrentUser() {
-        user = changePasswordState.user
-    }
+) : ViewModel() {
 
     var password by mutableStateOf("")
         private set
@@ -38,40 +32,12 @@ class ChangePasswordViewModel(
 
     var hasPasswordFieldEverFocused by mutableStateOf(false)
         private set
+
     var hasPasswordFieldEverUnFocused by mutableStateOf(false)
         private set
 
-    fun onHasPasswordFieldEverFocusedChange(newValue: Boolean){
-        hasPasswordFieldEverFocused = newValue
-    }
-
-    fun onHasPasswordFieldEverUnFocusedChange(newValue: Boolean){
-        hasPasswordFieldEverUnFocused = newValue
-    }
-
-    fun onPasswordChange(newPassword: String) {
-        if (newPassword.length <= PASSWORD_MAX_SIZE)
-            password = newPassword
-        passwordError = listOfNotNull(
-            newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
-                        newPassword.maxAllowedCharacterErrorMessageBuilder(
-                            R.string.password_field_name,
-                            PASSWORD_MAX_SIZE
-                        )
-        ) + newPassword.invalidPasswordErrorMessageBuilder()
-
-        if(confirmPassword.isNotBlank())
-            confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(newPassword)
-
-        submitErrorReset()
-    }
-
     var passwordVisible by mutableStateOf(false)
         private set
-
-    fun onPasswordVisibleChange() {
-        passwordVisible = !passwordVisible
-    }
 
     var confirmPassword by mutableStateOf("")
         private set
@@ -79,11 +45,69 @@ class ChangePasswordViewModel(
     var confirmPasswordError by mutableStateOf<FormError?>(null)
         private set
 
+    var confirmPasswordVisible by mutableStateOf(false)
+        private set
+
+    var submitError by mutableStateOf<FormError?>(null)
+        private set
+
+    var isSubmitSuccessful by mutableStateOf(false)
+        private set
+
+    var isLoading by mutableStateOf(false)
+        private set
+
+    private var user by mutableStateOf<User?>(null)
+
+    private var isSubmitButtonClicked by mutableStateOf(false)
+
+
+    private fun updateCurrentUser() {
+        user = changePasswordState.user
+    }
+
+
+    fun onHasPasswordFieldEverFocusedChange(newValue: Boolean) {
+        hasPasswordFieldEverFocused = newValue
+    }
+
+
+    fun onHasPasswordFieldEverUnFocusedChange(newValue: Boolean) {
+        hasPasswordFieldEverUnFocused = newValue
+    }
+
+
+    fun onPasswordChange(newPassword: String) {
+        if (newPassword.length <= PASSWORD_MAX_SIZE) {
+            password = newPassword
+        }
+
+        passwordError = listOfNotNull(
+            newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
+            newPassword.maxAllowedCharacterErrorMessageBuilder(
+                R.string.password_field_name,
+                PASSWORD_MAX_SIZE
+            )
+        ) + newPassword.invalidPasswordErrorMessageBuilder()
+
+        if (confirmPassword.isNotBlank()) {
+            confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(newPassword)
+        }
+
+        submitErrorReset()
+    }
+
+
+    fun onPasswordVisibleChange() {
+        passwordVisible = !passwordVisible
+    }
     fun onConfirmPasswordChange(newConfirmPassword: String) {
-        if (newConfirmPassword.length <= PASSWORD_MAX_SIZE)
+        if (newConfirmPassword.length <= PASSWORD_MAX_SIZE) {
             confirmPassword = newConfirmPassword
+        }
+
         confirmPasswordError =
-                    newConfirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
+            newConfirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
                     newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(
                         R.string.confirm_password_field_name,
                         PASSWORD_MAX_SIZE
@@ -93,72 +117,63 @@ class ChangePasswordViewModel(
         submitErrorReset()
     }
 
-    var confirmPasswordVisible by mutableStateOf(false)
-        private set
 
     fun onConfirmPasswordVisibleChange() {
         confirmPasswordVisible = !confirmPasswordVisible
     }
 
-    private var isSubmitButtonClicked by mutableStateOf(false)
-        private set
 
-    var submitError by mutableStateOf<FormError?>(null)
-        private set
-
-    var isSubmitSuccessful by mutableStateOf(false)
-        private set
-
-    fun submitErrorReset(){
-        if(passwordError.isEmpty() && confirmPasswordError==null){
+    fun submitErrorReset() {
+        if (passwordError.isEmpty() && confirmPasswordError == null) {
             submitError = null
         }
     }
 
-    var isLoading by mutableStateOf(false)
-        private set
 
-    fun onSubmit(){
-
-        if(isLoading)
+    fun onSubmit() {
+        if (isLoading) {
             return
+        }
 
         isLoading = true
-
         isSubmitButtonClicked = true
         onPasswordChange(password)
         onConfirmPasswordChange(confirmPassword)
 
         viewModelScope.launch {
             try {
-
                 if (password.isBlank() || confirmPassword.isBlank()) {
                     submitError = FormError.AllFieldsAreRequired
-                    return@launch
                 }
-
-                if (passwordError.isNotEmpty() || confirmPasswordError != null) {
+                else if (passwordError.isNotEmpty() || confirmPasswordError != null) {
                     submitError = FormError.InvalidData
-                    return@launch
                 }
 
-                updateCurrentUser()
+                else {
+                    updateCurrentUser()
 
-                if (user == null) {
-                    submitError = FormError.UnknownError
-                    return@launch
+                    if (user == null) {
+                        submitError = FormError.UnknownError
+                        return@launch
+                    }
+                    else if(PasswordHashingService.matches(password, user?.passwordHashed!!)){
+                        submitError = FormError.SamePassword
+                        return@launch
+                    }
+                    else {
+                        val updatedUser = user!!.copy(
+                            passwordHashed = PasswordHashingService.hash(password)
+                        )
+                        userRepository.updateUser(updatedUser)
+                        isSubmitSuccessful = true
+                        submitError = null
+                    }
                 }
-
-                val updatedUser = user!!.copy(
-                    passwordHashed = PasswordHashingService.hash(password)
-                )
-
-                userRepository.updateUser(updatedUser)
-                isSubmitSuccessful = true
-                submitError = null
-            } catch (_: Exception) {
+            }
+            catch (_: Exception) {
                 submitError = FormError.UnknownError
-            } finally {
+            }
+            finally {
                 isLoading = false
             }
         }

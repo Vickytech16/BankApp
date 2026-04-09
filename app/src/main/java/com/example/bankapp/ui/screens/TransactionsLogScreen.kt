@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -38,6 +39,7 @@ import com.example.bankapp.viewmodels.FilterViewModel
 import com.example.bankapp.viewmodels.TransactionsViewModel
 import java.io.File
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionsScreen(
@@ -56,17 +58,23 @@ fun TransactionsScreen(
     val isLoading by transactionsViewModel.isLoading.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
+
     LaunchedEffect(Unit) {
-        transactionsViewModel.exportEvent.collect { file -> shareFile(context, file) }
+        transactionsViewModel.exportEvent.collect { file ->
+            shareFile(context, file)
+        }
     }
+
 
     LaunchedEffect(filterViewModel.filterState) {
         transactionsViewModel.updateFilters(filterViewModel.filterState)
     }
 
+
     LaunchedEffect(filterViewModel.sortState) {
         transactionsViewModel.updateSort(filterViewModel.sortState)
     }
+
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -83,7 +91,8 @@ fun TransactionsScreen(
                             IconButton(onClick = {
                                 if (query.isNotEmpty()) {
                                     transactionsViewModel.onQueryChange("")
-                                } else {
+                                }
+                                else {
                                     navController.popBackStack()
                                 }
                             }) {
@@ -124,8 +133,7 @@ fun TransactionsScreen(
                 }
             )
         }
-    ) {
-        paddingValues ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,7 +143,7 @@ fun TransactionsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(horizontal = dimensionResource(R.dimen.filter_sheet_padding))
+                    .padding(horizontal = dimensionResource(R.dimen.screen_padding))
                     .padding(vertical = AppSpacing.sm),
                 horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)
             ) {
@@ -144,7 +152,7 @@ fun TransactionsScreen(
                     icon = Icons.Outlined.FilterList,
                     badgeCount = filterViewModel.filterState.selectedStatus.size +
                             filterViewModel.filterState.selectedTypes.size +
-                            if (filterViewModel.filterState.selectedDirection != UiLedgerDirection.BOTH) 1 else 0 +
+                            (if (filterViewModel.filterState.selectedDirection != UiLedgerDirection.BOTH) 1 else 0) +
                             (if (filterViewModel.filterState.isDateFilterActive) 1 else 0),
                     showSheet = filterViewModel.filterShowSheet,
                     onShowSheetChange = filterViewModel::onFilterShowSheetChange,
@@ -161,6 +169,7 @@ fun TransactionsScreen(
                         )
                     }
                 )
+
 
                 FilterSortChip(
                     label = stringResource(R.string.sort_label),
@@ -180,24 +189,27 @@ fun TransactionsScreen(
                 )
             }
 
+
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                } else if (transactions.isEmpty()) {
+                }
+                else if (transactions.isEmpty()) {
                     Text(
                         text = stringResource(R.string.no_transactions_found),
                         modifier = Modifier.align(Alignment.Center),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                } else {
+                }
+                else {
                     TransactionLazyList(
                         transactions = transactions,
                         state = lazyListState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
+                        modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(
+                            start = dimensionResource(R.dimen.screen_padding),
+                            end = dimensionResource(R.dimen.screen_padding),
                             bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                         ),
                         navController = navController,
@@ -210,6 +222,7 @@ fun TransactionsScreen(
     }
 }
 
+
 fun shareFile(context: Context, file: File) {
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
     val intent = Intent(Intent.ACTION_SEND).apply {
@@ -220,8 +233,16 @@ fun shareFile(context: Context, file: File) {
     context.startActivity(Intent.createChooser(intent, "Share Bank Statement"))
 }
 
+
 fun String.uiAmountDisplay(): String {
     val parts = this.split(".")
-    if (parts.size < 2) return this
-    return if (parts[1].all { it == '0' }) parts[0] else this
+    if (parts.size < 2) {
+        return this
+    }
+    return if (parts[1].all { it == '0' }) {
+        parts[0]
+    }
+    else {
+        this
+    }
 }

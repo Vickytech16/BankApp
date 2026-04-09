@@ -2,6 +2,8 @@ package com.example.bankapp.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,16 +12,20 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateFactory
+import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.di.viewmodelfactory.CashTransferViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.OtpViewModelFactory
 import com.example.bankapp.di.viewmodelfactory.PasswordConfirmationViewModelFactory
 import com.example.bankapp.entities.types.account.AccountStatus
 import com.example.bankapp.ui.components.BackHandlerWithWarning
 import com.example.bankapp.ui.components.appbar.FlowAppBar
+import com.example.bankapp.ui.components.homeitems.AmountStepContent
 import com.example.bankapp.ui.components.navigators.CASH_TRANSFER_ROUTE
 import com.example.bankapp.ui.components.navigators.HOME_ROUTE
 import com.example.bankapp.ui.components.navigators.MAIN_ROUTE
@@ -41,7 +47,8 @@ fun CashTransferFlowHost(
     cashTransferViewModelFactory: CashTransferViewModelFactory,
     otpViewModelFactory: OtpViewModelFactory,
     passwordConfirmationViewModelFactory: PasswordConfirmationViewModelFactory,
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
+    origin: String
 ) {
     val cashTransferViewModel: CashTransferViewModel = viewModel(factory = cashTransferViewModelFactory)
 
@@ -51,6 +58,7 @@ fun CashTransferFlowHost(
     val deviceSpec = LocalDeviceSpec.current
 
     val user by cashTransferViewModel.user.collectAsState()
+    val velocityStatus by cashTransferViewModel.velocityStatus.collectAsState()
 
     var showExitWarning by remember { mutableStateOf(false) }
     var isExiting by remember { mutableStateOf(false) }
@@ -69,6 +77,13 @@ fun CashTransferFlowHost(
         focusManager.clearFocus()
         authorizationViewModel.clearAuthorization()
         navController.popBackStack()
+    }
+
+    val isLimitReached = remember(velocityStatus) {
+        velocityStatus?.let {
+            it.transactionsToday >= it.maxTransactions ||
+                    it.moneySpentToday >= it.dailySpendLimit
+        } ?: false
     }
 
     LaunchedEffect(Unit) {
@@ -104,8 +119,8 @@ fun CashTransferFlowHost(
         topBar = {
             FlowAppBar(
                 title = stringResource(R.string.cash_transfer_label),
-                currentStep = currentStep,
-                totalSteps = totalSteps,
+                currentStep = if (isLimitReached) 0 else currentStep,
+                totalSteps = if (isLimitReached) 0 else totalSteps,
                 scrollBehavior = scrollBehavior,
                 onBack = {
                     if (currentStep > 1) showExitWarning = true
@@ -116,7 +131,7 @@ fun CashTransferFlowHost(
                     }
                 },
                 expandedContent = {
-                    if (cashTransferViewModel.recipientName.isNotEmpty()) {
+                    if (cashTransferViewModel.recipientName.isNotEmpty() && !isLimitReached) {
                         Column {
                             Text(
                                 text = "To: ${cashTransferViewModel.recipientName}",
@@ -143,7 +158,13 @@ fun CashTransferFlowHost(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (authorizationViewModel.activeFlow != FlowType.NONE && !isExiting) {
+            if (isLimitReached) {
+            LimitReachedScreen(
+                nextResetMillis = velocityStatus?.nextResetMillis ?: 0L,
+                onBack = {onExitFlow()}
+            )
+        }
+           else if (authorizationViewModel.activeFlow != FlowType.NONE && !isExiting) {
                 AnimatedContent(
                     targetState = currentStep,
                     transitionSpec = {
@@ -169,7 +190,7 @@ fun CashTransferFlowHost(
                         )
                         3 -> OtpStepContent(
                             otpViewModelFactory = otpViewModelFactory,
-                            onOtpSuccess = { authorizationViewModel.proceedAfterOtp(navController) }
+                            onOtpSuccess = { authorizationViewModel.proceedAfterOtp(navController, origin) }
                         )
                         4 -> PasswordStepContent(
                             passwordConfirmationViewModelFactory = passwordConfirmationViewModelFactory,
@@ -179,8 +200,8 @@ fun CashTransferFlowHost(
                                 isExiting = true
                                 authorizationViewModel.proceedAfterPassword(
                                     navController,
-                                    TRANSACTION_RESULT_ROUTE,
-                                    CASH_TRANSFER_ROUTE
+                                    "$TRANSACTION_RESULT_ROUTE?origin=$origin",
+                                    "$CASH_TRANSFER_ROUTE?origin=$origin"
                                 )
                             }
                         )
@@ -193,6 +214,53 @@ fun CashTransferFlowHost(
             if (deviceSpec is DeviceSpec.MobileLandscape) {
                 Spacer(modifier = Modifier.height(400.dp))
             }
+        }
+    }
+}
+
+@Composable
+private fun LimitReachedScreen(
+    nextResetMillis: Long,
+    onBack: () -> Unit
+) {
+    val resetTime = remember(nextResetMillis) {
+        if (nextResetMillis == 0L) ""
+        else BankDateFactory.fromMillis(nextResetMillis).toFullDateTimeDisplay()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Block,
+            contentDescription = null,
+            modifier = Modifier.size(80.dp),
+            tint = MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Daily Limit Reached",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "You have reached your transaction limit for today. Please try again after $resetTime.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Go Back")
         }
     }
 }

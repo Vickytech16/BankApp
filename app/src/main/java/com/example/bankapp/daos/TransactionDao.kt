@@ -25,8 +25,7 @@ interface TransactionDao {
         t.createdAt AS transaction_date,
         te.direction AS direction,
         te.amount AS amount,
-        
-        -- Logic for Counterparty Name vs Nickname
+
         b.nickname AS counterparty_nickname,
         COALESCE(u2.userName, 'Bank') AS counterparty_name,
         u2.pfpURL AS counterparty_pfp,

@@ -46,7 +46,7 @@ import com.example.bankapp.R
 import com.example.bankapp.ui.theme.LocalDeviceSpec
 import kotlinx.coroutines.delay
 
-private val otpFontSize = 24.sp
+private val otpFontSize = 32.sp
 
 @Composable
 fun OtpInputField(
@@ -78,8 +78,8 @@ fun OtpInputField(
 
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
+            .fillMaxWidth(),
+          //  .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -105,7 +105,7 @@ fun OtpInputField(
                         }
                     },
                     focusRequester = focusRequesters[index],
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).height(68.dp)
                 )
             }
         }

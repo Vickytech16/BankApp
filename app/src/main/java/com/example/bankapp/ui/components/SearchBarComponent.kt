@@ -29,7 +29,12 @@ fun SearchBarComponent(
 ) {
     OutlinedTextField(
         value = query,
-        onValueChange = onQueryChange,
+        onValueChange = {
+            query ->
+            if(query.length <=50){
+                onQueryChange(query)
+            }
+        },
         placeholder = { Text(placeholderText) },
         singleLine = true,
         leadingIcon = {

@@ -1,11 +1,9 @@
 package com.example.bankapp.viewmodels.authviewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.dbtables.User
 import com.example.bankapp.entities.dtos.Country
 import com.example.bankapp.entities.errors.FormError
@@ -14,368 +12,450 @@ import com.example.bankapp.repositories.CountryRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.services.PasswordHashingService
 import com.example.bankapp.services.RecoverKeyGenerationService
-import com.example.bankapp.utilities.COUNTRY_MAX_SIZE
-import com.example.bankapp.utilities.EMAIL_MAX_SIZE
-import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
-import com.example.bankapp.utilities.PHONE_NUMBER_MAX_SIZE
-import com.example.bankapp.utilities.PhoneUtils
-import com.example.bankapp.utilities.TIMEZONE_MAX_SIZE
-import com.example.bankapp.utilities.USERNAME_MAX_SIZE
-import com.example.bankapp.utilities.USERNAME_MIN_SIZE
-import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
-import com.example.bankapp.utilities.invalidConfirmPasswordErrorMessageBuilder
-import com.example.bankapp.utilities.invalidEmailErrorMessageBuilder
-import com.example.bankapp.utilities.invalidNumericalFieldErrorMessageBuilder
-import com.example.bankapp.utilities.invalidPasswordErrorMessageBuilder
-import com.example.bankapp.utilities.invalidUserNameErrorMessageBuilder
-import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
-import com.example.bankapp.utilities.minRequiredCharacterErrorMessageBuilder
+import com.example.bankapp.utilities.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(
     private val userRepository: UserRepository,
     countryRepository: CountryRepository
-): ViewModel() {
-    var recoveryKey = ""
-        private set
+) : ViewModel() {
 
-    var userName by mutableStateOf("")
-        private set
-
-    var userNameError by mutableStateOf<FormError?>(null)
-        private set
-
-    fun onUserNameChange(newUserName: String) {
-        if(newUserName.length <= USERNAME_MAX_SIZE && newUserName != " ")
-            userName = newUserName
-        userNameError =
-                    newUserName.emptyTextFieldErrorMessageBuilder(R.string.username_field_name) ?:
-                    newUserName.minRequiredCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MIN_SIZE) ?:
-                    newUserName.maxAllowedCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MAX_SIZE) ?:
-                    newUserName.invalidUserNameErrorMessageBuilder()
-        submitErrorReset()
-    }
-
-    var hasUserNameFieldEverFocused by mutableStateOf(false)
-        private set
-
-    var hasUserNameFieldEverUnFocused by mutableStateOf(false)
-        private set
-
-    fun onHasUserNameFieldEverFocusedChange(value: Boolean) {
-        hasUserNameFieldEverFocused = value
-    }
-
-    fun onHasUserNameFieldEverUnFocusedChange(value: Boolean) {
-        hasUserNameFieldEverUnFocused = value
-    }
-
-    var email by mutableStateOf("")
-        private set
-
-    var emailError by mutableStateOf<FormError?>(null)
-        private set
-
-    var emailFieldSelected by mutableStateOf(false)
-        private set
-
-    fun onEmailFieldSelectedChange(newValue: Boolean){
-        emailFieldSelected = newValue
-    }
-
-    fun onEmailChange(newEmail: String) {
-        if (newEmail.length <= EMAIL_MAX_SIZE)
-            email = newEmail.lowercase()
-        emailError =
-                    newEmail.emptyTextFieldErrorMessageBuilder(R.string.email_field_name) ?:
-                    newEmail.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE) ?:
-                    newEmail.invalidEmailErrorMessageBuilder()
-        submitErrorReset()
-    }
-
-    var phoneNumber by mutableStateOf("")
-        private set
-
-    var phoneNumberError by mutableStateOf<FormError?>(null)
-        private set
-
-    fun onPhoneNumberChange(newPhoneNumber: String) {
-        val digitsOnly = newPhoneNumber.filter { it.isDigit() }
-
-        if (digitsOnly.length <= PHONE_NUMBER_MAX_SIZE) {
-            phoneNumber = digitsOnly
-        }
-
-        val iso = selectedCountry?.countryCode ?: ""
-        phoneNumberError = when {
-            phoneNumber.isBlank() ->
-                phoneNumber.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name)
-            iso.isNotEmpty() && !PhoneUtils.isValidMobileNumber(phoneNumber, iso) ->
-                FormError.InvalidPhoneNumber
-            newPhoneNumber.length >= PHONE_NUMBER_MAX_SIZE -> newPhoneNumber.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE)
-            else -> null
-        }
-        submitErrorReset()
-    }
+    data class RegisterUiState(
+        val userName: String = "",
+        val userNameError: FormError? = null,
+        val hasUserNameFocused: Boolean = false,
+        val hasUserNameUnFocused: Boolean = false,
+        val email: String = "",
+        val emailError: FormError? = null,
+        val phoneNumber: String = "",
+        val phoneNumberError: FormError? = null,
+        val hasPhoneFocused: Boolean = false,
+        val hasPhoneUnFocused: Boolean = false,
+        val password: String = "",
+        val passwordError: List<UiError> = emptyList(),
+        val isPasswordVisible: Boolean = false,
+        val hasPasswordFocused: Boolean = false,
+        val hasPasswordUnFocused: Boolean = false,
+        val confirmPassword: String = "",
+        val confirmPasswordError: FormError? = null,
+        val isConfirmPasswordVisible: Boolean = false,
+        val selectedCountry: Country? = null,
+        val selectedTimezone: String? = null,
+        val isCountrySheetVisible: Boolean = false,
+        val countrySearchQuery: String = "",
+        val isTimezoneSheetVisible: Boolean = false,
+        val timezoneSearchQuery: String = "",
+        val isTimezoneFieldVisible: Boolean = false,
+        val countryError: FormError? = null,
+        val timezoneError: FormError? = null,
+        val submitError: FormError? = null,
+        val isLoading: Boolean = false,
+        val isSubmitSuccessful: Boolean = false,
+        val recoveryKey: String = "",
+        val validationTrigger: Long = 0L,
+        val isEmailSelected: Boolean = false,
+        val hasEmailUnFocused: Boolean = false
+    )
 
 
-    var hasPhoneFieldEverFocused by mutableStateOf(false)
-        private set
-    var hasPhoneFieldEverUnFocused by mutableStateOf(false)
-        private set
+    private val _uiState = MutableStateFlow(RegisterUiState())
+    val uiState = _uiState.asStateFlow()
 
-    fun onHasPhoneFieldEverFocusedChange(value: Boolean) {
-        hasPhoneFieldEverFocused = value
-    }
-
-    fun onHasPhoneFieldEverUnFocusedChange(value: Boolean) {
-        hasPhoneFieldEverUnFocused = value
-    }
-    var password by mutableStateOf("")
-        private set
-
-    var passwordError by mutableStateOf<List<UiError>>(emptyList())
-        private set
-
-    var hasPasswordFieldEverFocused by mutableStateOf(false)
-        private set
-    var hasPasswordFieldEverUnFocused by mutableStateOf(false)
-        private set
-
-    fun onHasPasswordFieldEverFocusedChange(newValue: Boolean){
-        hasPasswordFieldEverFocused = newValue
-    }
-
-    fun onHasPasswordFieldEverUnFocusedChange(newValue: Boolean){
-        hasPasswordFieldEverUnFocused = newValue
-    }
-
-    fun onPasswordChange(newPassword: String) {
-        if (newPassword.length <= PASSWORD_MAX_SIZE)
-            password = newPassword
-        passwordError = listOfNotNull(
-            newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
-                        newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
-                        ) + newPassword.invalidPasswordErrorMessageBuilder()
-        if(confirmPassword.isNotBlank())
-            confirmPasswordError = confirmPassword.invalidConfirmPasswordErrorMessageBuilder(newPassword)
-
-        submitErrorReset()
-    }
-
-    var passwordVisible by mutableStateOf(false)
-        private set
-
-    fun onPasswordVisibleChange() {
-        passwordVisible = !passwordVisible
-    }
-
-    var confirmPassword by mutableStateOf("")
-        private set
-
-    var confirmPasswordError by mutableStateOf<FormError?>(null)
-        private set
-
-    fun onConfirmPasswordChange(newConfirmPassword: String) {
-        if (newConfirmPassword.length <= PASSWORD_MAX_SIZE)
-            confirmPassword = newConfirmPassword
-        confirmPasswordError =
-                    newConfirmPassword.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name) ?:
-                    newConfirmPassword.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE
-                    ) ?: newConfirmPassword.invalidConfirmPasswordErrorMessageBuilder(password)
-        submitErrorReset()
-    }
-
-    var confirmPasswordVisible by mutableStateOf(false)
-        private set
-
-    fun onConfirmPasswordVisibleChange() {
-        confirmPasswordVisible = !confirmPasswordVisible
-    }
-
-    var submitError by mutableStateOf<FormError?>(null)
-        private set
-
-    var isSubmitSuccessful by mutableStateOf(false)
-        private set
 
     val countries: StateFlow<List<Country>> = countryRepository.getCountries()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Companion.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    var selectedCountry by mutableStateOf<Country?>(null)
-        private set
-    var selectedTimezone by mutableStateOf<String?>(null)
-        private set
 
-    var isCountrySheetVisible by mutableStateOf(false)
+    fun onUserNameChange(newUserName: String) {
+        val processed = if (newUserName.length > USERNAME_MAX_SIZE) {
+            newUserName.substring(0, USERNAME_MAX_SIZE)
+        }
+        else {
+            newUserName
+        }
 
-    var countrySearchQuery by mutableStateOf("")
-        private set
+        if (processed != " ") {
+            val error = when {
+                processed.isEmpty() ->
+                    processed.emptyTextFieldErrorMessageBuilder(R.string.username_field_name)
+                processed.length >= USERNAME_MAX_SIZE ->
+                    processed.maxAllowedCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MAX_SIZE)
+                else ->
+                    processed.invalidUserNameErrorMessageBuilder() ?:
+                    processed.minRequiredCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MIN_SIZE)
 
-    fun onCountrySearchQueryChange(newQuery: String){
-        if(newQuery.length <= COUNTRY_MAX_SIZE)
-            countrySearchQuery = newQuery
+            }
+
+            _uiState.update { it.copy(userName = processed, userNameError = error) }
+            submitErrorReset()
+        }
     }
 
-    var isTimezoneSheetVisible by mutableStateOf(false)
 
-    var timezoneSearchQuery by mutableStateOf("")
-        private set
+    fun onEmailChange(newEmail: String) {
+        val emailValue = if (newEmail.length > EMAIL_MAX_SIZE) {
+            newEmail.substring(0, EMAIL_MAX_SIZE).lowercase()
+        }
+        else {
+            newEmail.lowercase()
+        }
 
-    fun onTimeZoneSearchQueryChange(newQuery: String){
-        if(newQuery.length <= TIMEZONE_MAX_SIZE)
-            timezoneSearchQuery = newQuery
+        val error = when {
+            emailValue.isEmpty() ->
+                emailValue.emptyTextFieldErrorMessageBuilder(R.string.email_field_name)
+            emailValue.length >= EMAIL_MAX_SIZE ->
+                emailValue.maxAllowedCharacterErrorMessageBuilder(R.string.email_field_name, EMAIL_MAX_SIZE)
+            else ->
+                emailValue.invalidEmailErrorMessageBuilder()
+        }
+
+        _uiState.update { it.copy(email = emailValue, emailError = error) }
+        submitErrorReset()
     }
 
-    var isTimezoneFieldVisible by mutableStateOf(false)
+
+    fun onPhoneNumberChange(newPhoneNumber: String) {
+        val digits = newPhoneNumber.filter { it.isDigit() }
+        val processed = if (digits.length > PHONE_NUMBER_MAX_SIZE) {
+            digits.substring(0, PHONE_NUMBER_MAX_SIZE)
+        }
+        else {
+            digits
+        }
+
+        val iso = _uiState.value.selectedCountry?.countryCode ?: ""
+        val error = when {
+            processed.isBlank() ->
+                processed.emptyTextFieldErrorMessageBuilder(R.string.phone_number_field_name)
+            processed.length >= PHONE_NUMBER_MAX_SIZE ->
+                processed.maxAllowedCharacterErrorMessageBuilder(R.string.phone_number_field_name, PHONE_NUMBER_MAX_SIZE)
+            iso.isNotEmpty() && !PhoneUtils.isValidMobileNumber(processed, iso) ->
+                FormError.InvalidPhoneNumber
+            else ->
+                null
+        }
+
+        _uiState.update { it.copy(phoneNumber = processed, phoneNumberError = error) }
+        submitErrorReset()
+    }
+
+
+    fun onPasswordChange(newPassword: String) {
+        val processed = if (newPassword.length > PASSWORD_MAX_SIZE) {
+            newPassword.substring(0, PASSWORD_MAX_SIZE)
+        }
+        else {
+            newPassword
+        }
+
+        val pError = listOfNotNull(
+            processed.emptyTextFieldErrorMessageBuilder(R.string.password_field_name),
+            if (processed.length >= PASSWORD_MAX_SIZE) {
+                processed.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
+            }
+            else {
+                null
+            }
+        ) + processed.invalidPasswordErrorMessageBuilder()
+
+        _uiState.update { state ->
+            val cpError = if (state.confirmPassword.isNotBlank()) {
+                state.confirmPassword.invalidConfirmPasswordErrorMessageBuilder(processed)
+            }
+            else {
+                state.confirmPasswordError
+            }
+
+            state.copy(password = processed, passwordError = pError, confirmPasswordError = cpError)
+        }
+        submitErrorReset()
+    }
+
+
+    fun onConfirmPasswordChange(newConfirmPassword: String) {
+        val processed = if (newConfirmPassword.length > PASSWORD_MAX_SIZE) {
+            newConfirmPassword.substring(0, PASSWORD_MAX_SIZE)
+        }
+        else {
+            newConfirmPassword
+        }
+
+        val error = when {
+            processed.isEmpty() ->
+                processed.emptyTextFieldErrorMessageBuilder(R.string.confirm_password_field_name)
+            processed.length >= PASSWORD_MAX_SIZE ->
+                processed.maxAllowedCharacterErrorMessageBuilder(R.string.confirm_password_field_name, PASSWORD_MAX_SIZE)
+            else ->
+                processed.invalidConfirmPasswordErrorMessageBuilder(_uiState.value.password)
+        }
+
+        _uiState.update { it.copy(confirmPassword = processed, confirmPasswordError = error) }
+        submitErrorReset()
+    }
+
+
+    fun onHasUserNameFocusChange(focused: Boolean) {
+        _uiState.update {
+            if (focused) {
+                it.copy(hasUserNameFocused = true)
+            }
+            else if (it.hasUserNameFocused) {
+                it.copy(hasUserNameUnFocused = true)
+            }
+            else {
+                it
+            }
+        }
+    }
+
+
+    fun onEmailFocusChange(focused: Boolean) {
+        _uiState.update {
+            if (focused) {
+                it.copy(isEmailSelected = true)
+            } else if (it.isEmailSelected) {
+                it.copy(isEmailSelected = false, hasEmailUnFocused = true)
+            } else {
+                it.copy(isEmailSelected = false)
+            }
+        }
+    }
+
+    fun onHasPhoneFocusChange(focused: Boolean) {
+        _uiState.update {
+            if (focused) {
+                it.copy(hasPhoneFocused = true)
+            }
+            else if (it.hasPhoneFocused) {
+                it.copy(hasPhoneUnFocused = true)
+            }
+            else {
+                it
+            }
+        }
+    }
+
+
+    fun onHasPasswordFocusChange(focused: Boolean) {
+        _uiState.update {
+            if (focused) {
+                it.copy(hasPasswordFocused = true)
+            }
+            else if (it.hasPasswordFocused) {
+                it.copy(hasPasswordUnFocused = true)
+            }
+            else {
+                it
+            }
+        }
+    }
+
+
+    fun onPasswordVisibleToggle() {
+        _uiState.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
+    }
+
+
+    fun onConfirmPasswordVisibleToggle() {
+        _uiState.update { it.copy(isConfirmPasswordVisible = !it.isConfirmPasswordVisible) }
+    }
+
+
+    fun onCountrySearchQueryChange(newQuery: String) {
+        if (newQuery.length <= COUNTRY_MAX_SIZE) {
+            _uiState.update { it.copy(countrySearchQuery = newQuery) }
+        }
+    }
+
+
+    fun onCountrySheetToggle(visible: Boolean) {
+        _uiState.update { it.copy(isCountrySheetVisible = visible) }
+    }
+
+
+    fun onTimeZoneSearchQueryChange(newQuery: String) {
+        if (newQuery.length <= TIMEZONE_MAX_SIZE) {
+            _uiState.update { it.copy(timezoneSearchQuery = newQuery) }
+        }
+    }
+
+
+    fun onTimeZoneSheetToggle(visible: Boolean) {
+        _uiState.update { it.copy(isTimezoneSheetVisible = visible) }
+    }
+
 
     fun onCountrySelected(country: Country) {
-        if (selectedCountry?.countryCode != country.countryCode) {
-            phoneNumber = ""
-            phoneNumberError = null
+        _uiState.update { state ->
+            val phoneChanged = if (state.selectedCountry?.countryCode != country.countryCode) {
+                ""
+            }
+            else {
+                state.phoneNumber
+            }
+
+            val phoneErrorChanged = if (state.selectedCountry?.countryCode != country.countryCode) {
+                null
+            }
+            else {
+                state.phoneNumberError
+            }
+
+            val autoTimezone = if (country.timezones.size == 1) {
+                country.timezones.first()
+            }
+            else {
+                null
+            }
+
+            val showTzField = country.timezones.size > 1
+
+            state.copy(
+                selectedCountry = country,
+                phoneNumber = phoneChanged,
+                phoneNumberError = phoneErrorChanged,
+                countrySearchQuery = "",
+                countryError = null,
+                selectedTimezone = autoTimezone,
+                isTimezoneFieldVisible = showTzField,
+                isTimezoneSheetVisible = showTzField,
+                timezoneError = null
+            )
         }
-        selectedCountry = country
-        countrySearchQuery = ""
-        countryError = null
-        selectedTimezone = null
-        if (country.timezones.size == 1) {
-            selectedTimezone = country.timezones.first()
-            isTimezoneFieldVisible = false
-            timezoneError = null
-        } else {
-            selectedTimezone = null
-            isTimezoneSheetVisible = true
-            isTimezoneFieldVisible = true
+    }
+
+
+    fun onTimeZoneSelected(tz: String) {
+        _uiState.update { it.copy(selectedTimezone = tz, timezoneError = null) }
+    }
+
+
+    fun resetSubmitStatus() {
+        _uiState.update { it.copy(isSubmitSuccessful = false) }
+    }
+
+
+    private fun submitErrorReset() {
+        _uiState.update { state ->
+            if (state.userNameError == null && state.passwordError.isEmpty() && state.emailError == null &&
+                state.phoneNumberError == null && state.confirmPasswordError == null && state.countryError == null) {
+                state.copy(submitError = null)
+            }
+            else {
+                state
+            }
         }
     }
 
-    fun onTimeZoneChange(newTimeZone: String){
-        timezoneError = null
-        selectedTimezone = newTimeZone
-    }
 
-    var countryError by mutableStateOf<FormError?>(null)
-        private set
-
-    var timezoneError by mutableStateOf<FormError?>(null)
-        private set
-
-    fun reset(){
-        isSubmitSuccessful = false
-    }
-
-    private fun submitErrorReset()
-    {
-        if(userNameError==null && passwordError.isEmpty()  && emailError==null && phoneNumberError==null && confirmPasswordError==null && countryError==null)
-            submitError=null
-    }
-
-    val isUserNameValidForTick: Boolean
-        get() = userName.isNotEmpty() &&
+    fun isUserNameValid(): Boolean = with(_uiState.value) {
+        userName.isNotEmpty() &&
                 userName.minRequiredCharacterErrorMessageBuilder(R.string.username_field_name, USERNAME_MIN_SIZE) == null &&
                 userName.invalidUserNameErrorMessageBuilder() == null
+    }
 
-    val isEmailValidForTick: Boolean
-        get() = email.isNotEmpty() &&
-                email.invalidEmailErrorMessageBuilder() == null
 
-    val isPasswordValidForTick: Boolean
-        get() = password.isNotEmpty() &&
-                password.invalidPasswordErrorMessageBuilder().isEmpty()
+    fun isEmailValid(): Boolean = with(_uiState.value) {
+        email.isNotEmpty() && email.invalidEmailErrorMessageBuilder() == null
+    }
 
-    val isConfirmPasswordValidForTick: Boolean
-        get() = confirmPassword.isNotEmpty() &&
-                confirmPassword == password
 
-    val isPhoneValidForTick: Boolean
-        get() = selectedCountry != null &&
-                PhoneUtils.isValidMobileNumber(phoneNumber, selectedCountry!!.countryCode)
+    fun isPasswordValid(): Boolean = with(_uiState.value) {
+        password.isNotEmpty() && password.invalidPasswordErrorMessageBuilder().isEmpty()
+    }
 
-    var isLoading by mutableStateOf(false)
-        private set
+
+    fun isConfirmPasswordValid(): Boolean = with(_uiState.value) {
+        confirmPassword.isNotEmpty() && confirmPassword == password
+    }
+
+
+    fun isPhoneValid(): Boolean = with(_uiState.value) {
+        selectedCountry != null && PhoneUtils.isValidMobileNumber(phoneNumber, selectedCountry.countryCode)
+    }
+
 
     fun onSubmit() {
-
-        if(isLoading)
+        val state = _uiState.value
+        if (state.isLoading) {
             return
-
-        isLoading = true
-
-        isSubmitSuccessful = false
-        submitError = null
-
-        hasPasswordFieldEverFocused = true
-        hasPasswordFieldEverUnFocused = true
-
-        hasUserNameFieldEverFocused = true
-        hasUserNameFieldEverUnFocused = true
-
-        hasPhoneFieldEverUnFocused = true
-        hasPhoneFieldEverFocused = true
-
-        onUserNameChange(userName)
-        onEmailChange(email)
-        onPhoneNumberChange(phoneNumber)
-        onPasswordChange(password)
-        onConfirmPasswordChange(confirmPassword)
-
-        if (selectedCountry == null) {
-            countryError = FormError.EmptyData(R.string.country_field_name)
         }
 
-        if (isTimezoneFieldVisible && selectedTimezone == null) {
-            timezoneError = FormError.EmptyData(R.string.timezone_label)
+        _uiState.update { it.copy(
+            isLoading = true,
+            isSubmitSuccessful = false,
+            submitError = null,
+            hasPasswordFocused = true,
+            hasPasswordUnFocused = true,
+            hasUserNameFocused = true,
+            hasUserNameUnFocused = true,
+            hasPhoneFocused = true,
+            hasPhoneUnFocused = true,
+            hasEmailUnFocused = true,
+            validationTrigger = BankDateFactory.now().epochMillis
+        )}
+
+        onUserNameChange(state.userName)
+        onEmailChange(state.email)
+        onPhoneNumberChange(state.phoneNumber)
+        onPasswordChange(state.password)
+        onConfirmPasswordChange(state.confirmPassword)
+
+        if (_uiState.value.selectedCountry == null) {
+            _uiState.update { it.copy(countryError = FormError.EmptyData(R.string.country_field_name)) }
+        }
+
+        if (_uiState.value.isTimezoneFieldVisible && _uiState.value.selectedTimezone == null) {
+            _uiState.update { it.copy(timezoneError = FormError.EmptyData(R.string.timezone_label)) }
         }
 
         viewModelScope.launch {
+            val currentState = _uiState.value
             try {
-                if (userNameError != null || passwordError.isNotEmpty() || emailError != null || phoneNumberError != null || confirmPasswordError != null || countryError != null ||   timezoneError != null) {
-                    submitError = FormError.InvalidData
-                    return@launch
-                } else {
-
-                    if (userRepository.getUserByEmail(email) != null)
-                        submitError = FormError.UserAlreadyExists(R.string.email_field_name)
-                    else if (userRepository.getUserByPhoneNumber(phoneNumber) != null)
-                        submitError =
-                            FormError.UserAlreadyExists(R.string.phone_number_field_name)
+                if (currentState.userNameError != null || currentState.passwordError.isNotEmpty() ||
+                    currentState.emailError != null || currentState.phoneNumberError != null ||
+                    currentState.confirmPasswordError != null || currentState.countryError != null || currentState.timezoneError != null) {
+                    _uiState.update { it.copy(submitError = FormError.InvalidData) }
+                }
+                else {
+                    if (userRepository.getUserByEmail(currentState.email) != null) {
+                        _uiState.update { it.copy(submitError = FormError.UserAlreadyExists(R.string.email_field_name)) }
+                    }
+                    else if (userRepository.getUserByPhoneNumber(currentState.phoneNumber) != null) {
+                        _uiState.update { it.copy(submitError = FormError.UserAlreadyExists(R.string.phone_number_field_name)) }
+                    }
                     else {
-                        val countryCode = selectedCountry?.countryCode
-                        val timeZone = selectedTimezone
-
-                        if(countryCode==null || timeZone==null){
-                            submitError = FormError.UnknownError
-                            return@launch
-                        }
-                        submitError = null
-                        recoveryKey = RecoverKeyGenerationService.generateRecoveryKey()
-                        isSubmitSuccessful = true
+                        val key = RecoverKeyGenerationService.generateRecoveryKey()
                         userRepository.createNewUser(
                             User(
-                                email = email.trim(),
-                                passwordHashed = PasswordHashingService.hash(password),
-                                userName = userName.trim().replace(Regex("\\s+"), " "),
-                                phoneNumber =  "${selectedCountry?.phonePrefix ?: ""}${phoneNumber.trim()}",
-                                countryCode = countryCode,
-                                timeZone = timeZone,
-                                recoveryKey = PasswordHashingService.hash(recoveryKey)
+                                email = currentState.email.trim(),
+                                passwordHashed = PasswordHashingService.hash(currentState.password),
+                                userName = currentState.userName.trim().replace(Regex("\\s+"), " "),
+                                phoneNumber = "${currentState.selectedCountry?.phonePrefix ?: ""}${currentState.phoneNumber.trim()}",
+                                countryCode = currentState.selectedCountry?.countryCode ?: "",
+                                timeZone = currentState.selectedTimezone ?: "",
+                                recoveryKey = PasswordHashingService.hash(key)
                             )
                         )
+                        _uiState.update { it.copy(isSubmitSuccessful = true, recoveryKey = key) }
                     }
                 }
             }
-            catch (_: Exception){
-                submitError = FormError.InvalidData
+            catch (e: Exception) {
+                _uiState.update { it.copy(submitError = FormError.InvalidData) }
             }
             finally {
-                isLoading = false
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }

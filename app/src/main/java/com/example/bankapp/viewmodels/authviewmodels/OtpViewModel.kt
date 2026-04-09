@@ -25,14 +25,13 @@ class OtpViewModel : ViewModel() {
     var isOtpValid by mutableStateOf<Boolean?>(null)
         private set
 
-    var otpInputs by mutableStateOf(List(6){""})
+    var otpInputs by mutableStateOf(List(6) { "" })
         private set
 
     var submitError by mutableStateOf<FormError?>(null)
         private set
 
     private var otpExpiryJob: Job? = null
-
     private var isOtpProcessStarted = false
 
     fun startOtpProcess(onSend: () -> Unit) {
@@ -46,10 +45,12 @@ class OtpViewModel : ViewModel() {
         submitError = null
         isOtpValid = null
         otpExpiryJob?.cancel()
+
         generatedOtp = (100000..999999).random()
         otpExpiresAt = 60
         isOtpSent = true
         resetOtpInputs()
+
         otpExpiryJob = viewModelScope.launch {
             while (otpExpiresAt > 0) {
                 delay(1000)
@@ -70,12 +71,16 @@ class OtpViewModel : ViewModel() {
             val newInputs = otpInputs.toMutableList()
             newInputs[index] = value
             otpInputs = newInputs.toList()
-            submitError = null
+            if (submitError == FormError.OtpDoesNotMatch) {
+                submitError = null
+            }
             isOtpValid = null
         }
     }
 
     fun submitOtp() {
+        if (!isOtpSent) return // Prevent submitting if expired
+
         val fullOtp = otpInputs.joinToString("").toIntOrNull() ?: return
         if (fullOtp == generatedOtp) {
             isOtpValid = true
@@ -99,5 +104,6 @@ class OtpViewModel : ViewModel() {
         otpExpiresAt = 60
         isOtpProcessStarted = false
         resetOtpInputs()
+        submitError = null
     }
 }

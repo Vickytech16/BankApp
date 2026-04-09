@@ -64,13 +64,24 @@ fun UnifiedOutlinedTextField(
     showTickCondition: ((String) -> Boolean)? = null,
     enabled: Boolean = true,
     backgroundColor: Color? = null,
+    maxCharLimit: Int? = null, // New
+    showCharCount: Boolean = false // New
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
     val shouldShowTick = remember(value, isError, isValid) {
-        if (isError) false
-        else if (showTickCondition != null) showTickCondition(value)
-        else isValid || value.isNotEmpty()
+        if (isError)
+        {
+            false
+        }
+        else if (showTickCondition != null)
+        {
+            showTickCondition(value)
+        }
+        else
+        {
+            isValid || value.isNotEmpty()
+        }
     }
 
     Column(
@@ -87,14 +98,30 @@ fun UnifiedOutlinedTextField(
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp,
-                color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+                color = if (isError)
+                {
+                    MaterialTheme.colorScheme.error
+                }
+                else
+                {
+                    MaterialTheme.colorScheme.secondary
+                }
             )
 
             Box(modifier = Modifier.size(16.dp), contentAlignment = Alignment.Center) {
-                androidx.compose.animation.AnimatedVisibility(visible = isError, enter = fadeIn(), exit = fadeOut()) {
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = isError,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
                     Icon(Icons.Default.Cancel, null, Modifier.size(16.dp), MaterialTheme.colorScheme.error)
                 }
-                androidx.compose.animation.AnimatedVisibility(visible = shouldShowTick, enter = fadeIn(), exit = fadeOut()) {
+
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = shouldShowTick,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
                     Icon(Icons.Default.CheckCircle, null, Modifier.size(16.dp), Color(0xFF4DB89A))
                 }
             }
@@ -102,20 +129,26 @@ fun UnifiedOutlinedTextField(
 
         OutlinedTextField(
             value = value,
-            onValueChange = { newValue ->
-                val processedValue = strategy.validateValue(newValue) ?: newValue
-                onValueChange(processedValue)
+            onValueChange = { input ->
+                if (maxCharLimit == null || input.length <= maxCharLimit)
+                {
+                    onValueChange(input)
+                }
             },
             readOnly = readOnly,
             enabled = onClick == null && enabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(
-                    minHeight = dimensionResource(R.dimen.text_field_height)
-                )
+                .defaultMinSize(minHeight = dimensionResource(R.dimen.text_field_height))
                 .let {
-                    if (onClick != null) it.clickable(interactionSource, LocalIndication.current) { onClick() }
-                    else it
+                    if (onClick != null)
+                    {
+                        it.clickable(interactionSource, LocalIndication.current) { onClick() }
+                    }
+                    else
+                    {
+                        it
+                    }
                 },
             shape = RoundedCornerShape(dimensionResource(R.dimen.text_field_corner_radius)),
             colors = OutlinedTextFieldDefaults.colors(
@@ -125,8 +158,22 @@ fun UnifiedOutlinedTextField(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = Color.Transparent,
                 errorBorderColor = MaterialTheme.colorScheme.error,
-                disabledContainerColor = if (isError) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
-                disabledBorderColor = if (isError) MaterialTheme.colorScheme.error else Color.Transparent,
+                disabledContainerColor = if (isError)
+                {
+                    MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)
+                }
+                else
+                {
+                    MaterialTheme.colorScheme.surfaceVariant
+                },
+                disabledBorderColor = if (isError)
+                {
+                    MaterialTheme.colorScheme.error
+                }
+                else
+                {
+                    Color.Transparent
+                },
             ),
             keyboardOptions = strategy.getKeyboardOptions() ?: keyboardOptions,
             textStyle = TextStyle(
@@ -142,7 +189,14 @@ fun UnifiedOutlinedTextField(
                         Icon(
                             imageVector = leadingIcon ?: strategy.getLeadingIcon()!!,
                             contentDescription = null,
-                            tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = if (isError)
+                            {
+                                MaterialTheme.colorScheme.error
+                            }
+                            else
+                            {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
                         )
                     }
                 }
@@ -153,15 +207,44 @@ fun UnifiedOutlinedTextField(
             visualTransformation = strategy.getVisualTransformation() ?: VisualTransformation.None,
             singleLine = true,
             maxLines = 1,
-            placeholder = placeholderText?.let { { Text(it, style = TextStyle(fontSize = textFieldFontSize, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))) } },
-            supportingText = supportingText?.let {
+            placeholder = placeholderText?.let {
                 {
-                    Box(modifier = Modifier.padding(top = 4.dp)) {
-                        it()
+                    Text(
+                        it,
+                        style = TextStyle(
+                            fontSize = textFieldFontSize,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    )
+                }
+            },
+            supportingText = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Box(modifier = Modifier.weight(1f).padding(top = 4.dp)) {
+                        supportingText?.invoke()
+                    }
+
+                    if (showCharCount && maxCharLimit != null)
+                    {
+                        Text(
+                            text = "${value.length}/$maxCharLimit",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (value.length >= maxCharLimit)
+                            {
+                                MaterialTheme.colorScheme.error
+                            }
+                            else
+                            {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.padding(top = 4.dp, start = 8.dp)
+                        )
                     }
                 }
             }
         )
-
-}
+    }
 }

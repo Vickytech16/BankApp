@@ -10,23 +10,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.Country
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.entities.uientities.uidata.AmountFieldStrategy
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
-import com.example.bankapp.ui.screens.payscreens.PaySectionCard
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.textFieldFontSize
 import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.viewmodels.CurrencyConvertorViewModel
+
 
 @Composable
 fun CurrencyConverter(
@@ -34,6 +33,7 @@ fun CurrencyConverter(
     deviceSpec: DeviceSpec
 ) {
     val countryList by viewModel.countries.collectAsState()
+
 
     Column(
         modifier = Modifier
@@ -51,6 +51,7 @@ fun CurrencyConverter(
                 .padding(bottom = AppSpacing.lg)
         )
 
+
         CurrencyPickerRow(
             label = stringResource(R.string.from),
             selectedCountry = viewModel.topCurrency,
@@ -62,6 +63,7 @@ fun CurrencyConverter(
             onSelected = viewModel::onTopCurrencySelected
         )
 
+
         UnifiedOutlinedTextField(
             value = viewModel.converterInput,
             onValueChange = viewModel::onConverterInputChange,
@@ -70,15 +72,17 @@ fun CurrencyConverter(
             trailingIcon = {
                 if (viewModel.converterInput.isNotEmpty()) {
                     IconButton(onClick = { viewModel.onConverterInputChange("") }) {
-                        Icon(Icons.Default.Close, contentDescription = "Clear")
+                        Icon(Icons.Default.Close, contentDescription = null)
                     }
                 }
             },
             strategy = AmountFieldStrategy(transactionType = TransactionType.DEPOSIT),
-            showTickCondition = {false}
+            showTickCondition = { false }
         )
 
+
         MediumSpacer()
+
 
         Box(
             modifier = Modifier
@@ -100,6 +104,7 @@ fun CurrencyConverter(
             }
         }
 
+
         CurrencyPickerRow(
             label = stringResource(R.string.to),
             selectedCountry = viewModel.bottomCurrency,
@@ -111,7 +116,9 @@ fun CurrencyConverter(
             onSelected = viewModel::onBottomCurrencySelected
         )
 
+
         MediumSpacer()
+
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -122,37 +129,49 @@ fun CurrencyConverter(
                 MaterialTheme.colorScheme.outlineVariant
             )
         ) {
-            Row(
+            Column(
                 modifier = Modifier.padding(AppSpacing.lg),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.Center
             ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.result),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = viewModel.convertedValue,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                Text(
+                    text = stringResource(R.string.result),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = AppSpacing.xs)
+                )
 
-                viewModel.bottomCurrency?.let {
-                    Text(
-                        text = CurrencyUtils.getCurrencySymbol(it.countryCode),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                    )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        AutoResizeText(
+                            text = viewModel.convertedValue,
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.ExtraBold
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+
+                    viewModel.bottomCurrency?.let {
+                        Text(
+                            text = CurrencyUtils.getCurrencySymbol(it.countryCode),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(start = AppSpacing.sm, bottom = AppSpacing.xs)
+                        )
+                    }
                 }
             }
         }
 
-        if(viewModel.lastUpdated != null) {
+
+        if (viewModel.lastUpdated != null) {
             Text(
                 text = "${stringResource(R.string.last_updated_label)} ${viewModel.lastUpdated}",
                 style = MaterialTheme.typography.labelLarge,
@@ -166,6 +185,7 @@ fun CurrencyConverter(
     }
 }
 
+
 @Composable
 private fun CurrencyPickerRow(
     label: String,
@@ -177,7 +197,9 @@ private fun CurrencyPickerRow(
     onSearchQueryChange: (String) -> Unit,
     onSelected: (Country) -> Unit
 ) {
-    val displayValue = selectedCountry?.let { "${it.emoji}  ${CurrencyUtils.getCurrencyCode(it.countryCode)}" } ?: "..."
+    val displayValue = selectedCountry?.let {
+        "${it.emoji}  ${CurrencyUtils.getCurrencyCode(it.countryCode)}"
+    } ?: "..."
 
     DropDownPickerField(
         label = label,
@@ -187,12 +209,22 @@ private fun CurrencyPickerRow(
         onItemSelected = onSelected,
         itemLabel = { it.name },
         itemSecondaryLabel = { CurrencyUtils.getCurrencyCode(it.countryCode) },
-        itemLeadingIcon = { Text(it.emoji, fontSize = 20.sp) },
+        itemLeadingIcon = {
+            Text(
+                text = it.emoji,
+                fontSize = textFieldFontSize
+            )
+        },
         showSheet = showSheet,
         onShowSheetChange = onShowSheetChange,
         searchQuery = searchQuery,
         onSearchQueryChange = onSearchQueryChange,
-        leadingIcon = {Icon(imageVector = Icons.Outlined.Public, contentDescription = null)},
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Public,
+                contentDescription = null
+            )
+        },
         searchPlaceholder = stringResource(R.string.currency_field_name),
         tickCondition = false
     )

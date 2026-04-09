@@ -32,7 +32,9 @@ fun BeneficiaryItem(
     beneficiaryName: String,
     beneficiaryPfp: String? = null,
     onEditClick: () -> Unit = {},
-    onDeleteClick: () -> Unit = {}
+    onDeleteClick: () -> Unit = {},
+    onEnlargeImage: Boolean,
+    onEnlargeImageChange: (Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -49,7 +51,9 @@ fun BeneficiaryItem(
             UserAvatar(
                 name = beneficiaryName,
                 pfpUrl = beneficiaryPfp,
-                size = dimensionResource(R.dimen.user_avatar_transaction)
+                size = dimensionResource(R.dimen.user_avatar_transaction),
+                showEnlargeOnClick = onEnlargeImage,
+                onEnlargeToggle = onEnlargeImageChange
             )
             Text(
                 text = beneficiaryName,

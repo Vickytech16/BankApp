@@ -23,51 +23,15 @@ class ManageBeneficiaryViewModel(
     sessionState: SessionState.Authenticated.AccountRegistered,
     private val beneficiaryRepository: BeneficiaryRepository
 ) : ViewModel() {
-    private val user = sessionState.user
-    private val _friends = MutableStateFlow<List<BeneficiaryDto>>(emptyList())
-    val friends: StateFlow<List<BeneficiaryDto>> = _friends
-
-    private val _query = MutableStateFlow("")
-    val query: StateFlow<String> = _query
 
     var isLoading by mutableStateOf(false)
         private set
 
-    init {
-        loadFriends()
-    }
-
-    private fun loadFriends() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                isLoading = true
-                val allFriends = beneficiaryRepository.getAllBeneficiariesForUser(user.value.userId)
-                _friends.value = allFriends
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                isLoading = false
-            }
-        }
-    }
-
     var showDeleteDialog by mutableStateOf(false)
         private set
 
-    fun onShowDeleteDialogChange(newValue: Boolean) {
-        showDeleteDialog = newValue
-    }
-
     var showEditDialog by mutableStateOf(false)
         private set
-
-    fun onShowEditDialogChange(newValue: Boolean) {
-        showEditDialog = newValue
-    }
-
-    fun onQueryChange(newQuery: String) {
-        _query.value = newQuery
-    }
 
     var nickname by mutableStateOf<String?>("")
         private set
@@ -78,20 +42,85 @@ class ManageBeneficiaryViewModel(
     var selectedFriend by mutableStateOf<BeneficiaryDto?>(null)
         private set
 
+    var submitError by mutableStateOf<FormError?>(null)
+        private set
+
+    private val user = sessionState.user
+    private val _friends = MutableStateFlow<List<BeneficiaryDto>>(emptyList())
+    val friends: StateFlow<List<BeneficiaryDto>> = _friends
+
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query
+
+
+    init {
+        loadFriends()
+    }
+
+
+    private fun loadFriends() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                isLoading = true
+                val allFriends = beneficiaryRepository.getAllBeneficiariesForUser(user.value.userId)
+                _friends.value = allFriends
+            }
+            catch (e: Exception) {
+                e.printStackTrace()
+            }
+            finally {
+                isLoading = false
+            }
+        }
+    }
+
+    var showEnlargedImage by mutableStateOf(false)
+    private set
+
+    fun onShowEnlargedImageChange(newValue: Boolean) {
+        showEnlargedImage = newValue
+    }
+
+
+    fun onShowDeleteDialogChange(newValue: Boolean) {
+        showDeleteDialog = newValue
+    }
+
+
+    fun onShowEditDialogChange(newValue: Boolean) {
+        showEditDialog = newValue
+    }
+
+
+    fun onQueryChange(newQuery: String) {
+        _query.value = newQuery
+    }
+
+
     fun onSelectFriend(friend: BeneficiaryDto) {
         selectedFriend = friend
         nickname = friend.beneficiaryName
     }
 
+
     fun onNicknameChange(newNickname: String) {
-        if (newNickname.length <= USERNAME_MAX_SIZE) {
+        if (newNickname.length <= USERNAME_MAX_SIZE && newNickname != " ") {
             nickname = newNickname
+
+            nicknameError = if (newNickname.isEmpty()) {
+                null
+            }
+            else {
+                newNickname.maxAllowedCharacterErrorMessageBuilder(
+                    R.string.nickname_field_name,
+                    USERNAME_MAX_SIZE
+                ) ?: newNickname.invalidUserNameErrorMessageBuilder()
+            }
+
+            submitError = null
         }
-        nicknameError = newNickname.maxAllowedCharacterErrorMessageBuilder(
-            R.string.nickname_field_name,
-            USERNAME_MAX_SIZE
-        ) ?: newNickname.invalidUserNameErrorMessageBuilder()
     }
+
 
     fun resetNicknameState() {
         nickname = ""
@@ -99,11 +128,9 @@ class ManageBeneficiaryViewModel(
         submitError = null
     }
 
-    var submitError by mutableStateOf<FormError?>(null)
-        private set
 
     fun onNicknameSubmit() {
-        onNicknameChange(nickname ?: "")
+        val currentNickname = nickname ?: ""
 
         if (nicknameError != null) {
             submitError = FormError.InvalidData
@@ -113,15 +140,20 @@ class ManageBeneficiaryViewModel(
         selectedFriend?.let { friend ->
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    val finalNickname = if (nickname.isNullOrBlank()) null else nickname
+                    val finalNickname = if (currentNickname.isBlank()) {
+                        null
+                    }
+                    else {
+                        currentNickname.trim()
+                    }
 
                     val beneficiary = Beneficiary(
                         beneficiaryId = friend.beneficiaryEntryId,
                         userId = user.value.userId,
                         beneficiaryUserId = friend.beneficiaryUserId,
                         nickname = finalNickname,
-                        isFavorite = false
                     )
+
                     beneficiaryRepository.updateBeneficiary(beneficiary)
 
                     viewModelScope.launch {
@@ -129,13 +161,14 @@ class ManageBeneficiaryViewModel(
                         resetNicknameState()
                         loadFriends()
                     }
-                } catch (e: Exception) {
+                }
+                catch (e: Exception) {
                     submitError = FormError.UnknownError
-                    e.printStackTrace()
                 }
             }
         }
     }
+
 
     fun onDelete() {
         selectedFriend?.let { friend ->
@@ -146,7 +179,8 @@ class ManageBeneficiaryViewModel(
                         onShowDeleteDialogChange(false)
                         loadFriends()
                     }
-                } catch (e: Exception) {
+                }
+                catch (e: Exception) {
                     e.printStackTrace()
                 }
             }

@@ -74,7 +74,7 @@ fun HomeDrawer(drawerState: DrawerState,
                         .padding(horizontal = AppSpacing.lg),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    UserAvatar(username, userPfpUrl)
+                    UserAvatar(username, userPfpUrl, )
 
                     Spacer(Modifier.height(AppSpacing.md))
                     Text(

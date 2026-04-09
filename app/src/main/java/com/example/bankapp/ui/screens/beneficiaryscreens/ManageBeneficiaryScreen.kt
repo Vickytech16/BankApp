@@ -15,6 +15,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
@@ -41,18 +42,19 @@ fun ManageBeneficiaryScreen(
     val friends by viewModel.friends.collectAsState()
     val query by viewModel.query.collectAsState()
     val isLoading = viewModel.isLoading
-    val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val showDeleteDialog = viewModel.showDeleteDialog
     val showEditDialog = viewModel.showEditDialog
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
+
     val filteredFriends = remember(friends, query) {
         friends.filter { friend ->
             friend.beneficiaryName.contains(query, ignoreCase = true)
         }
     }
+
 
     if (showDeleteDialog) {
         AlertDialogBox(
@@ -67,13 +69,19 @@ fun ManageBeneficiaryScreen(
                 label = stringResource(R.string.cancel_label),
                 onClick = { viewModel.onShowDeleteDialogChange(false) }
             ),
-            content = { Text(stringResource(R.string.delete_beneficiary_confirmation)) }
+            content = {
+                Text(stringResource(R.string.delete_beneficiary_confirmation))
+            }
         )
     }
 
+
     if (showEditDialog) {
         AlertDialogBox(
-            onDismissRequest = { viewModel.onShowEditDialogChange(false) },
+            onDismissRequest = {
+                viewModel.onShowEditDialogChange(false)
+                viewModel.resetNicknameState()
+            },
             title = stringResource(R.string.edit_beneficiary),
             confirmButton = AlertButtonConfig(
                 label = stringResource(R.string.save_button),
@@ -93,19 +101,19 @@ fun ManageBeneficiaryScreen(
                         onValueChange = viewModel::onNicknameChange,
                         labelText = stringResource(R.string.nickname_field_name),
                         isError = viewModel.nicknameError != null,
-                        supportingText = { ErrorTextBuilder(viewModel.nicknameError) },
+                        supportingText = {
+                            ErrorTextBuilder(viewModel.nicknameError)
+                        },
                         strategy = UserNameFieldStrategy,
                         trailingIcon = {
-                            IconButton(onClick = {
-                                viewModel.onNicknameChange("")
-                                viewModel.onNicknameSubmit()
-                                viewModel.onShowEditDialogChange(false)
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Clear and Close",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+                            if (viewModel.nickname?.isNotEmpty() == true) {
+                                IconButton(onClick = { viewModel.onNicknameChange("") }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     )
@@ -114,6 +122,7 @@ fun ManageBeneficiaryScreen(
             }
         )
     }
+
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -131,7 +140,8 @@ fun ManageBeneficiaryScreen(
                             IconButton(onClick = {
                                 if (query.isNotEmpty()) {
                                     viewModel.onQueryChange("")
-                                } else {
+                                }
+                                else {
                                     navController.popBackStack()
                                 }
                             }) {
@@ -146,7 +156,7 @@ fun ManageBeneficiaryScreen(
                 }
             )
         },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -155,21 +165,20 @@ fun ManageBeneficiaryScreen(
         ) {
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (filteredFriends.isEmpty()) {
+            }
+            else if (filteredFriends.isEmpty()) {
                 Text(
                     text = stringResource(R.string.no_beneficiaries_found),
                     modifier = Modifier.align(Alignment.Center),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            } else {
+            }
+            else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        horizontal = dimensionResource(R.dimen.screen_padding),
-                        vertical = dimensionResource(R.dimen.screen_padding)
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding)),
+                    contentPadding = PaddingValues(AppSpacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(AppSpacing.md),
                     state = lazyListState
                 ) {
                     items(filteredFriends) { friend ->
@@ -183,7 +192,9 @@ fun ManageBeneficiaryScreen(
                             onDeleteClick = {
                                 viewModel.onSelectFriend(friend)
                                 viewModel.onShowDeleteDialogChange(true)
-                            }
+                            },
+                            onEnlargeImage = viewModel.showEnlargedImage,
+                            onEnlargeImageChange = viewModel::onShowEnlargedImageChange
                         )
                     }
                 }

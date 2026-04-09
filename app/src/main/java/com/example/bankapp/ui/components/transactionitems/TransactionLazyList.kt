@@ -77,29 +77,41 @@ fun TransactionLazyList(
             items(transactionsForDate) { transaction ->
                 val displayName = when {
                     transaction.transactionType == TransactionType.DEPOSIT -> "You (Deposit)"
+                    transaction.transactionType == TransactionType.INTEREST_ADDITION -> "You (Interest Addition)"
                     !transaction.counterpartyNickname.isNullOrEmpty() ->
                         "${transaction.counterpartyNickname} (${transaction.counterpartyName})"
                     else -> transaction.counterpartyName ?: "Bank"
                 }
-                val counterPartyPfp =
+
+                val displayPfp =
                     if (transaction.transactionType == TransactionType.DEPOSIT)
                         transaction.myPfpUrl
+                    else if(transaction.transactionType == TransactionType.INTEREST_ADDITION)
+                        "res://bank_logo"
                     else
                         transaction.counterpartyPfpUrl
+
+                val avatarName =
+                    if(transaction.transactionType == TransactionType.DEPOSIT)
+                        transaction.myUserName
+                    else
+                        transaction.counterpartyName ?: "Bank"
+
 
                 TransactionListItem(
                     counterPartyName = displayName,
                     transactionDirection = transaction.ledgerDirection,
                     amount = transaction.amount.uiAmountDisplay(),
                     transactionDate = transaction.transactionDate,
-                    pfpURL = counterPartyPfp,
+                    pfpURL = displayPfp,
                     onClickAction = {
                         navController.navigate(
                             "$INDIVIDUAL_TRANSACTION_LOG_ROUTE/${transaction.transactionId}?origin=$TRANSACTIONS_LOG_ROUTE"
                         )
                     },
                     deviceSpec = deviceSpec,
-                    countryCode = countryCode
+                    countryCode = countryCode,
+                    avatarName = avatarName
                 )
 
                 SmallSpacer()

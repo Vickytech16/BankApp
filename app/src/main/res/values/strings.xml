@@ -16,6 +16,10 @@
     <string name="savings_account">Savings</string>
     <string name="current_account">Current</string>
 
+    <string name="auth_locked_title">App Locked</string>
+    <string name="auth_unlock_button">Unlock with Biometrics</string>
+    <string name="copy_recovery_key_label">Recovery Key</string>
+
 
 <!-- Form Errors -->
     <string name="enter_valid_data_error">Enter valid data in all fields.</string>
@@ -24,7 +28,7 @@
     <string name="data_too_short_error">%1$s must contain at least %2$d characters.</string>
     <string name="invalid_email_format_error">Invalid email format.</string>
     <string name="invalid_numerical_field_error"> %1$s must contain only numerical data.</string>
-    <string name="invalid_username_error">Name must contain only alphabets or whitespaces.</string>
+    <string name="invalid_username_error">Name must contain only alphabets, numbers or whitespaces.</string>
     <string name="user_already_exists_error">User with this %1$s already exists.</string>
     <string name="invalid_credentials">Invalid credentials.</string>
     <string name="password_doesnt_match">Password doesn\'t match</string>
@@ -328,6 +332,17 @@
     <string name="select_date">Select date</string>
     <string name="official_receipt_footer">OfficialReciept</string>
     <string name="back_label">back</string>
+    <string name="beneficary_limit_reached">You can only add upto %2$d beneficiaries</string>
+    <string name="limit_exceeded_error">Limit exceeded. Max per transfer: %1$s</string>
+    <string name="reciever_max_balance_exceeded_error">Recieving Account Max Balance Exceeded, cannot recieve money at this point.</string>
+    <string name="max_limit_exceeeded_deposit">Max Limit for Deposit is : %1$s</string>
+    <string name="limit_exceeded_deposit_error">This amount will go above your max balance limit of %1$s</string>
+    <string name="share_preview_title">Share transaction</string>
+    <string name="share_preview_subtitle">Would you like to share this transaction details image?</string>
+    <string name="share_confirm">Confirm</string>
+    <string name="username_cannot_start_with_number">name cannot start with a number</string>
+    <string name="same_password">Try different password</string>
 
 
+    <string name="interest_addition_label">Interest Addition</string>
 </resources>

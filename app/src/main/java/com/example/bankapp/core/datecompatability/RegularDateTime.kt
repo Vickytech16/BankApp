@@ -24,7 +24,7 @@ class RegularDateTime(override val epochMillis: Long, override val activeTimeZon
             .toEpochMilli()
 
     override val endOfDayMillis: Long
-        get() = startOfDayMillis + (24 * 60 * 60 * 1000L) - 1
+        get() = startOfDayMillis + (BankDateTime.DAY_IN_MINUTES) - 1
 
     override fun minusDays(days: Int): BankDateTime =
         BankDateFactory.fromMillis(zonedDateTime.minusDays(days.toLong()).toInstant().toEpochMilli())
@@ -34,17 +34,26 @@ class RegularDateTime(override val epochMillis: Long, override val activeTimeZon
     override fun toString(): String = toIsoString()
 
     override fun toMonthDayDisplay(): String {
-        val formatter = DateTimeFormatter.ofPattern("dd MMMM", Locale.getDefault())
+        val formatter = DateTimeFormatter.ofPattern(BankDateTime.MONTH_DAY_PATTERN, Locale.getDefault())
         return zonedDateTime.format(formatter)
     }
 
     override fun toFullDateTimeDisplay(): String {
-        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a", Locale.getDefault())
+        val formatter = DateTimeFormatter.ofPattern(BankDateTime.FULL_DATE_TIME_PATTERN, Locale.getDefault())
         return zonedDateTime.format(formatter)
     }
 
     override fun fileNameDate(): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm", Locale.US)
+        val formatter = DateTimeFormatter.ofPattern(BankDateTime.FILE_DATE_TIME, Locale.US)
         return zonedDateTime.format(formatter)
+    }
+
+    override fun getStartOfDayUtc(): Long {
+        return Instant.now()
+            .atZone(ZoneId.of(BankDateTime.UTC_ID))
+            .toLocalDate()
+            .atStartOfDay(ZoneId.of(BankDateTime.UTC_ID))
+            .toInstant()
+            .toEpochMilli()
     }
 }

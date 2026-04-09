@@ -124,21 +124,21 @@ fun PayScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         ActionButton(
-                            onClickAction = { navController.navigate(PAY_TO_BENEFICIARY_ROUTE) },
+                            onClickAction = { navController.navigate("$PAY_TO_BENEFICIARY_ROUTE?origin=$PAY_ROUTE") },
                             icon = Icons.Outlined.AccountBalance,
                             label = stringResource(R.string.pay_to_friend),
                             modifier = Modifier.weight(1f),
                             dimensions = actionQuickActionButtonDimensions
                         )
                         ActionButton(
-                            onClickAction = { navController.navigate(CASH_TRANSFER_ROUTE) },
+                            onClickAction = { navController.navigate("$CASH_TRANSFER_ROUTE?origin=$PAY_ROUTE") },
                             icon = Icons.Outlined.SwapHoriz,
                             label = stringResource(R.string.pay_anyone),
                             modifier = Modifier.weight(1f),
                             dimensions = actionQuickActionButtonDimensions,
                         )
                         ActionButton(
-                            onClickAction = { navController.navigate(DEPOSIT_ROUTE) },
+                            onClickAction = { navController.navigate("$DEPOSIT_ROUTE?origin=$PAY_ROUTE") },
                             icon = Icons.Outlined.AccountBalanceWallet,
                             label = stringResource(R.string.deposit_button),
                             modifier = Modifier.weight(1f),

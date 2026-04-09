@@ -23,6 +23,8 @@ import androidx.compose.ui.res.dimensionResource
 import com.example.bankapp.R
 import com.example.bankapp.ui.components.BankAppBottomSheet
 import com.example.bankapp.ui.components.LargeSpacer
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +39,13 @@ fun FilterSortChip(
     sheetContent: @Composable () -> Unit,
     fullHeight: Boolean
 ) {
+    val deviceSpec = LocalDeviceSpec.current
+    val shouldFullHeight =
+    if (fullHeight && deviceSpec is DeviceSpec.TabPortrait){
+        false
+    }else
+        fullHeight
+
     BadgedBox(
         badge = {
             if (badgeCount > 0) {
@@ -75,7 +84,7 @@ fun FilterSortChip(
         showSheet = showSheet,
         onDismissRequest = { onShowSheetChange(false) },
         skipPartiallyExpanded = true,
-        fullHeight = fullHeight
+        fullHeight = shouldFullHeight
     ) {
         sheetContent()
     }

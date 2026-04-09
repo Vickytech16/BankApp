@@ -13,24 +13,25 @@ import com.example.bankapp.entities.errors.TransactionResult
 import com.example.bankapp.entities.types.account.AccountType
 import com.example.bankapp.entities.uientities.uimodels.AccountUiModel
 import com.example.bankapp.repositories.AccountRepository
+import com.example.bankapp.repositories.CurrencyExchangeRepository
 import com.example.bankapp.repositories.TransactionRepository
 import com.example.bankapp.services.PasswordHashingService
-
+import com.example.bankapp.utilities.CurrencyUtils
 import com.example.bankapp.utilities.PASSWORD_MAX_SIZE
 import com.example.bankapp.utilities.amountFieldValidator
 import com.example.bankapp.utilities.depositAmountRegex
 import com.example.bankapp.utilities.emptyTextFieldErrorMessageBuilder
-
 import com.example.bankapp.utilities.maxAllowedCharacterErrorMessageBuilder
-
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import java.util.UUID
 
 class AccountCreationViewModel(
     private val accountRepository: AccountRepository,
     private val sessionState: SessionState.Authenticated.AccountNotRegistered,
     private val transactionRepository: TransactionRepository,
-    private val sessionViewModel: SessionViewModel
+    private val sessionViewModel: SessionViewModel,
+    private val currencyRepository: CurrencyExchangeRepository
 ): ViewModel() {
 
     var accountType by mutableStateOf<AccountType>(AccountType.Savings)
@@ -38,6 +39,7 @@ class AccountCreationViewModel(
 
     fun onAccountTypeChange(newAccountType: AccountType){
         accountType = newAccountType
+        onAmountChange(amount)
     }
 
     var amount by mutableStateOf("")
@@ -46,11 +48,41 @@ class AccountCreationViewModel(
     var amountError by mutableStateOf<FormError?>(null)
         private set
 
+    private var exchangeRates by mutableStateOf<Map<String, Double>>(emptyMap())
+
+    init {
+        loadExchangeRates()
+    }
+
+    private fun loadExchangeRates() {
+        viewModelScope.launch {
+            val ratesData = currencyRepository.getLatestRates()
+            if (ratesData != null) exchangeRates = ratesData.rates
+        }
+    }
+
+    private fun getLocalMaxBalanceLimit(): BigDecimal {
+        val maxUsd = accountType.maxBalanceLimit
+        val myRate = exchangeRates[CurrencyUtils.getCurrencyCode(sessionState.user.countryCode)] ?: 1.0
+        return maxUsd.multiply(BigDecimal.valueOf(myRate))
+    }
+
     fun onAmountChange(newAmount: String){
+
         if(newAmount.isEmpty() || newAmount.matches(depositAmountRegex))
             amount = newAmount
-        amountError = newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name) ?:
-                      newAmount.amountFieldValidator(depositAmountRegex)
+
+        val maxLimit = getLocalMaxBalanceLimit()
+        val inputVal = newAmount.toBigDecimalOrNull() ?: BigDecimal.ZERO
+
+        amountError = when {
+            newAmount.isEmpty() -> newAmount.emptyTextFieldErrorMessageBuilder(R.string.amount_field_name)
+            inputVal > maxLimit -> {
+                val formattedLimit = CurrencyUtils.formatCurrency(maxLimit, sessionState.user.countryCode) +" "+ CurrencyUtils.getCurrencyCode(sessionState.user.countryCode)
+                FormError.LimitExceededDeposit(formattedLimit)
+            }
+            else -> newAmount.amountFieldValidator(depositAmountRegex)
+        }
         onSubmitErrorReset()
     }
 
@@ -67,7 +99,7 @@ class AccountCreationViewModel(
         if (newPassword.length <= PASSWORD_MAX_SIZE)
             password = newPassword
         passwordError =
-                    newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name) ?:
+            newPassword.emptyTextFieldErrorMessageBuilder(R.string.password_field_name) ?:
                     newPassword.maxAllowedCharacterErrorMessageBuilder(R.string.password_field_name, PASSWORD_MAX_SIZE)
         onSubmitErrorReset()
     }
@@ -100,59 +132,50 @@ class AccountCreationViewModel(
     }
 
     fun onSubmit(){
-
-        if(isLoading)
-            return
-
-        isLoading = true
+        if(isLoading) return
 
         onAmountChange(amount)
         onPasswordChange(password)
-
         onSubmitErrorReset()
 
         viewModelScope.launch {
             try {
+                isLoading = true
                 if (passwordError != null || amountError != null) {
                     submitError = FormError.InvalidData
                     return@launch
                 }
 
                 val convertedAmount = amount.toBigDecimalOrNull()
-                if(convertedAmount==null){
+                if(convertedAmount==null || convertedAmount <= BigDecimal.ZERO){
                     amountError = FormError.InvalidAmount
                     submitError = FormError.InvalidData
                     return@launch
                 }
 
-                if (submitError == null) {
+                val user = sessionState.user
+                if (PasswordHashingService.matches(password, user.passwordHashed)) {
+                    val account = AccountUiModel(
+                        userId = user.userId,
+                        accountType = accountType,
+                        createdAt = BankDateFactory.now(),
+                        updatedAt = BankDateFactory.now(),
+                        lastInterestDate = BankDateFactory.now()
+                    )
 
-                    val user = sessionState.user
-                    if (PasswordHashingService.matches(password, user.passwordHashed)) {
-                        isSubmitSuccessful = true
-                        val account = AccountUiModel(
-                            userId = user.userId,
-                            accountType = accountType,
-                            createdAt = BankDateFactory.now(),
-                            updatedAt = BankDateFactory.now(),
-                            lastInterestDate = BankDateFactory.now()
-                        )
+                    val accNo = accountRepository.createAccount(account)
+                    val result = transactionRepository.deposit(accNo, convertedAmount, idempotencyKey)
 
-                        val accNo =
-                            accountRepository.createAccount(account)
-                        val result =
-                            transactionRepository.deposit(accNo, convertedAmount, idempotencyKey)
-
-                        if (result is TransactionResult.Error.RepeatedTransaction)
-                            idempotencyKey = UUID.randomUUID().toString()
-
-                        sessionViewModel.handlePasswordAttempt(true)
+                    if (result is TransactionResult.Error.RepeatedTransaction) {
+                        idempotencyKey = UUID.randomUUID().toString()
                     }
-                    else {
-                        passwordError = FormError.PasswordDoesntMatch
-                        submitError = FormError.PasswordDoesntMatch
-                        sessionViewModel.handlePasswordAttempt(false)
-                    }
+
+                    isSubmitSuccessful = true
+                    sessionViewModel.handlePasswordAttempt(true)
+                } else {
+                    passwordError = FormError.PasswordDoesntMatch
+                    submitError = FormError.PasswordDoesntMatch
+                    sessionViewModel.handlePasswordAttempt(false)
                 }
             } catch (_: Exception) {
                 submitError = FormError.UnknownError

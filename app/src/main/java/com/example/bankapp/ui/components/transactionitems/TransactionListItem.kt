@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
@@ -27,6 +28,7 @@ import com.example.bankapp.ui.theme.amountGreenColor
 import com.example.bankapp.utilities.CurrencyUtils
 import java.math.BigDecimal
 
+
 @Composable
 fun TransactionListItem(
     counterPartyName: String,
@@ -36,36 +38,49 @@ fun TransactionListItem(
     pfpURL: String? = null,
     onClickAction: () -> Unit = {},
     deviceSpec: DeviceSpec,
-    countryCode: String
+    countryCode: String,
+    avatarName: String = counterPartyName
 ) {
     val formattedDate = transactionDate.toMonthDayDisplay()
     val isCredit = transactionDirection == LedgerDirection.CREDIT
     val avatarSize = dimensionResource(deviceSpec.transactionListItemAvatarSize)
+    val amountColor = if (isCredit) {
+        amountGreenColor
+    }
+    else {
+        MaterialTheme.colorScheme.error
+    }
+    val amountPrefix = if (isCredit) {
+        "+"
+    }
+    else {
+        "-"
+    }
+    val itemShape = RoundedCornerShape(dimensionResource(R.dimen.transaction_list_item_Rounded_border))
 
-    val amountColor = if (isCredit) amountGreenColor else MaterialTheme.colorScheme.error
-    val amountPrefix = if (isCredit) "+" else "-"
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = true, onClick = onClickAction)
+            .clip(itemShape)
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(dimensionResource(R.dimen.transaction_list_item_Rounded_border))
+                shape = itemShape
             )
+            .clickable(onClick = onClickAction)
             .padding(deviceSpec.transactionListItemHorizontalPadding)
-
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(deviceSpec.transactionListItemSpacing)
         ) {
-                UserAvatar(
-                    counterPartyName,
-                    pfpURL,
-                    size = avatarSize
-                )
+            UserAvatar(
+                avatarName,
+                pfpURL,
+                size = avatarSize
+            )
+
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -83,6 +98,7 @@ fun TransactionListItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
 
             AutoResizeText(
                 text = "$amountPrefix${CurrencyUtils.formatCurrency(amount.toBigDecimalOrNull() ?: BigDecimal.ZERO, countryCode)} ${CurrencyUtils.getCurrencySymbol(countryCode)}",

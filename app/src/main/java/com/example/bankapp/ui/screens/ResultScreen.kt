@@ -52,7 +52,8 @@ import kotlinx.coroutines.delay
 fun TransactionResultScreen(
     transactionResultViewModelFactory: TransactionResultViewModelFactory,
     navController: NavController,
-    authorizationViewModel: AuthorizationViewModel
+    authorizationViewModel: AuthorizationViewModel,
+    onDone: () -> Unit
 ) {
     val viewModel: ResultViewModel = viewModel(factory = transactionResultViewModelFactory)
     val actionState = authorizationViewModel.authorizationActionState
@@ -178,9 +179,7 @@ fun TransactionResultScreen(
 
     BackHandler(true) {
         authorizationViewModel.clearAuthorization()
-        navController.navigate(HOME_ROUTE) {
-            popUpTo(MAIN_ROUTE) { inclusive = true }
-        }
+        onDone()
     }
 
     val successComposition = rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.success_tick))

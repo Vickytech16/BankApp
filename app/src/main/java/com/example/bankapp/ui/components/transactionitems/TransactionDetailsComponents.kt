@@ -30,35 +30,35 @@ import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.ui.components.XSSpacer
 import com.example.bankapp.ui.theme.AppSpacing
 import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.amountGreenColor
 
 @Composable
 fun StatusSection(transactionStatus: TransactionStatus?, deviceSpec: DeviceSpec) {
-
     val statusIcon: ImageVector
     val statusText: String
     val statusColor: Color
     val statusBackground: Color
 
     when (transactionStatus) {
-            TransactionStatus.COMPLETED -> {
-                statusIcon = Icons.Filled.Check
-                statusText = stringResource(R.string.status_completed_successfully)
-                statusColor = MaterialTheme.colorScheme.tertiary
-                statusBackground = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
-            }
-            TransactionStatus.FAILED -> {
-                statusIcon = Icons.Filled.Close
-                statusText = stringResource(R.string.status_failed_insufficient_balance)
-                statusColor = MaterialTheme.colorScheme.error
-                statusBackground = MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
-            }
-            else -> {
-                statusIcon = Icons.Filled.Schedule
-                statusText = stringResource(R.string.status_pending)
-                statusColor = MaterialTheme.colorScheme.tertiary
-                statusBackground = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
-            }
+        TransactionStatus.COMPLETED -> {
+            statusIcon = Icons.Filled.Check
+            statusText = stringResource(R.string.status_completed)
+            statusColor = amountGreenColor
+            statusBackground = amountGreenColor.copy(alpha = 0.2f)
         }
+        TransactionStatus.FAILED -> {
+            statusIcon = Icons.Filled.Close
+            statusText = stringResource(R.string.status_failed)
+            statusColor = MaterialTheme.colorScheme.error
+            statusBackground = MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
+        }
+        else -> {
+            statusIcon = Icons.Filled.Schedule
+            statusText = stringResource(R.string.status_pending)
+            statusColor = MaterialTheme.colorScheme.tertiary
+            statusBackground = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -94,7 +94,7 @@ fun StatusSection(transactionStatus: TransactionStatus?, deviceSpec: DeviceSpec)
 }
 
 @Composable
- fun BankSection() {
+fun BankSection() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -103,9 +103,7 @@ fun StatusSection(transactionStatus: TransactionStatus?, deviceSpec: DeviceSpec)
         Image(
             painter = painterResource(id = R.drawable.bank_logo),
             contentDescription = stringResource(R.string.vangi),
-            modifier = Modifier
-                .size(dimensionResource(R.dimen.bank_logo_size_transaction_screen))
-
+            modifier = Modifier.size(dimensionResource(R.dimen.bank_logo_size_transaction_screen))
         )
         Text(
             text = stringResource(R.string.vangi),
@@ -115,4 +113,3 @@ fun StatusSection(transactionStatus: TransactionStatus?, deviceSpec: DeviceSpec)
         )
     }
 }
-

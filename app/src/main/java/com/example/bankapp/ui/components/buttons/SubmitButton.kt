@@ -16,20 +16,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
 
 @SuppressLint("UnusedContentLambdaTargetStateParameter")
 @Composable
 fun SubmitButton(
     onClick: ()->Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.widthIn(max = 400.dp).fillMaxWidth(),
     text: String = stringResource(R.string.submit_button),
     enabled: Boolean = true,
     isLoading: Boolean = false,
 ){
     Button(
             onClick = { onClick() },
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier,
             enabled = enabled && !isLoading
     ) {
         AnimatedContent(

@@ -18,6 +18,7 @@
     <dimen name="success_spacer_height">24dp</dimen>
     <dimen name="success_subtitle_spacing">8dp</dimen>
     <dimen name="login_screen_switch_button_spacing">10dp</dimen>
+    <dimen name="auth_lock_icon_size">64dp</dimen>
 
 <!--    home app bar items -->
     <dimen name="home_appbar_padding_horizontal_mobile">24dp</dimen>
@@ -182,5 +183,8 @@
     <dimen name="velocity_pip_size_mobile">12dp</dimen>
     <dimen name="recovery_field_vertical_padding">32dp</dimen>
     <dimen name="transaction_detail_image_width">400dp</dimen>
+
+    <dimen name="recovery_key_letter_spacing">4sp</dimen>
+    <dimen name="warning_text_line_height">22sp</dimen>
 
 </resources>

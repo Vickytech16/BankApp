@@ -4,6 +4,7 @@ import com.example.bankapp.entities.AuthorizationIntent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.entities.errors.TransactionResult
@@ -88,7 +89,10 @@ class ResultViewModel(
                         authorizationViewModel.authorizationActionState = AuthorizationctionState.SUCCESS
                     }
                     is TransactionResult.Error -> {
-                        authorizationViewModel.failureReason = result.message
+                        if(result is TransactionResult.Error.LimitExceeded.MaxBalanceLimitExceededDeposit){
+                            authorizationViewModel.additionalFailureMessage = result.maxAmount.toString() + "$"
+                        }
+                          authorizationViewModel.failureReason = result.message
                         authorizationViewModel.authorizationActionState = AuthorizationctionState.FAILURE
                     }
                     else -> {

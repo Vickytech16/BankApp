@@ -3,7 +3,6 @@ package com.example.bankapp.repositories
 import androidx.room.withTransaction
 import com.example.bankapp.core.BankDatabase
 import com.example.bankapp.core.datecompatability.BankDateFactory
-import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.daos.TransactionDao
 import com.example.bankapp.entities.AccountVelocityStatus
 import com.example.bankapp.entities.dbtables.Account
@@ -18,12 +17,14 @@ import com.example.bankapp.entities.types.transaction.TransactionFailureType
 import com.example.bankapp.entities.types.transaction.TransactionStatus
 import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.utilities.CurrencyUtils
-import com.example.bankapp.utilities.uiUserId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 import java.util.UUID
 
@@ -35,7 +36,6 @@ class TransactionRepository(
     private val userRepository: UserRepository,
     private val database: BankDatabase
 ){
-    // yet to implement
     companion object {
         private val MAX_TRANSFER_LIMIT = BigDecimal("999999.99")
         private val MAX_DEPOSIT_LIMIT = BigDecimal("999999999.99")
@@ -153,16 +153,15 @@ class TransactionRepository(
         amountInUsd: BigDecimal
     ): TransactionResult? {
 
-        val maxPerTx = accountType.getMaxPerTransaction(transactionType)
-        if (amountInUsd > maxPerTx) {
-            return TransactionResult.Error.LimitExceeded.SingleTransactionLimitExceeded(maxPerTx)
+        val maxPerTransaction = accountType.getMaxPerTransaction(transactionType)
+        if (amountInUsd > maxPerTransaction) {
+            return TransactionResult.Error.LimitExceeded.SingleTransactionLimitExceeded(maxPerTransaction)
         }
 
-        val dayInMs = BankDateTime.DAY_IN_MINUTES
-        val startTime = BankDateFactory.now().epochMillis - dayInMs
+        val startTime = BankDateFactory.now().getStartOfDayUtc()
 
-        val spentSoFar = ledgerRepository.getTotalSpentInUsdSince(accNo, startTime) ?: BigDecimal.ZERO
-        val countSoFar = ledgerRepository.getTransactionCountSince(accNo, startTime)
+        val spentSoFar = ledgerRepository.getTotalSpentInUsdSince(accNo, startTime).first() ?: BigDecimal.ZERO
+        val countSoFar = ledgerRepository.getTransactionCountSince(accNo, startTime).first()
 
         if (spentSoFar.add(amountInUsd) > accountType.dailyTransactionLimit) {
             return TransactionResult.Error.LimitExceeded.DailyLimitExceeded(accountType.dailyTransactionLimit)
@@ -256,6 +255,41 @@ class TransactionRepository(
                 return@withTransaction TransactionResult.Error.InsufficientBalance
             }
 
+            val toUser = userRepository.getUserByUserId(toAccount.userId.toString())
+                ?: return@withTransaction TransactionResult.Error.UnKnown
+
+            val allRates = currencyExchangeRepository.getLatestRates()?.rates ?: return@withTransaction TransactionResult.Error.ExchangeRatesNotFound
+            val localCurrency = CurrencyUtils.getCurrencyCode(toUser.countryCode)
+            val rate = BigDecimal(allRates[localCurrency].toString())
+            val localMaxBalanceLimit = toAccount.accountType.maxBalanceLimit.multiply(rate)
+
+            if (toAccount.balance.add(amount) > localMaxBalanceLimit) {
+                val failedTx = getUpdatedTransaction(transaction, TransactionStatus.FAILED, TransactionFailureType.RECIPIENT_LIMIT_EXCEEDED)
+                transactionDao.update(failedTx)
+
+                val fromLedger = Ledger(
+                    transactionId = transaction.transactionId,
+                    accNo = fromAccount.accNo,
+                    direction = LedgerDirection.DEBIT,
+                    amount = amount,
+                    balanceAfter = fromAccount.balance,
+                    amountInUsd = amountInUsd
+                )
+
+                val toLedger = Ledger(
+                    transactionId = transaction.transactionId,
+                    accNo = toAccount.accNo,
+                    direction = LedgerDirection.CREDIT,
+                    amount = amount,
+                    balanceAfter = toAccount.balance,
+                    amountInUsd = amountInUsd
+                )
+
+                ledgerRepository.insertAll(listOf(fromLedger, toLedger))
+
+                return@withTransaction TransactionResult.Error.LimitExceeded.RecieverMaxBalanceLimitExceeded
+            }
+
             accountRepository.withdraw(amount, BankDateFactory.now().epochMillis, fromAccountNo)
 
             transactionDao.update(updatedTransaction)
@@ -325,6 +359,29 @@ class TransactionRepository(
                 transactionStatus = TransactionStatus.PENDING,
                 idempotencyKey = idempotencyKey
             ) ?: return@withTransaction TransactionResult.Error.RepeatedTransaction
+
+            val allRates = currencyExchangeRepository.getLatestRates()?.rates ?: return@withTransaction TransactionResult.Error.ExchangeRatesNotFound
+            val localCurrency = CurrencyUtils.getCurrencyCode(user.countryCode)
+            val rate = BigDecimal(allRates[localCurrency].toString())
+
+            val localMaxBalanceLimit = account.accountType.maxBalanceLimit.multiply(rate)
+
+            if (account.balance.add(amount) > localMaxBalanceLimit) {
+                val failedTx = getUpdatedTransaction(transaction, TransactionStatus.FAILED, TransactionFailureType.RECIPIENT_LIMIT_EXCEEDED)
+                transactionDao.update(failedTx)
+
+                val ledger = Ledger(
+                    transactionId = transaction.transactionId,
+                    accNo = account.accNo,
+                    direction = LedgerDirection.CREDIT,
+                    balanceAfter = account.balance,
+                    amount = amount,
+                    amountInUsd = amountInUsd
+                )
+                ledgerRepository.insertAll(listOf(ledger))
+
+                return@withTransaction TransactionResult.Error.LimitExceeded.MaxBalanceLimitExceededDeposit(localMaxBalanceLimit)
+            }
 
             var updatedTransaction =
                 getUpdatedTransaction(transaction, TransactionStatus.COMPLETED)
@@ -400,7 +457,40 @@ class TransactionRepository(
                 idempotencyKey
             ) ?: return@withTransaction TransactionResult.Error.RepeatedTransaction
 
-            val convertedAmount = amount.multiply(exchangeRate)
+            val toUser = userRepository.getUserByUserId(toAccount.userId.toString())
+                ?: return@withTransaction TransactionResult.Error.UnKnown
+
+            val allRates = currencyExchangeRepository.getLatestRates()?.rates ?: return@withTransaction TransactionResult.Error.ExchangeRatesNotFound
+            val targetLocalCurrency = CurrencyUtils.getCurrencyCode(toUser.countryCode)
+            val targetRate = BigDecimal(allRates[targetLocalCurrency].toString())
+            val targetLocalMaxBalanceLimit = toAccount.accountType.maxBalanceLimit.multiply(targetRate)
+
+            val convertedAmount = amount.multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP)
+
+            if (toAccount.balance.add(convertedAmount) > targetLocalMaxBalanceLimit) {
+                val failedTx = getUpdatedTransaction(transaction, TransactionStatus.FAILED, TransactionFailureType.RECIPIENT_LIMIT_EXCEEDED)
+                transactionDao.update(failedTx)
+
+                val fromLedger = Ledger(
+                    transactionId = transaction.transactionId,
+                    accNo = fromAccount.accNo,
+                    direction = LedgerDirection.DEBIT,
+                    amount = amount,
+                    balanceAfter = fromAccount.balance,
+                    amountInUsd = amountInUsd
+                )
+                val toLedger = Ledger(
+                    transactionId = transaction.transactionId,
+                    accNo = toAccount.accNo,
+                    direction = LedgerDirection.CREDIT,
+                    amount = convertedAmount,
+                    balanceAfter = toAccount.balance,
+                    amountInUsd = amountInUsd
+                )
+                ledgerRepository.insertAll(listOf(fromLedger, toLedger))
+
+                return@withTransaction TransactionResult.Error.LimitExceeded.RecieverMaxBalanceLimitExceeded
+            }
 
             accountRepository.withdraw(amount, BankDateFactory.now().epochMillis, fromAccountNo)
 
@@ -494,34 +584,40 @@ class TransactionRepository(
         }
     }
 
-    suspend fun getAccountVelocityStatus(accNo: Long, user: User): AccountVelocityStatus? {
-        return withContext(Dispatchers.IO) {
-            val account = accountRepository.getAccountAsFlowByAccNo(accNo).firstOrNull() ?: return@withContext null
+    fun getAccountVelocityStatus(accNo: Long, user: User): Flow<AccountVelocityStatus?> {
+        val startTime = BankDateFactory.now().getStartOfDayUtc()
+        val nextReset = startTime + (24 * 60 * 60 * 1000)
 
+        return combine(
+            ledgerRepository.getTotalSpentInUsdSince(accNo, startTime),
+            ledgerRepository.getTransactionCountSince(accNo, startTime),
+            accountRepository.getAccountAsFlowByAccNo(accNo)
+        ) { spentInUsd, count, account ->
+            if (account == null) return@combine null
 
-            val dayInMs = BankDateTime.DAY_IN_MINUTES
-            val startTime = BankDateFactory.now().epochMillis - dayInMs
+            val allRates = currencyExchangeRepository.getLatestRates()?.rates ?: return@combine null
 
-            val count = ledgerRepository.getTransactionCountSince(accNo, startTime)
-
-            val spentInUsd = ledgerRepository.getTotalSpentInUsdSince(accNo, startTime) ?: BigDecimal.ZERO
-
-            val rates = currencyExchangeRepository.getLatestRates()?.rates
-            val userCurrency = CurrencyUtils.getCurrencyCode(user.countryCode)
-            val usdRate = rates?.get("USD") ?: 1.0
-            val targetRate = rates?.get(userCurrency) ?: 1.0
-
-            val spentInLocal = (spentInUsd.toDouble() / usdRate) * targetRate
+            val spentInLocal = CurrencyUtils.convertCurrency(spentInUsd ?: BigDecimal.ZERO, allRates, "US", user.countryCode)
+            val limitInLocal = CurrencyUtils.convertCurrency(
+                account.accountType.dailyTransactionLimit,
+                allRates,
+                "US",
+                user.countryCode
+            )
 
             AccountVelocityStatus(
-                moneySpentToday = BigDecimal(spentInLocal),
-                dailySpendLimit = account.accountType.dailyTransactionLimit,
+                moneySpentToday = spentInLocal,
+                dailySpendLimit = limitInLocal,
                 transactionsToday = count,
                 maxTransactions = account.accountType.dailyTransactionCount,
-                accountType = account.accountType
+                accountType = account.accountType,
+                nextResetMillis = nextReset
             )
         }
     }
+
+
+
 }
 
 

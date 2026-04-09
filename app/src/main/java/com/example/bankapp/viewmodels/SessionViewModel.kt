@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bankapp.core.datecompatability.BankDateFactory
 import com.example.bankapp.entities.SessionState
+import com.example.bankapp.entities.types.ThemeType
 import com.example.bankapp.repositories.AccountRepository
 import com.example.bankapp.repositories.UserRepository
 import com.example.bankapp.utilities.SharedPreferenceHelper
@@ -76,10 +77,14 @@ class SessionViewModel(
     }
 
     fun logout(){
-        sharedPreferenceHelper.clearSession()
-        _sessionState.value= SessionState.UnAuthenticated
-        BankDateFactory.initialize("UTC")
-        restoreSession()
+        viewModelScope.launch {
+            sharedPreferenceHelper.clearSession()
+            _sessionState.value = SessionState.UnAuthenticated
+            BankDateFactory.initialize("UTC")
+            restoreSession()
+            sharedPreferenceHelper.saveTheme(ThemeType.SYSTEM_DEFAULT.name)
+        }
+
     }
 
     fun handlePasswordAttempt(isSuccess: Boolean) {

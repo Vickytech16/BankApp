@@ -30,7 +30,8 @@ import com.example.bankapp.viewmodels.PayToBeneficiaryViewModel
 @Composable
 fun PayToBeneficiaryScreen(
     payToBeneficiaryViewModelFactory: PayToBeneficiaryViewModelFactory,
-    navController: NavController
+    navController: NavController,
+    origin: String
 ) {
     val viewModel: PayToBeneficiaryViewModel = viewModel(factory = payToBeneficiaryViewModelFactory)
     val friends by viewModel.friends.collectAsState()
@@ -118,7 +119,7 @@ fun PayToBeneficiaryScreen(
                                 deviceSpec = deviceSpec,
                                 onPayClick = {
                                     val friendAccNo = friend.beneficiaryPrimaryAccNo.uiAccNo
-                                    navController.navigate("$CASH_TRANSFER_ROUTE/$friendAccNo")
+                                    navController.navigate("$CASH_TRANSFER_ROUTE/$friendAccNo?origin=$origin")
                                 }
                             )
                         }

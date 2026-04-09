@@ -33,39 +33,40 @@ import java.math.BigDecimal
 
 @Composable
 fun TransactionDetailBody(
-    transactionItem: TransactionHistoryItemDto,
+    transaction: TransactionHistoryItemDto,
     paddingValues: PaddingValues,
     countryCode: String,
     showTimeZOne: Boolean = false,
-    timezone: String? = null
+    timezone: String? = null,
+    onEnlargeImage: Boolean,
+    onEnlargeImageChange: (Boolean) -> Unit
+
 ) {
-    val transactionType = transactionItem.transactionType
+    val transactionType = transaction.transactionType
     val deviceSpec = LocalDeviceSpec.current
 
-    val isCredit = transactionItem.ledgerDirection == LedgerDirection.CREDIT
+    val isCredit = transaction.ledgerDirection == LedgerDirection.CREDIT
     val amountColor = if (isCredit) amountGreenColor else MaterialTheme.colorScheme.error
     val amountPrefix = if (isCredit) "+" else "-"
 
-    val displayName = when {
-        transactionItem.transactionType == TransactionType.DEPOSIT -> "You (Deposit)"
-        !transactionItem.counterpartyNickname.isNullOrEmpty() ->
-            "${transactionItem.counterpartyNickname} (${transactionItem.counterpartyName})"
-        else -> transactionItem.counterpartyName ?: "Bank"
-    }
-
     val labelRes = when (transactionType) {
         TransactionType.DEPOSIT -> R.string.deposit_label
+        TransactionType.CASH_TRANSFER -> R.string.domestic_transfer
+        TransactionType.INTERNATIONAL_TRANSFER -> R.string.international_transfer
+        TransactionType.INTEREST_ADDITION -> R.string.interest_addition_label
         else -> R.string.cash_transfer_label
     }
 
-    val labelStyle = when (transactionType) {
-        TransactionType.DEPOSIT -> MaterialTheme.typography.bodyMedium
-        else -> MaterialTheme.typography.labelMedium
+    val displayPfp = when (transactionType) {
+        TransactionType.DEPOSIT -> transaction.myPfpUrl
+        TransactionType.INTEREST_ADDITION -> "res://bank_logo"
+        else -> transaction.counterpartyPfpUrl
     }
 
-    val pfpUrl = when (transactionType) {
-        TransactionType.DEPOSIT -> transactionItem.myPfpUrl
-        else -> transactionItem.counterpartyPfpUrl
+    val avatarName = when (transactionType) {
+        TransactionType.DEPOSIT -> transaction.myUserName
+        TransactionType.INTEREST_ADDITION -> stringResource(R.string.vangi)
+        else -> transaction.counterpartyName ?: stringResource(R.string.other_person_name_if_null)
     }
 
     Column(
@@ -76,20 +77,21 @@ fun TransactionDetailBody(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserAvatar(
-            name = displayName,
-            pfpUrl = pfpUrl,
-            size = dimensionResource(R.dimen.transaction_detail_avatar_size)
+            name = avatarName,
+            pfpUrl = displayPfp,
+            size = dimensionResource(R.dimen.transaction_detail_avatar_size),
+            showEnlargeOnClick = onEnlargeImage,
+            onEnlargeToggle = onEnlargeImageChange
         )
 
         MediumSpacer()
 
         Text(
             text = stringResource(labelRes),
-            style = labelStyle,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            fontWeight = if (transactionType == TransactionType.CASH_TRANSFER)
-                FontWeight.Medium else FontWeight.Normal
+            fontWeight = FontWeight.Normal
         )
 
         MediumSpacer()
@@ -100,7 +102,7 @@ fun TransactionDetailBody(
             modifier = Modifier.fillMaxWidth()
         ) {
             AutoResizeText(
-                text = "$amountPrefix${CurrencyUtils.formatCurrency(transactionItem.amount.toBigDecimalOrNull() ?: BigDecimal.ZERO, countryCode)} ${
+                text = "$amountPrefix${CurrencyUtils.formatCurrency(transaction.amount.toBigDecimalOrNull() ?: BigDecimal.ZERO, countryCode)} ${
                     CurrencyUtils.getCurrencySymbol(
                         countryCode
                     )
@@ -114,7 +116,7 @@ fun TransactionDetailBody(
 
         LargeSpacer()
 
-        StatusSection(transactionItem.transactionStatus, deviceSpec = deviceSpec)
+        StatusSection(transaction.transactionStatus, deviceSpec = deviceSpec)
 
         LargeSpacer()
 
@@ -123,7 +125,7 @@ fun TransactionDetailBody(
         MediumSpacer()
 
         Text(
-            text = transactionItem.transactionDate.toFullDateTimeDisplay(),
+            text = transaction.transactionDate.toFullDateTimeDisplay(),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -144,7 +146,7 @@ fun TransactionDetailBody(
             contentAlignment = Alignment.Center
         ) {
             TransactionDetailsCard(
-                historyItem = transactionItem,
+                historyItem = transaction,
                 isDeposit = transactionType == TransactionType.DEPOSIT,
                 countryCode = countryCode
             )

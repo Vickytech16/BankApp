@@ -13,8 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bankapp.R
@@ -28,6 +30,7 @@ import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.components.textfields.UnifiedOutlinedTextField
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpec
 
 import com.example.bankapp.ui.theme.LocalDeviceSpec
 
@@ -44,6 +47,14 @@ fun RecoveryKeyVerificationScreen(
     val deviceSpec = LocalDeviceSpec.current
     val scrollState = rememberScrollState()
     val textFieldColumnWidth = deviceSpec.textFieldWidth
+
+    val scrollBehavior = if (deviceSpec is DeviceSpec.MobileLandscape) {
+        TopAppBarDefaults.enterAlwaysScrollBehavior()
+    }
+    else {
+        null
+    }
+
 
     if(viewModel.isVerified){
         onSuccess()
@@ -65,11 +76,25 @@ fun RecoveryKeyVerificationScreen(
     )
 
     Scaffold(
+        contentWindowInsets = if (deviceSpec is DeviceSpec.MobileLandscape) {
+            WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
+        }
+        else {
+            ScaffoldDefaults.contentWindowInsets
+        },
+        modifier = Modifier.then(
+            if (scrollBehavior != null) {
+                Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+            }
+            else {
+                Modifier
+            }
+        ),
         topBar = {
             RegularAppBar(
                 title = stringResource(R.string.verify_recoverykey),
                 navBehaviour = { showExitDialog = true },
-                scrollBehavior = null
+                scrollBehavior = scrollBehavior
             )
         },
     ) {

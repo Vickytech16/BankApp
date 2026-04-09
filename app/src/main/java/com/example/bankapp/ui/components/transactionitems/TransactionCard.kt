@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bankapp.R
 import com.example.bankapp.entities.dtos.TransactionHistoryItemDto
+import com.example.bankapp.entities.types.transaction.TransactionType
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.theme.AppSpacing
@@ -36,9 +37,9 @@ fun TransactionDetailsCard(
     isDeposit: Boolean = false,
     countryCode: String
 ) {
-
     val deviceSpec = LocalDeviceSpec.current
     val dividerGradient = 0.3f
+    val isInterest = historyItem.transactionType == TransactionType.INTEREST_ADDITION
 
     Card(
         modifier = Modifier
@@ -77,13 +78,19 @@ fun TransactionDetailsCard(
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = dividerGradient)
                 )
 
+                val label = when {
+                    isInterest -> stringResource(R.string.interest_addition_label)
+                    isDeposit -> stringResource(R.string.deposit_label)
+                    else -> stringResource(R.string.from)
+                }
+
                 DetailRowWithSubtext(
-                    label = if (isDeposit) stringResource(R.string.deposit_label) else stringResource(R.string.from),
+                    label = label,
                     name = historyItem.myUserName,
                     accountNo = historyItem.myAccountNo.uiAccNo
                 )
 
-                if (!isDeposit) {
+                if (!isDeposit && !isInterest) {
                     HorizontalDivider(
                         modifier = Modifier
                             .fillMaxWidth()

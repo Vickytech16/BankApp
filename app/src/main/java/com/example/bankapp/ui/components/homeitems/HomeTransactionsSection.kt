@@ -79,6 +79,7 @@ fun HomeTransactionSection(
             transaction ->
             val displayName = when {
                 transaction.transactionType == TransactionType.DEPOSIT -> "You (Deposit)"
+                transaction.transactionType == TransactionType.INTEREST_ADDITION -> "You (Interest Addition)"
                 !transaction.counterpartyNickname.isNullOrEmpty() ->
                     "${transaction.counterpartyNickname} (${transaction.counterpartyName})"
                 else -> transaction.counterpartyName ?: "Bank"
@@ -87,8 +88,17 @@ fun HomeTransactionSection(
             val displayPfp =
                 if (transaction.transactionType == TransactionType.DEPOSIT)
                     transaction.myPfpUrl
+                else if(transaction.transactionType == TransactionType.INTEREST_ADDITION)
+                    "res://bank_logo"
                 else
                     transaction.counterpartyPfpUrl
+
+            val avatarName =
+                if(transaction.transactionType == TransactionType.DEPOSIT)
+                    transaction.myUserName
+                else
+                    transaction.counterpartyName ?: "Bank"
+
 
             TransactionListItem(
                 counterPartyName = displayName,
@@ -102,7 +112,8 @@ fun HomeTransactionSection(
                     )
                 },
                 deviceSpec = deviceSpec,
-                countryCode = countryCode
+                countryCode = countryCode,
+                avatarName = avatarName
             )
             SmallSpacer()
         }

@@ -21,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.example.bankapp.R
+import com.example.bankapp.ui.components.AutoResizeText
 import com.example.bankapp.ui.theme.DeviceSpec
 import kotlinx.coroutines.launch
 
@@ -40,13 +42,13 @@ fun HomeAppBar(
             scrolledContainerColor = MaterialTheme.colorScheme.background
         ),
         title = {
-            Column {
+            Column(modifier = Modifier.padding(end = 20.dp)) {
                 Text(
                     text = stringResource(R.string.welcome_back),
                     style = deviceSpec.homeUserGreetingStyle(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Text(
+                AutoResizeText(
                     text = username,
                     style = deviceSpec.homeUserNameStyle(),
                     color = MaterialTheme.colorScheme.onSurface
@@ -54,20 +56,20 @@ fun HomeAppBar(
             }
         },
         navigationIcon = {
-            IconButton(
-                onClick = {
-                    scope.launch {
-                        drawerState.open()
-                    }
-                },
-                modifier = Modifier.padding(horizontal = deviceSpec.homeAppBarHorizontalPadding).size(dimensionResource(deviceSpec.homeAppBarMenuButtonSize))
-                 ) {
-                Icon(
-                    Icons.Outlined.Menu,
-                    contentDescription = stringResource(R.string.open_menu_content_description),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
+//            IconButton(
+//                onClick = {
+//                    scope.launch {
+//                        drawerState.open()
+//                    }
+//                },
+//                modifier = Modifier.padding(horizontal = deviceSpec.homeAppBarHorizontalPadding).size(dimensionResource(deviceSpec.homeAppBarMenuButtonSize))
+//                 ) {
+//                Icon(
+//                    Icons.Outlined.Menu,
+//                    contentDescription = stringResource(R.string.open_menu_content_description),
+//                    tint = MaterialTheme.colorScheme.onSurface
+//                )
+//            }
         },
         scrollBehavior = scrollBehavior,
     )

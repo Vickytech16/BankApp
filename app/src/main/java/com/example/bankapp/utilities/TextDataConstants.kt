@@ -16,6 +16,6 @@ const val TIMEZONE_MAX_SIZE = 100
 
 const val USERNAME_MIN_SIZE = 3
 
-val cashTransferAmountRegex = Regex("^(0|[1-9]\\d{0,5})(\\.\\d{0,2})?$")
-val depositAmountRegex = Regex("^(0|[1-9]\\d{0,8})(\\.\\d{0,2})?$")
+val cashTransferAmountRegex = Regex("^(0|[1-9]\\d{0,9})(\\.\\d{0,2})?$")
+val depositAmountRegex = Regex("^(0|[1-9]\\d{0,12})(\\.\\d{0,2})?$")
 

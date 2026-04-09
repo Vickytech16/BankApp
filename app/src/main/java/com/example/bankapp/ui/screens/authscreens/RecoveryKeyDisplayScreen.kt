@@ -3,10 +3,11 @@ package com.example.bankapp.ui.screens.authscreens
 import android.content.ClipData
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
@@ -18,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +30,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.dimensionResource
@@ -39,19 +40,26 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.bankapp.R
 import com.example.bankapp.ui.components.BackHandlerWithWarning
 import com.example.bankapp.ui.components.LargeSpacer
 import com.example.bankapp.ui.components.MediumSpacer
 import com.example.bankapp.ui.components.XLSpacer
+import com.example.bankapp.ui.components.buttons.SubmitButton
 import com.example.bankapp.ui.components.navigators.AUTH_ROUTE
 import com.example.bankapp.ui.components.navigators.LOGIN_ROUTE
 import com.example.bankapp.ui.components.navigators.REGISTER_SUCCESS_ROUTE
 import com.example.bankapp.ui.components.screenModifier
 import com.example.bankapp.ui.theme.AppSpacing
+import com.example.bankapp.ui.theme.DeviceSpec
+import com.example.bankapp.ui.theme.LocalDeviceSpec
+import com.example.bankapp.ui.theme.recoveryLetterSpacing
+import com.example.bankapp.ui.theme.submitButtonModifier
+import com.example.bankapp.ui.theme.textFieldFontSize
+import com.example.bankapp.ui.theme.warningLineHeight
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun RecoveryKeyDisplayScreen(
@@ -62,8 +70,10 @@ fun RecoveryKeyDisplayScreen(
     var hasCopied by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
-
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
+    val onClickLabel = stringResource(R.string.copy_recovery_key_label)
+    val deviceSpec = LocalDeviceSpec.current
+
 
     BackHandlerWithWarning(
         onConfirm = {
@@ -78,7 +88,15 @@ fun RecoveryKeyDisplayScreen(
         showDialog = showExitDialog
     )
 
-    Scaffold { contentPadding ->
+
+    Scaffold(
+        contentWindowInsets = if (deviceSpec is DeviceSpec.MobileLandscape) {
+            WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
+        }
+        else {
+            ScaffoldDefaults.contentWindowInsets
+        }
+    ) { contentPadding ->
         Column(
             modifier = Modifier.screenModifier(contentPadding, scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,13 +109,15 @@ fun RecoveryKeyDisplayScreen(
                 textAlign = TextAlign.Center
             )
 
+
             LargeSpacer()
+
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                tonalElevation = 2.dp
+                tonalElevation = AppSpacing.xxs
             ) {
                 Text(
                     text = recoveryKey,
@@ -105,16 +125,18 @@ fun RecoveryKeyDisplayScreen(
                     style = MaterialTheme.typography.displayMedium,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 4.sp,
+                    letterSpacing = recoveryLetterSpacing,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
 
+
             LargeSpacer()
+
 
             OutlinedButton(
                 onClick = {
-                    val clipData = ClipData.newPlainText("Recovery Key", recoveryKey)
+                    val clipData = ClipData.newPlainText(onClickLabel, recoveryKey)
                     val clipEntry = ClipEntry(clipData)
                     scope.launch {
                         clipboard.setClipEntry(clipEntry)
@@ -136,7 +158,9 @@ fun RecoveryKeyDisplayScreen(
                 )
             }
 
+
             XLSpacer()
+
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -152,10 +176,10 @@ fun RecoveryKeyDisplayScreen(
                 }
 
                 val inlineContent = mapOf(
-                    "warningIcon" to androidx.compose.foundation.text.InlineTextContent(
+                    "warningIcon" to InlineTextContent(
                         Placeholder(
-                            width = 24.sp,
-                            height = 24.sp,
+                            width = textFieldFontSize,
+                            height = textFieldFontSize,
                             placeholderVerticalAlign = PlaceholderVerticalAlign.Center
                         )
                     ) {
@@ -173,14 +197,16 @@ fun RecoveryKeyDisplayScreen(
                     modifier = Modifier.padding(AppSpacing.lg),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onErrorContainer,
-                    lineHeight = 22.sp
+                    lineHeight = warningLineHeight
                 )
             }
 
+
             XLSpacer()
             XLSpacer()
 
-            Button(
+
+            SubmitButton(
                 onClick = {
                     navController.navigate(REGISTER_SUCCESS_ROUTE) {
                         popUpTo(AUTH_ROUTE) {
@@ -189,10 +215,9 @@ fun RecoveryKeyDisplayScreen(
                     }
                 },
                 enabled = hasCopied,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.saved_key_button))
-            }
+                modifier = Modifier.submitButtonModifier(deviceSpec),
+                text = stringResource(R.string.saved_key_button)
+            )
 
             XLSpacer()
             XLSpacer()

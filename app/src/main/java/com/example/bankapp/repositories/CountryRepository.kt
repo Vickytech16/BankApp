@@ -2,6 +2,7 @@ package com.example.bankapp.repositories
 
 import android.content.Context
 import com.example.bankapp.R
+import com.example.bankapp.core.datecompatability.BankDateTime
 import com.example.bankapp.entities.dtos.Country
 import com.example.bankapp.entities.dtos.CountryJsonModel
 import kotlinx.coroutines.Dispatchers
@@ -23,9 +24,14 @@ class CountryRepository(private val context: Context ) {
 
         val countryMap = json.decodeFromString<Map<String, CountryJsonModel>>(jsonString)
 
-        val countryList = countryMap.map { (code, dto) ->
-            dto.toUiModel(code)
-        }.sortedBy { it.name }
+        val countryList = countryMap
+            .filter { (code, _) ->
+                code != "KP"
+            }
+            .map { (code, dto) ->
+                dto.toUiModel(code)
+            }
+            .sortedBy { it.name }
 
         emit(countryList)
     }.flowOn(Dispatchers.IO)
@@ -39,7 +45,7 @@ private fun CountryJsonModel.toUiModel(code: String): Country {
         emoji = this.countryFlagEmoji,
         phonePrefix = this.countryPhoneCodes.firstOrNull() ?: "",
         timezones = this.timezones.keys.toList(),
-        displayTimezone = this.timezones.values.firstOrNull() ?: "UTC"
+        displayTimezone = this.timezones.values.firstOrNull() ?: BankDateTime.UTC_ID
     )
 }
 
